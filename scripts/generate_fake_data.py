@@ -13,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('duckdb_query.log'),
+        logging.FileHandler('generate_fake_data.log'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -78,7 +78,7 @@ try:
     
     #Write Parquet
     pl.DataFrame(fake_data).write_parquet(parquet_file)
-    log.info(f"Data successfully generated and saved to {script_dir}.")
+    log.info("Data successfully generated and saved to %s.", script_dir)
 
 except IOError as e:
     log.error("Error writing to file %s: %s", script_dir, e)
@@ -86,3 +86,8 @@ except IOError as e:
 except Exception as e:
     log.error("Unexpected error generating/saving data: %s", e)
     exit(1)
+
+if __name__ == "__main__":
+    # Preview 5 records
+    preview_data = generate_fake_data(5)[:5]
+    print(json.dumps(preview_data, indent=2))

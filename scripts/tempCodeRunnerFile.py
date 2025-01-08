@@ -1,16 +1,31 @@
 import os
 import json
+import random
+import logging
+import sys
+from datetime import timedelta, datetime as dt
 from faker import Faker
 import polars as pl
-from datetime import timedelta, datetime as dt
-import random
 
-# Initialize Faker
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('generate_fake_data.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+log = logging.getLogger(__name__)
+
+
+# Configure Faker
 fake = Faker()
 Faker.seed(42)
 random.seed(42)
 
-# Generate simulated API data
+# API data generation
 start_datetime = dt(2022, 1, 1, 10, 30)
 end_datetime = dt(2024, 12, 31, 23, 59)
 
@@ -48,18 +63,26 @@ def generate_fake_data(num_rows=8000):
         data.append(record)
     return data
 
-# Error checking for file generation
+# Error check for file generation
 try:
     fake_data = generate_fake_data()
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    output_file = os.path.join(script_dir, "..", "data", "simulated_api_data.json")
     
-    with open(output_file, "w") as f:
-        pl.DataFrame(fake_data).write_parquet(f)
-    print(f"Fake data successfully generated and saved to {output_file}.")
+    #Save data to JSON and Parquet formats for different use cases
+    json_file = os.path.join(script_dir, "..", "data", "simulated_api_data.json")
+    parquet_file = os.path.join(script_dir, "..", "data", "simulated_api_data.parquet")
+    
+    #Write JSON
+    with open(json_file, "w", encoding="utf-8") as f:
+        json.dump(fake_data, f, indent=4)
+    
+    #Write Parquet
+    pl.DataFrame(fake_data).write_parquet(parquet_file)
+    log.info("Data successfully generated and saved to %s.", script_dir)
+
 except IOError as e:
-    print(f"Error writing to file {output_file}: {e}")
+    log.error("Error writing to file %s: %s", script_dir, e)
     exit(1)
 except Exception as e:
-    print(f"Unexpected error generating/saving data: {e}")
+    log.error("Unexpected error generating/saving data: %s", e)
     exit(1)
