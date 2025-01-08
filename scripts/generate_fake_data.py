@@ -1,12 +1,28 @@
+import os
 import json
+import random
+import logging
+import sys
 from faker import Faker
 import polars as pl
 from datetime import timedelta, datetime as dt
-import random
+
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('duckdb_query.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+log = logging.getLogger(__name__)
+
 
 # Initialize Faker
 fake = Faker()
-fake.Faker.seed(42)
+Faker.seed(42)
 random.seed(42)
 
 # Generate simulated API data
@@ -50,15 +66,23 @@ def generate_fake_data(num_rows=8000):
 # Error checking for file generation
 try:
     fake_data = generate_fake_data()
-    output_file = "./Documents/simulated_api_data.json"
-    with open(output_file, "w") as f:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    #Write to JSON and Parquet
+    json_file = os.path.join(script_dir, "..", "data", "simulated_api_data.json")
+    parquet_file = os.path.join(script_dir, "..", "data", "simulated_api_data.parquet")
+    
+    #Write JSON
+    with open(json_file, "w", encoding="utf-8") as f:
         json.dump(fake_data, f, indent=4)
-    print(f"Fake data successfully generated and saved to {output_file}.")
+    
+    #Write Parquet 
+    pl.DataFrame(fake_data).write_parquet(parquet_file)
+    log.info(f"Data successfully generated and saved to {script_dir}.")
+
 except IOError as e:
-    print(f"Error writing to file {output_file}: {e}")
+    log.error(f"Error writing to file {script_dir}: {e}")
     exit(1)
 except Exception as e:
-    print(f"Unexpected error generating/saving data: {e}")
+    log.error(f"Unexpected error generating/saving data: {e}")
     exit(1)
-
-

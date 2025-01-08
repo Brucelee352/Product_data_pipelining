@@ -12,17 +12,17 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)         # Logs to console
     ]
 )
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 try:
-    logger.info("Attempting to connect to MinIO...")
+    log.info("Attempting to connect to MinIO...")
     client = minio.Minio("localhost:9000", 
                    access_key="admin", 
                    secret_key="password123",
                    secure=False) 
-    logger.info("Connected to MinIO")
+    log.info("Connected to MinIO")
 except Exception as e:
-    logger.error(f"Error connecting to MinIO: {e}")
+    log.error("Error connecting to MinIO: %s", str(e))
     exit(1)
 
 api_data = Path("C:/Users/bruce/Documents/simulated_api_data.json")
@@ -33,18 +33,17 @@ destination_name = "simulated_api_data.json"
 found = client.bucket_exists(bucket)
 
 if not found:
-    try:    
+    try: 
         client.make_bucket(bucket)
-        logger.info(f"Bucket {bucket} created")
+        log.info("Bucket %s created", bucket)
     except Exception as e:
-        logger.error(f"Error creating bucket {bucket}: {e}")
+        log.error("Error creating bucket %s: %s", bucket, e)
 else:
-    logger.info(f"Bucket {bucket} already exists")
+    log.info("Bucket %s already exists", bucket)
 
 try:
     result = client.fput_object(bucket, destination_name, str(api_data))
-    logger.info(f"File {api_data} uploaded to {bucket} as {destination_name}")
+    log.info("File %s uploaded to %s as %s", api_data, bucket, destination_name)
 except Exception as e:
-    logger.error(f"Error uploading file {api_data} to {bucket} as {destination_name}: {e}")
-
-
+    log.error("Error uploading file %s to %s as %s: %s", api_data, bucket, destination_name, e)
+    exit(1)
