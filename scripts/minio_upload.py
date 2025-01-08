@@ -1,3 +1,4 @@
+import os
 import minio 
 from pathlib import Path
 import logging
@@ -24,16 +25,20 @@ try:
 except Exception as e:
     log.error("Error connecting to MinIO: %s", str(e))
     exit(1)
+    
+script_dir = os.path.dirname(os.path.abspath(__file__))    
 
-api_data = Path("C:/Users/bruce/Documents/simulated_api_data.json")
+api_data_json =  os.path.join(script_dir, "..", "data", "simulated_api_data.json")
+api_data_parquet = os.path.join(script_dir, "..", "data", "simulated_api_data.parquet")
 
 bucket = "sim-api-data"
-destination_name = "simulated_api_data.json"
+destination_name_a = "simulated_api_data.json"
+destination_name_b = "simulated_api_data.parquet"
 
 found = client.bucket_exists(bucket)
 
 if not found:
-    try: 
+    try:
         client.make_bucket(bucket)
         log.info("Bucket %s created", bucket)
     except Exception as e:
@@ -41,9 +46,11 @@ if not found:
 else:
     log.info("Bucket %s already exists", bucket)
 
-try:
-    result = client.fput_object(bucket, destination_name, str(api_data))
-    log.info("File %s uploaded to %s as %s", api_data, bucket, destination_name)
-except Exception as e:
-    log.error("Error uploading file %s to %s as %s: %s", api_data, bucket, destination_name, e)
-    exit(1)
+for source, dest in [(api_data_json, destination_name_a), 
+                     (api_data_parquet, destination_name_b)]:
+    try:
+        client.fput_object(bucket, dest, source)
+        log.info("File %s uploaded to %s as %s", source, bucket, dest)
+    except Exception as e:
+        log.error("Error uploading file %s to %s: %s", source, bucket, str(e))
+        exit(1)

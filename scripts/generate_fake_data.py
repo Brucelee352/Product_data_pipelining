@@ -68,7 +68,7 @@ try:
     fake_data = generate_fake_data()
     script_dir = os.path.dirname(os.path.abspath(__file__))
     
-    #Write to JSON and Parquet
+    #Save data to JSON and Parquet formats for different use cases
     json_file = os.path.join(script_dir, "..", "data", "simulated_api_data.json")
     parquet_file = os.path.join(script_dir, "..", "data", "simulated_api_data.parquet")
     
