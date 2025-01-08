@@ -11,12 +11,12 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)
     ]
 )
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 
 try:
     # Connect to DuckDB
-    logger.info("Connecting to DuckDB...")
+    log.info("Connecting to DuckDB...")
     conn = duckdb.connect()
     
     # Configure S3
@@ -28,18 +28,18 @@ try:
         SET s3_endpoint='localhost:9000';
         SET s3_use_ssl=false;
     """)
-    logger.info("S3 settings configured")
+    log.info("S3 settings configured")
 
     # Execute query
-    logger.info(f"Querying file: {s3_url}")
+    log.info("Querying file: %s", s3_url)
     result = conn.execute(f"SELECT * FROM read_json_auto('{s3_url}')").df()
-    logger.info("Query executed successfully")
+    log.info("Query executed successfully")
     print(result.head())
 
 except Exception as e:
-    logger.error(f"Error occurred: {str(e)}")
+    log.error("Error occurred: %s", str(e))
     sys.exit(1)
 
 finally:
     conn.close()
-    logger.info("Connection closed")
+    log.info("Connection closed")

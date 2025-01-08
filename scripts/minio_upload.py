@@ -9,7 +9,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('minio_upload.log'),  # Logs to file
+        logging.FileHandler('minio_upload.log'),  # Log file
         logging.StreamHandler(sys.stdout)         # Logs to console
     ]
 )
@@ -46,11 +46,12 @@ if not found:
 else:
     log.info("Bucket %s already exists", bucket)
 
-for source, dest in [(api_data_json, destination_name_a), 
+for source, destination in [(api_data_json, destination_name_a), 
                      (api_data_parquet, destination_name_b)]:
     try:
-        client.fput_object(bucket, dest, source)
-        log.info("File %s uploaded to %s as %s", source, bucket, dest)
+        client.fput_object(bucket, destination, source)
+        log.info("File %s uploaded to %s as %s", source, bucket, destination)
     except Exception as e:
         log.error("Error uploading file %s to %s: %s", source, bucket, str(e))
         exit(1)
+

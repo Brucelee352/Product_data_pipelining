@@ -3,9 +3,9 @@ import json
 import random
 import logging
 import sys
+from datetime import timedelta, datetime as dt
 from faker import Faker
 import polars as pl
-from datetime import timedelta, datetime as dt
 
 
 # Configure logging
@@ -20,12 +20,12 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 
-# Initialize Faker
+# Configure Faker
 fake = Faker()
 Faker.seed(42)
 random.seed(42)
 
-# Generate simulated API data
+# API data generation
 start_datetime = dt(2022, 1, 1, 10, 30)
 end_datetime = dt(2024, 12, 31, 23, 59)
 
@@ -63,7 +63,7 @@ def generate_fake_data(num_rows=8000):
         data.append(record)
     return data
 
-# Error checking for file generation
+# Error check for file generation
 try:
     fake_data = generate_fake_data()
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -76,13 +76,13 @@ try:
     with open(json_file, "w", encoding="utf-8") as f:
         json.dump(fake_data, f, indent=4)
     
-    #Write Parquet 
+    #Write Parquet
     pl.DataFrame(fake_data).write_parquet(parquet_file)
     log.info(f"Data successfully generated and saved to {script_dir}.")
 
 except IOError as e:
-    log.error(f"Error writing to file {script_dir}: {e}")
+    log.error("Error writing to file %s: %s", script_dir, e)
     exit(1)
 except Exception as e:
-    log.error(f"Unexpected error generating/saving data: {e}")
+    log.error("Unexpected error generating/saving data: %s", e)
     exit(1)
