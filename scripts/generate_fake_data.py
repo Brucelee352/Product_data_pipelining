@@ -47,13 +47,18 @@ def generate_fake_data(num_rows=8000):
         data.append(record)
     return data
 
-
-# Generate the fake data & save data as a JSON file
-fake_data = generate_fake_data()
-output_file = "./Documents/simulated_api_data.json"
-with open(output_file, "w") as f:
-    json.dump(fake_data, f, indent=4)
-
-print(f"Fake data successfully generated and saved to {output_file}.")
+# Error checking for file generation
+try:
+    fake_data = generate_fake_data()
+    output_file = "./Documents/simulated_api_data.json"
+    with open(output_file, "w") as f:
+        json.dump(fake_data, f, indent=4)
+    print(f"Fake data successfully generated and saved to {output_file}.")
+except IOError as e:
+    print(f"Error writing to file {output_file}: {e}")
+    exit(1)
+except Exception as e:
+    print(f"Unexpected error generating/saving data: {e}")
+    exit(1)
 
 
