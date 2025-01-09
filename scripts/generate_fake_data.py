@@ -13,7 +13,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('generate_fake_data.log'),
+        logging.FileHandler('logs/generate_fake_data.log'),
         logging.StreamHandler(sys.stdout)
     ]
 )
