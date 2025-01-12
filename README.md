@@ -7,3 +7,10 @@ This project serves as a guide on how to produce business-centric product data a
 The central piece of this project is the Python script that produces the data itself. I'm specifically generating columns that reflect how real-world users interact with transactional databases; relying on the following assumptions:
 
 - Their data has comprehensive metadata, including the date and time of the transaction, the user's ID, the product's ID, and the price of the product.
+
+# To-Dos:
+  1. Design models in dbt
+  2. Make Docker image file and host for portability of project
+  3. Make requirements and redo scripts for porting .env files
+  4. Build out the front end for the portfolio in React
+  5. Re-write this readme for comprehensive narrative 
