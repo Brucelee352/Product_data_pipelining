@@ -44,11 +44,29 @@ def generate_data(num_rows=8000):
 
     data = []
     for _ in range(num_rows):
-        login_time = fake.date_time_this_year()
-        logout_time = login_time + timedelta(hours=random.uniform(0.5, 4))
-        session_duration = (logout_time - login_time).total_seconds() / 60
+        
+        # Persist user data for each record
         first_name = fake.first_name()
         last_name = fake.last_name()
+        
+        # Generates data around account creation, deletion and updates
+        is_active = 1 if random.random() < 0.8 else 0
+        account_created = fake.date_time_between(start_date= start_datetime, end_date = end_datetime)
+        account_updated = fake.date_time_between(start_date= account_created, end_date = end_datetime)
+        account_deleted = fake.date_time_between(start_date= account_updated, end_date = end_datetime) if is_active == 0 else None
+        
+        # Generates login and logout times for each record
+        login_time = fake.date_time_between(
+            start_date = account_created,
+            end_date = account_deleted if account_deleted else end_datetime
+        )
+        
+        ## This guarantees that logout time is always .5 to 4 hours after login time
+        logout_time = login_time + timedelta(hours = random.uniform(0.5, 4))
+        
+        ## Calculates session duration in minutes
+        session_duration = (logout_time - login_time).total_seconds() / 60
+        
         
         record = {
             "user_id": fake.uuid4(),
@@ -65,16 +83,18 @@ def generate_data(num_rows=8000):
             "company": fake.company(),
             "job_title": fake.job(),
             "ip_address": fake.ipv4(),
+            "is_active": is_active,
             "login_time": login_time.isoformat(),
             "logout_time": logout_time.isoformat(),
+            "account_created": account_created.isoformat(),
+            "account_updated": account_updated.isoformat(),
+            "account_deleted": account_deleted.isoformat() if account_deleted else None,
             "session_duration_minutes": round(session_duration, 2),
             "product_id": fake.uuid4(),
             "product_name": fake.random_element(["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega"]),
             "price": round(fake.pyfloat(min_value=100, max_value=5000, right_digits=2), 2),
             "purchase_status": fake.random_element(["completed", "pending", "failed"]),
-            "device_type": random.choice(["Desktop", "Tablet", "Mobile"]),
-            "os": random.choice(["Windows", "macOS", "iOS", "Android", "Linux"]),
-            "browser": random.choice(["Chrome", "Firefox", "Safari", "Edge", "Opera"]),
+            "user_agent": fake.user_agent()
         }
         data.append(record)
     return data
@@ -87,6 +107,7 @@ def save_data():
     try:
         fake_data = generate_data()
         script_dir = os.path.dirname(os.path.abspath(__file__))
+        data_dir = os.path.join(os.path.dirname(script_dir), "data")
 
         # Save data to JSON and Parquet formats for different use cases
         json_file = os.path.join(
@@ -106,10 +127,10 @@ def save_data():
         # Write CSV
         pl.DataFrame(fake_data).write_csv(csv_file)
 
-        log.info("Data successfully generated and saved to %s.", script_dir)
+        log.info("Data successfully generated and saved to %s.", data_dir)
 
     except (IOError, OSError) as e:
-        log.error("Error writing to file %s: %s", script_dir, e)
+        log.error("Error writing to file %s: %s", data_dir, e)
         sys.exit(1)
     except ValueError as e:
         log.error("Unexpected error generating/saving data: %s", e)
