@@ -9,8 +9,9 @@ The central piece of this project is the Python script that produces the data it
 - Their data has comprehensive metadata, including the date and time of the transaction, the user's ID, the product's ID, and the price of the product.
 
 # To-Dos:
-  1. Design models in dbt
+  1. ~~Design models in dbt and launch~~
   2. Make Docker image file and host for portability of project
   3. Make requirements and redo scripts for porting .env files
-  4. Build out the front end for the portfolio in React
-  5. Re-write this readme for comprehensive narrative 
+  4. Build out portfolio website in React
+  5. NEW! Add logic for .env files in script. 
+  6. Re-write this readme for comprehensive narrative 
