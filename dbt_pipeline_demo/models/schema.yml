@@ -1,0 +1,36 @@
+version: 2
+
+sources:
+  - name: raw_data
+    database: dbt_pipeline_demo
+    schema: main
+    tables:
+      - name: user_activity
+        description: "Raw user activity data"
+
+models:
+  - name: product_schema
+    description: "Optimized fact and dimension model for user activity"
+    config:
+      tags: ['core']
+      meta:
+        update_frequency: 'daily'
+        contains_pii: true
+    columns:
+      - name: session_id
+        description: "Primary key for the model"
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "Foreign key to user dimension"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_user')
+              field: user_id
+    
+    indexes:
+      - columns: ['user_id']
+      - columns: ['login_time']
+      - columns: ['product_name']

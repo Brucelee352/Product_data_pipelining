@@ -1,0 +1,13 @@
+device_type,os,browser,total_users,churned_users,churn_rate,avg_session_duration
+Desktop,Linux,Firefox,328,71.0,21.65,131.5
+Mobile,Android,Firefox,338,73.0,21.6,137.92
+Desktop,Windows,Safari,562,119.0,21.17,134.54
+Desktop,Linux,Chrome,652,138.0,21.17,131.35
+Desktop,Windows,Other,2436,503.0,20.65,136.01
+Mobile,MacOS,Safari,1138,234.0,20.56,132.21
+Desktop,Windows,Firefox,313,64.0,20.45,128.77
+Desktop,MacOS,Chrome,333,65.0,19.52,136.91
+Desktop,Linux,Other,774,147.0,18.99,137.93
+Desktop,MacOS,Firefox,284,49.0,17.25,132.0
+Desktop,MacOS,Safari,527,90.0,17.08,139.92
+Desktop,Windows,Chrome,315,49.0,15.56,137.07

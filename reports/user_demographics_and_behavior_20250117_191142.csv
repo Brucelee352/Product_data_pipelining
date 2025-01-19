@@ -1,0 +1,13 @@
+device_type,os,browser,avg_session_duration,unique_users,total_sessions,conversion_rate,avg_purchase_value
+Desktop,Windows,Other,136.01,2436,2436,31.03,800.46
+Mobile,MacOS,Safari,132.21,1138,1138,34.8,885.23
+Desktop,Linux,Other,137.93,774,774,33.07,874.8
+Desktop,Linux,Chrome,131.35,652,652,32.36,834.78
+Desktop,Windows,Safari,134.54,562,562,33.1,881.09
+Desktop,MacOS,Safari,139.92,527,527,34.91,899.32
+Mobile,Android,Firefox,137.92,338,338,33.73,830.93
+Desktop,MacOS,Chrome,136.91,333,333,27.63,751.4
+Desktop,Linux,Firefox,131.5,328,328,31.71,791.4
+Desktop,Windows,Chrome,137.07,315,315,30.16,688.01
+Desktop,Windows,Firefox,128.77,313,313,30.67,802.25
+Desktop,MacOS,Firefox,132.0,284,284,35.21,911.38

@@ -1,0 +1,4 @@
+engagement_level,total_users,churned_users,churn_rate,avg_session_duration
+Low (30-60 mins),1131,262.0,23.17,45.24
+Medium (1-2 hours),2255,446.0,19.78,90.27
+High (>2 hours),4614,894.0,19.38,178.83
