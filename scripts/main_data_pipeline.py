@@ -1,18 +1,35 @@
+"""
+Product Data Pipeline v0.2.8 
+
+This script is designed to generate, clean, and store product data 
+for a platform I made up.
+
+Please install dependencies via CLI, before running:
+
+pip install -r requirements.txt
+
+requirements.txt file can be found in the root directory of the 
+project on GitHub for download.
+
+"""
+
 import os
 import sys
 from pathlib import Path
-from datetime import datetime
-import json
 import random
 import logging
 from datetime import datetime as dt
 from datetime import timedelta
+from dotenv import load_dotenv
 import minio
 import duckdb
 from faker import Faker
 from user_agents import parse
 import pandas as pd
 
+
+# Load environment variables:
+load_dotenv()
 
 log_dir = Path('logs')
 log_dir.mkdir(parents=True, exist_ok=True)
@@ -21,19 +38,23 @@ log_file_path = log_dir / 'generate_fake_data.log'
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=os.getenv('LOG_LEVEL', 'INFO'),
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/generate_fake_data.log'),
+        logging.FileHandler(
+            os.getenv('LOG_FILE', 'logs/generate_fake_data.log')),
         logging.StreamHandler(sys.stdout)
     ]
 )
+
 log = logging.getLogger(__name__)
 
 # Constants
-num_rows = 8000
-start_datetime = dt(2022, 1, 1, 10, 30)
-end_datetime = dt(2024, 12, 31, 23, 59)
+num_rows = int(os.getenv('NUM_ROWS', 8000))
+start_datetime = dt.strptime(
+    os.getenv('START_DATETIME', '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
+end_datetime = dt.strptime(
+    os.getenv('END_DATETIME', '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
 valid_statuses = ['pending', 'completed', 'failed']
 
 # Configure Faker
@@ -143,7 +164,7 @@ def validate_timestamps(row):
         login = pd.to_datetime(row['login_time'])
         logout = pd.to_datetime(row['logout_time'])
         return pd.notnull(login) and pd.notnull(logout) and login <= logout
-    except Exception as e:
+    except (ValueError, TypeError, pd.errors.OutOfBoundsDatetime) as e:
         log.error("Error validating timestamps for row %s: %s", row.name, str(e))
         return False
 
@@ -323,14 +344,43 @@ def save_metrics(df, project_root):
 def generate_reports(df):
     """Query data from DuckDB and generate reports."""
     try:
-        start_time = datetime.now()
+        start_time = dt.now()
         project_root = Path(__file__).parents[1]
         db_dir = project_root / 'dbt_pipeline_demo' / 'databases'
         db_path = db_dir / 'dbt_pipeline_demo.duckdb'
 
-        # Connect to DuckDB
+        # Create database directory if it doesn't exist
+        db_dir.mkdir(parents=True, exist_ok=True)
+
+        # Connect to DuckDB (it will create the database if it doesn't exist)
         log.info("Connecting to DuckDB...")
         conn = duckdb.connect(str(db_path))
+
+        # Add initialization flag table to track if database is initialized
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS initialization_status (
+                initialized BOOLEAN,
+                init_timestamp TIMESTAMP
+            );
+        """)
+
+        # Check if database needs initialization
+        init_status = conn.execute(
+            "SELECT COUNT(*) FROM initialization_status").fetchone()[0]
+        if init_status == 0:
+            log.info("Initializing database...")
+            # Your existing table creation code here
+            conn.execute("""
+                DROP TABLE IF EXISTS user_activity;
+                CREATE TABLE user_activity AS SELECT * FROM df;
+            """)
+
+            # Mark database as initialized
+            conn.execute("""
+                INSERT INTO initialization_status (initialized, init_timestamp)
+                VALUES (TRUE, CURRENT_TIMESTAMP);
+            """)
+            log.info("Database initialized successfully")
 
         # Ensure DataFrame has expected types before creating table
         type_mapping = {
@@ -569,7 +619,8 @@ def generate_reports(df):
             LIMIT 50;
         """).fetchdf()
 
-        # Map analysis object and analysis names to dictionary, and log the head of each df via for loop
+        # Map analysis object and analysis names to dictionary,
+        # and log the head of each df via for loop
         analyses = {
             "Customer Lifecycle Analysis": lifecycle_analysis,
             "Purchase Analysis by Product and Status": purchase_analysis,
@@ -594,7 +645,7 @@ def generate_reports(df):
         reports_dir.mkdir(parents=True, exist_ok=True)
 
         # Save each analysis to CSV with timestamp
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = dt.now().strftime('%Y%m%d_%H%M%S')
         for name, df in analyses.items():
             # Create safe filename from analysis name
             safe_name = name.lower().replace(' ', '_').replace('(', '').replace(')', '')
@@ -604,7 +655,7 @@ def generate_reports(df):
             log.info("Saved %s to %s", name, filepath)
 
         # Add performance metrics
-        end_time = datetime.now()
+        end_time = dt.now()
         execution_time = (end_time - start_time).total_seconds()
         log.info("Total query execution time: %s seconds", execution_time)
 
@@ -662,7 +713,7 @@ def upload_data(df, s3_bucket="sim-api-data"):
         # Ensure bucket exists
         if not client.bucket_exists(s3_bucket):
             client.make_bucket(s3_bucket)
-            log.info(f"Created bucket: {s3_bucket}")
+            log.info("Created bucket: %s", s3_bucket)
 
         # Upload files to S3
         for file_path, object_name in [
@@ -676,7 +727,7 @@ def upload_data(df, s3_bucket="sim-api-data"):
                 content_type='application/json' if object_name.endswith(
                     '.json') else 'application/octet-stream'
             )
-            log.info(f"Uploaded {object_name} to S3 bucket: {s3_bucket}")
+            log.info("Uploaded %s to S3 bucket: %s", object_name, s3_bucket)
 
         # Clean up temporary files
         json_path.unlink()

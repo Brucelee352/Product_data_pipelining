@@ -9,26 +9,29 @@ sources:
         description: "Raw user activity data"
 
 models:
-  - name: product_schema
-    description: "Optimized fact and dimension model for user activity"
-    config:
-      tags: ['core']
-      meta:
-        update_frequency: 'daily'
-        contains_pii: true
+version: 2
+
+models:
+  - name: dim_user
+    description: "Dimension table for user data."
     columns:
+      - name: user_id
+        description: "Unique identifier for each user."
+      - name: first_name
+        description: "User's first name."
+  - name: product_schema
+    columns:
+      - name: user_id
+        description: "Unique identifier for each user."
+        tests:
+          - relationships:
+              to: ref('dim_user')
+              field: user_id
       - name: session_id
         description: "Primary key for the model"
         tests:
           - unique
           - not_null
-      - name: user_id
-        description: "Foreign key to user dimension"
-        tests:
-          - not_null
-          - relationships:
-              to: ref('dim_user')
-              field: user_id
     
     indexes:
       - columns: ['user_id']

@@ -173,3 +173,11 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 /dbt_pipeline_demo/databases
+
+# Database files
+*.duckdb
+*.duckdb.wal
+
+# logs 
+logs/
+*.log
