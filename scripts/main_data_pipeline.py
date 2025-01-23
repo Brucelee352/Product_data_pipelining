@@ -1,5 +1,5 @@
 """
-Product Data Pipeline v0.2.8 
+Product Data Pipeline v0.2.8
 
 This script is designed to generate, clean, and store product data 
 for a platform I made up.
