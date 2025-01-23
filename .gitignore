@@ -181,3 +181,4 @@ cython_debug/
 # logs 
 logs/
 *.log
+/dbt_pipeline_demo/databases
