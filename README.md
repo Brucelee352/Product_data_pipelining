@@ -12,5 +12,5 @@ The central piece of this project is the Python script that produces the data it
   1. ~~Design models in dbt and launch~~
   2. ~~Make Docker image file and host for portability of project~~
   3. ~~Make requirements and redo scripts for porting .env files~~
-  4. Build out portfolio website in React
+  4. ~~Build out portfolio website in React~~—Edit: Using streamlit 
   5. Re-write this readme for comprehensive narrative 
