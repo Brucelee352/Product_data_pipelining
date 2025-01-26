@@ -1,5 +1,5 @@
 """
-Product Data Pipeline v0.2.8
+Product Data Pipeline v3.0
 
 This script is designed to generate, clean, and store product data 
 for a platform I made up.
@@ -13,6 +13,7 @@ project on GitHub for download.
 
 """
 
+# Python specific imports
 import os
 import sys
 from pathlib import Path
@@ -21,11 +22,26 @@ import logging
 from datetime import datetime as dt
 from datetime import timedelta
 from dotenv import load_dotenv
+
+# Data specific imports
 import minio
 import duckdb
+import pandas as pd
 from faker import Faker
 from user_agents import parse
-import pandas as pd
+
+# Reporting specific imports
+from analytics_queries import (
+    run_lifecycle_analysis,
+    run_purchase_analysis,
+    run_demographics_analysis,
+    run_business_analysis,
+    run_engagement_analysis,
+    run_churn_analysis,
+    run_session_analysis,
+    run_funnel_analysis,
+    save_analysis_results
+)
 
 
 # Load environment variables:
@@ -342,344 +358,80 @@ def save_metrics(df, project_root):
 
 
 def generate_reports(df):
-    """Query data from DuckDB and generate reports."""
+    """Generate reports and run analytics on the data."""
     try:
         start_time = dt.now()
         project_root = Path(__file__).parents[1]
-        db_dir = project_root / 'dbt_pipeline_demo' / 'databases'
-        db_path = db_dir / 'dbt_pipeline_demo.duckdb'
 
-        # Create database directory if it doesn't exist
-        db_dir.mkdir(parents=True, exist_ok=True)
-
-        # Connect to DuckDB (it will create the database if it doesn't exist)
-        log.info("Connecting to DuckDB...")
-        conn = duckdb.connect(str(db_path))
-
-        # Add initialization flag table to track if database is initialized
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS initialization_status (
-                initialized BOOLEAN,
-                init_timestamp TIMESTAMP
-            );
-        """)
-
-        # Check if database needs initialization
-        init_status = conn.execute(
-            "SELECT COUNT(*) FROM initialization_status").fetchone()[0]
-        if init_status == 0:
-            log.info("Initializing database...")
-            # Your existing table creation code here
-            conn.execute("""
-                DROP TABLE IF EXISTS user_activity;
-                CREATE TABLE user_activity AS SELECT * FROM df;
-            """)
-
-            # Mark database as initialized
-            conn.execute("""
-                INSERT INTO initialization_status (initialized, init_timestamp)
-                VALUES (TRUE, CURRENT_TIMESTAMP);
-            """)
-            log.info("Database initialized successfully")
-
-        # Ensure DataFrame has expected types before creating table
-        type_mapping = {
-            'user_id': 'string',
-            'price': 'float64',
-            'session_duration_minutes': 'float64',
-            'is_active': 'string',
-            'cohort_date': 'string',
-            'user_age_days': 'int64',
-            'customer_lifetime_value': 'float64'
-        }
-
-        for col, dtype in type_mapping.items():
-            if col in df.columns:
-                df[col] = df[col].astype(dtype, errors='ignore')
-
-        # Create the table with explicit column types
-        conn.execute("""
-            DROP TABLE IF EXISTS user_activity;
-            CREATE TABLE user_activity AS SELECT * FROM df;
-        """)
-        log.info("user_activity table created and populated")
-
-        # Debug: Check the structure of the data
-        log.info("Checking data structure...")
-        conn.execute("""
-            SELECT column_name, data_type
-            FROM information_schema.columns
-            WHERE table_name = 'user_activity';
-        """).fetchdf()
-
-        # Add indexes for frequently queried columns
-        conn.execute("""
-            CREATE INDEX IF NOT EXISTS idx_user_id ON user_activity(user_id);
-            CREATE INDEX IF NOT EXISTS idx_purchase_status ON user_activity(purchase_status);
-        """)
-
-        # Queries for insights on user activity
-        # 1. Customer Lifecycle Analysis
-        lifecycle_analysis = conn.execute("""
-            SELECT
-                COUNT(*) as total_accounts,
-                COUNT(CASE WHEN is_active = 'yes' THEN 1 END) as active_accounts,
-                ROUND(TRY_CAST(COUNT(CASE WHEN is_active = 'yes' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0) AS DECIMAL(10,2)), 2) as active_percentage,
-                COUNT(CASE WHEN account_deleted IS NOT NULL THEN 1 END) as churned_accounts,
-                ROUND(TRY_CAST(COUNT(CASE WHEN account_deleted IS NOT NULL THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0) AS DECIMAL(10,2)), 2) as churn_rate,
-                ROUND(AVG(DATEDIFF('days',
-                    TRY_CAST(account_created AS TIMESTAMP),
-                    COALESCE(TRY_CAST(account_deleted AS TIMESTAMP), CURRENT_TIMESTAMP)
-                )), 2) as avg_account_lifetime_days
-            FROM user_activity;
-        """).fetchdf()
-        log.info("\nCustomer Lifecycle Analysis:")
-        log.info(lifecycle_analysis)
-
-        # 2. Purchase Analysis by Product and Status
-        purchase_analysis = conn.execute("""
-            SELECT
-                product_name,
-                COUNT(*) as total_views,
-                SUM(CASE WHEN purchase_status = 'completed' THEN 1 ELSE 0 END) as completed_purchases,
-                ROUND(TRY_CAST(AVG(CASE WHEN purchase_status = 'completed' THEN price ELSE 0 END) AS DECIMAL(10,2)), 2) as avg_purchase_value,
-                ROUND(TRY_CAST(SUM(CASE WHEN purchase_status = 'completed' THEN price ELSE 0 END) AS DECIMAL(10,2)), 2) as total_revenue,
-                ROUND(TRY_CAST(SUM(CASE WHEN purchase_status = 'completed' THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(*), 0) AS DECIMAL(10,2)), 2) as conversion_rate
-            FROM user_activity
-            GROUP BY product_name
-            ORDER BY total_revenue DESC;
-        """).fetchdf()
-        log.info("\nProduct Performance Analysis:")
-        log.info(purchase_analysis)
-
-        # 3. User Demographics and Behavior
-        user_demographics = conn.execute("""
-            SELECT
-                device_type,
-                os,
-                browser,
-                ROUND(TRY_CAST(AVG(session_duration_minutes) AS DECIMAL(10,2)), 2) as avg_session_duration,
-                COUNT(DISTINCT user_id) as unique_users,
-                COUNT(*) as total_sessions,
-                ROUND(TRY_CAST(COUNT(CASE WHEN purchase_status = 'completed' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0) AS DECIMAL(10,2)), 2) as conversion_rate,
-                ROUND(TRY_CAST(AVG(CASE WHEN purchase_status = 'completed' THEN price ELSE 0 END) AS DECIMAL(10,2)), 2) as avg_purchase_value
-            FROM user_activity
-            GROUP BY device_type, os, browser
-            HAVING COUNT(*) > 10
-            ORDER BY unique_users DESC;
-        """).fetchdf()
-        log.info("\nUser Platform Analysis:")
-        log.info(user_demographics)
-
-        # 4. Company and Job Title Impact on Purchases
-        business_analysis = conn.execute("""
-            SELECT
-                job_title,
-                COUNT(DISTINCT user_id) as unique_users,
-                ROUND(TRY_CAST(AVG(price) AS DECIMAL(10,2)), 2) as avg_cart_value,
-                COUNT(CASE WHEN purchase_status = 'completed' THEN 1 END) as completed_purchases,
-                ROUND(TRY_CAST(SUM(CASE WHEN purchase_status = 'completed' THEN price ELSE 0 END) AS DECIMAL(10,2)), 2) as total_revenue,
-                ROUND(TRY_CAST(COUNT(CASE WHEN purchase_status = 'completed' THEN 1 END) * 100.0 / NULLIF(COUNT(*), 0) AS DECIMAL(10,2)), 2) as conversion_rate
-            FROM user_activity
-            GROUP BY job_title
-            HAVING COUNT(DISTINCT user_id) > 5
-            ORDER BY total_revenue DESC
-            LIMIT 10;
-        """).fetchdf()
-        log.info("\nTop 10 Job Titles by Revenue:")
-        log.info(business_analysis)
-
-        # 5. User Engagement Over Time
-        time_analysis = conn.execute("""
-            SELECT
-                DATE_TRUNC('hour', TRY_CAST(login_time AS TIMESTAMP)) as hour_of_day,
-                COUNT(*) as total_sessions,
-                COUNT(DISTINCT user_id) as unique_users,
-                ROUND(TRY_CAST(AVG(session_duration_minutes) AS DECIMAL(10,2)), 2) as avg_session_duration,
-                COUNT(CASE WHEN purchase_status = 'completed' THEN 1 END) as completed_purchases,
-                ROUND(TRY_CAST(SUM(CASE WHEN purchase_status = 'completed' THEN price ELSE 0 END) AS DECIMAL(10,2)), 2) as revenue
-            FROM user_activity
-            GROUP BY DATE_TRUNC('hour', TRY_CAST(login_time AS TIMESTAMP))
-            ORDER BY total_sessions DESC
-            LIMIT 24;
-        """).fetchdf()
-        log.info("\nHourly User Engagement Patterns:")
-        log.info(time_analysis)
-
-        # 6. Detailed Churn Analysis, refined to include more granular data
-
-        # 6a. Time-based Churn Analysis
-        time_based_churn = conn.execute("""
-            SELECT
-                DATE_TRUNC('month', TRY_CAST(account_created AS TIMESTAMP)) as cohort_month,
-                COUNT(*) as total_users,
-                SUM(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) as churned_users,
-                ROUND(TRY_CAST(AVG(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) * 100 AS DECIMAL(10,2)), 2) as churn_rate,
-                ROUND(TRY_CAST(AVG(CASE
-                    WHEN is_active = 'no' THEN
-                        DATEDIFF('days', TRY_CAST(account_created AS TIMESTAMP), TRY_CAST(account_deleted AS TIMESTAMP))
-                    END) AS DECIMAL(10,2)), 2) as avg_days_to_churn
-            FROM user_activity
-            GROUP BY DATE_TRUNC('month', TRY_CAST(account_created AS TIMESTAMP))
-            ORDER BY cohort_month;
-        """).fetchdf()
-
-        # 6b. Price Range Impact on Churn
-        price_churn = conn.execute("""
-            SELECT
-                CASE
-                    WHEN price < 500 THEN 'Low (<$500)'
-                    WHEN price BETWEEN 500 AND 1000 THEN 'Medium ($500-$1000)'
-                    WHEN price BETWEEN 1001 AND 2500 THEN 'High ($1001-$2500)'
-                    ELSE 'Premium (>$2500)'
-                END as price_tier,
-                COUNT(*) as total_users,
-                SUM(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) as churned_users,
-                ROUND(TRY_CAST(AVG(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) * 100 AS DECIMAL(10,2)), 2) as churn_rate,
-                ROUND(TRY_CAST(AVG(price) AS DECIMAL(10,2)), 2) as avg_price
-            FROM user_activity
-            GROUP BY
-                CASE
-                    WHEN price < 500 THEN 'Low (<$500)'
-                    WHEN price BETWEEN 500 AND 1000 THEN 'Medium ($500-$1000)'
-                    WHEN price BETWEEN 1001 AND 2500 THEN 'High ($1001-$2500)'
-                    ELSE 'Premium (>$2500)'
-                END
-            ORDER BY avg_price;
-        """).fetchdf()
-
-        # 6c. Session Duration Impact
-        engagement_churn = conn.execute("""
-            SELECT
-                CASE
-                    WHEN session_duration_minutes < 30 THEN 'Very Low (<30 mins)'
-                    WHEN session_duration_minutes BETWEEN 30 AND 60 THEN 'Low (30-60 mins)'
-                    WHEN session_duration_minutes BETWEEN 61 AND 120 THEN 'Medium (1-2 hours)'
-                    ELSE 'High (>2 hours)'
-                END as engagement_level,
-                COUNT(*) as total_users,
-                SUM(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) as churned_users,
-                ROUND(TRY_CAST(AVG(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) * 100 AS DECIMAL(10,2)), 2) as churn_rate,
-                ROUND(TRY_CAST(AVG(session_duration_minutes) AS DECIMAL(10,2)), 2) as avg_session_duration
-            FROM user_activity
-            GROUP BY
-                CASE
-                    WHEN session_duration_minutes < 30 THEN 'Very Low (<30 mins)'
-                    WHEN session_duration_minutes BETWEEN 30 AND 60 THEN 'Low (30-60 mins)'
-                    WHEN session_duration_minutes BETWEEN 61 AND 120 THEN 'Medium (1-2 hours)'
-                    ELSE 'High (>2 hours)'
-                END
-            ORDER BY avg_session_duration;
-        """).fetchdf()
-
-        # 6d. Device and Platform Impact
-        platform_churn = conn.execute("""
-            SELECT
-                device_type,
-                os,
-                browser,
-                COUNT(*) as total_users,
-                SUM(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) as churned_users,
-                ROUND(TRY_CAST(AVG(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) * 100 AS DECIMAL(10,2)), 2) as churn_rate,
-                ROUND(TRY_CAST(AVG(session_duration_minutes) AS DECIMAL(10,2)), 2) as avg_session_duration
-            FROM user_activity
-            GROUP BY device_type, os, browser
-            HAVING COUNT(*) > 5
-            ORDER BY churn_rate DESC;
-        """).fetchdf()
-
-        # 6e. Purchase Behavior Impact
-        purchase_pattern_churn = conn.execute("""
-            SELECT
-                purchase_status,
-                COUNT(*) as total_users,
-                SUM(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) as churned_users,
-                ROUND(TRY_CAST(AVG(CASE WHEN is_active = 'no' THEN 1 ELSE 0 END) * 100 AS DECIMAL(10,2)), 2) as churn_rate,
-                ROUND(TRY_CAST(AVG(price) AS DECIMAL(10,2)), 2) as avg_price,
-                ROUND(TRY_CAST(AVG(session_duration_minutes) AS DECIMAL(10,2)), 2) as avg_session_duration
-            FROM user_activity
-            GROUP BY purchase_status
-            ORDER BY churn_rate DESC;
-        """).fetchdf()
-
-        # 7. Calculate session duration and filter invalid timestamps
-        session_duration = conn.execute("""
-            SELECT
-                concat(first_name, ' ', last_name) AS full_name,
-                email,
-                state,
-                TRY_CAST(login_time AS TIMESTAMP) as login_time,
-                TRY_CAST(logout_time AS TIMESTAMP) as logout_time,
-                (TRY_CAST(logout_time AS TIMESTAMP) - TRY_CAST(login_time AS TIMESTAMP)) AS session_duration,
-                ROUND(EXTRACT(EPOCH FROM (TRY_CAST(logout_time AS TIMESTAMP) - TRY_CAST(login_time AS TIMESTAMP))) / 3600.0, 1) AS session_duration_hours,
-                EXTRACT(EPOCH FROM (TRY_CAST(logout_time AS TIMESTAMP) - TRY_CAST(login_time AS TIMESTAMP))) / 60.0 AS session_duration_minutes
-            FROM user_activity
-            WHERE TRY_CAST(login_time AS TIMESTAMP) <= TRY_CAST(logout_time AS TIMESTAMP)
-            ORDER BY state
-            LIMIT 50;
-        """).fetchdf()
-
-        # Map analysis object and analysis names to dictionary,
-        # and log the head of each df via for loop
-        analyses = {
-            "Customer Lifecycle Analysis": lifecycle_analysis,
-            "Purchase Analysis by Product and Status": purchase_analysis,
-            "User Demographics and Behavior": user_demographics,
-            "Company and Job Title Impact on Purchases": business_analysis,
-            "User Engagement Over Time": time_analysis,
-            "Churn Analysis by Time (Cohorts)": time_based_churn,
-            "Churn Analysis by Price Tier": price_churn,
-            "Churn Analysis by Engagement Level": engagement_churn,
-            "Churn Analysis by Platform": platform_churn,
-            "Churn Analysis by Purchase Behavior": purchase_pattern_churn,
-            "Session Duration Analysis": session_duration
-        }
-
-        # Log the head of each analysis df
-        for name, df in analyses.items():
-            log.info("%s", name)
-            log.info(df.head())
-
-        # Create a directory for KPI reports if it doesn't exist
+        # Create reports directory
         reports_dir = project_root / 'reports'
         reports_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save each analysis to CSV with timestamp
-        timestamp = dt.now().strftime('%Y%m%d_%H%M%S')
-        for name, df in analyses.items():
-            # Create safe filename from analysis name
-            safe_name = name.lower().replace(' ', '_').replace('(', '').replace(')', '')
-            filename = f"{safe_name}_{timestamp}.csv"
-            filepath = reports_dir / filename
-            df.to_csv(filepath, index=False)
-            log.info("Saved %s to %s", name, filepath)
+        # Connect to DuckDB
+        conn = duckdb.connect(
+            str(project_root / 'dbt_pipeline_demo' / 'databases' / 'dbt_pipeline_demo.duckdb'))
+
+        # Add indexes if they don't exist - for the source table
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_user_id ON user_activity(user_id);
+            CREATE INDEX IF NOT EXISTS idx_login_time ON user_activity(login_time);
+            CREATE INDEX IF NOT EXISTS idx_account_updated ON user_activity(account_updated);
+            CREATE INDEX IF NOT EXISTS idx_is_active ON user_activity(is_active);
+        """)
+
+        # Add indexes for the dbt models if they exist
+        try:
+            conn.execute("""
+                CREATE INDEX IF NOT EXISTS idx_ps_user_id ON product_schema(user_id);
+                CREATE INDEX IF NOT EXISTS idx_ps_login_time ON product_schema(login_time);
+                CREATE INDEX IF NOT EXISTS idx_ps_product_name ON product_schema(product_name);
+            """)
+            log.info("Created indexes on product_schema")
+
+            # Run all analytics after indexes are created
+            analysis_results = {
+                "lifecycle_analysis": run_lifecycle_analysis(conn),
+                "purchase_analysis": run_purchase_analysis(conn),
+                "demographics_analysis": run_demographics_analysis(conn),
+                "business_analysis": run_business_analysis(conn),
+                "engagement_analysis": run_engagement_analysis(conn),
+                "churn_analysis": run_churn_analysis(conn),
+                "session_analysis": run_session_analysis(conn),
+                "funnel_analysis": run_funnel_analysis(conn)
+            }
+
+            # Save analysis results
+            save_analysis_results(analysis_results, reports_dir)
+
+        except duckdb.Error as e:
+            log.warning(
+                "Could not create indexes or run analytics on product_schema (table may not exist yet): %s",
+                str(e)
+            )
 
         # Add performance metrics
         end_time = dt.now()
         execution_time = (end_time - start_time).total_seconds()
-        log.info("Total query execution time: %s seconds", execution_time)
 
-        performance_metrics = {
+        performance_metrics = pd.DataFrame([{
             'execution_timestamp': start_time,
             'execution_time_seconds': execution_time,
-            'queries_executed': len(analyses)
-        }
+            'queries_executed': len(analysis_results) if 'analysis_results' in locals() else 0
+        }])
 
-        # Save performance metrics
-        performance_df = pd.DataFrame([performance_metrics])
-        performance_file = reports_dir / f"query_performance_{timestamp}.csv"
-        performance_df.to_csv(performance_file, index=False)
-
-        # Log successful query execution
-        log.info("\nQueries executed successfully")
+        performance_file = reports_dir / \
+            f"query_performance_{dt.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        performance_metrics.to_csv(performance_file, index=False)
+        log.info("Performance metrics saved to %s", performance_file)
 
     except (duckdb.Error, IOError, ConnectionError) as e:
         log.error("Error occurred: %s", str(e))
-        sys.exit(1)
+        raise
 
     finally:
-        conn.close()
-        log.info("Connection closed")
+        if 'conn' in locals():
+            conn.close()
+            log.info("Connection closed")
 
 
 def upload_data(df, s3_bucket="sim-api-data"):

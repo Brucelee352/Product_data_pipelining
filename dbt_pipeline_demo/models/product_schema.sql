@@ -1,21 +1,17 @@
 /*
-    Optimized dimensional model with partitioning, clustering, and materialization strategies.
+    Dimensional model with partitioning, clustering, and materialization strategies.
 */
 
 {{ config(
     materialized='incremental',
     unique_key='session_id',
+    schema='main',
     partition_by={
         'field': 'login_time',
         'data_type': 'timestamp',
         'granularity': 'day'
     },
-    cluster_by=['user_id', 'product_name'],
-    indexes=[
-        {'columns': ['user_id']},
-        {'columns': ['product_name']},
-        {'columns': ['login_time']}
-    ]
+    cluster_by=['user_id', 'product_name']
 ) }}
 
 -- Materialize frequently used dimension tables
@@ -25,29 +21,7 @@
 {% endfor %}
 
 -- Optimized dimension tables using GROUP BY
-WITH dim_user AS (
-    SELECT 
-        user_id,
-        MAX(first_name) as first_name,
-        MAX(last_name) as last_name,
-        MAX(email) as email,
-        MAX(date_of_birth) as date_of_birth,
-        MAX(address) as address,
-        MAX(state) as state,
-        MAX(country) as country,
-        MAX(company) as company,
-        MAX(job_title) as job_title,
-        MAX(is_active) as is_active
-    FROM {{ source('raw_data', 'user_activity') }}
-    WHERE user_id IS NOT NULL
-    AND is_active = TRUE
-    {% if is_incremental() %}
-        AND account_updated > (SELECT max(account_updated) FROM {{ this }})
-    {% endif %}
-    GROUP BY user_id
-),
-
-dim_product AS (
+WITH dim_product AS (
     SELECT 
         product_name,
         MAX(price) as price,
@@ -57,20 +31,19 @@ dim_product AS (
             WHEN price < 2500 THEN 'Premium'
             ELSE 'Luxury'
         END) as price_tier
-    FROM {{ source('raw_data', 'user_activity') }}
+    FROM {{ ref('stg_product_schema') }}
     WHERE product_name IS NOT NULL
     GROUP BY product_name
 ),
 
 dim_platform AS (
-    SELECT 
+    SELECT DISTINCT
         user_agent,
-        MAX(device_type) as device_type,
-        MAX(os) as os,
-        MAX(browser) as browser
-    FROM {{ source('raw_data', 'user_activity') }}
+        FIRST_VALUE(device_type) OVER (PARTITION BY user_agent ORDER BY login_time DESC) as device_type,
+        FIRST_VALUE(os) OVER (PARTITION BY user_agent ORDER BY login_time DESC) as os,
+        FIRST_VALUE(browser) OVER (PARTITION BY user_agent ORDER BY login_time DESC) as browser
+    FROM {{ ref('stg_product_schema') }}
     WHERE user_agent IS NOT NULL
-    GROUP BY user_agent
 ),
 
 -- Optimized fact table with partitioning
@@ -84,6 +57,7 @@ fact_user_activity AS (
         price,
         purchase_status,
         device_type,
+        user_agent,
         is_active,
         account_created,
         account_updated,
@@ -95,47 +69,55 @@ fact_user_activity AS (
     {% if is_incremental() %}
         WHERE login_time > (SELECT max(login_time) FROM {{ this }})
     {% endif %}
+),
+
+row_counts AS (
+    SELECT 
+        COUNT(*) as fact_count
+    FROM {{ source('raw_data', 'user_activity') }}
+),
+
+joined_diagnostics AS (
+    SELECT
+        COUNT(*) as total_rows,
+        COUNT(DISTINCT f.user_id) as distinct_users,
+        COUNT(DISTINCT f.session_id) as distinct_sessions
+    FROM fact_user_activity f
+    LEFT JOIN {{ ref('dim_user') }} u 
+        ON f.user_id = u.user_id
+    LEFT JOIN dim_product p 
+        ON f.product_name = p.product_name
+    LEFT JOIN dim_platform pl 
+        ON f.user_agent = pl.user_agent
 )
 
 -- Final optimized model
-SELECT 
-    f.session_id,
-    f.transact_id,
-    f.login_time,
-    f.logout_time,
-    f.session_duration_minutes,
-    f.purchase_status,
-    f.price,
-    f.is_active,
-    f.account_created,
-    f.account_updated,
-    f.account_deleted,
-    f.ip_address,
-
-    -- User dimensions
+SELECT DISTINCT
+    s.session_id,
+    s.transact_id,
+    s.login_time,
+    s.logout_time,
+    s.session_duration_minutes,
+    s.purchase_status,
+    s.price,
+    s.is_active,
+    s.account_created,
+    s.account_updated,
+    s.account_deleted,
+    s.ip_address,
     u.user_id,
     u.first_name,
     u.last_name,
     u.email,
-    u.date_of_birth,
-    u.state,
-    u.country,
-    u.company,
-    u.job_title,
-    
-    -- Product dimensions with price tier
     p.product_name,
-    p.price,
     p.price_tier,
-
-    -- Platform dimensions
     pl.device_type,
     pl.os,
     pl.browser
-FROM fact_user_activity f
-LEFT JOIN dim_user u 
-    ON f.user_id = u.user_id
+FROM {{ ref('stg_product_schema') }} s
+LEFT JOIN {{ ref('dim_user') }} u 
+    ON s.user_id = u.user_id
 LEFT JOIN dim_product p 
-    ON f.product_name = p.product_name
+    ON s.product_name = p.product_name
 LEFT JOIN dim_platform pl 
-    ON f.device_type = pl.device_type
+    ON s.user_agent = pl.user_agent

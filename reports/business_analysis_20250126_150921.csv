@@ -1,0 +1,11 @@
+job_title,unique_users,avg_cart_value,completed_purchases,total_revenue,conversion_rate
+Agricultural consultant,17,2753.88,7,28490.61,41.18
+"Production assistant, radio",15,3003.96,7,25236.97,46.67
+Consulting civil engineer,17,2208.38,9,24305.09,52.94
+Paediatric nurse,13,3000.03,8,21739.46,61.54
+Operational investment banker,9,2980.8,7,21395.21,77.78
+"Research officer, government",10,2951.09,6,20790.15,60.0
+"Education officer, community",14,2680.48,7,20422.33,50.0
+Licensed conveyancer,10,3513.49,5,20395.65,50.0
+Medical sales representative,14,3273.87,7,20179.15,50.0
+Radiation protection practitioner,12,3301.6,5,19970.13,41.67

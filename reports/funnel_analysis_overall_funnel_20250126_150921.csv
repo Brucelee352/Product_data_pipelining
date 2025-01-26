@@ -1,0 +1,2 @@
+total_users,total_visits,engaged_sessions,cart_additions,completed_purchases,total_revenue,visit_to_engagement_rate,engagement_to_cart_rate,cart_to_purchase_rate,overall_conversion_rate,avg_visits_per_user,avg_engaged_sessions_per_user,avg_cart_adds_per_user,avg_purchases_per_user,avg_order_value
+6044,7555.0,7555.0,2548.0,2445.0,6285236.3,100.0,33.73,95.96,32.36,1.25,1.25,0.42,0.4,804.99

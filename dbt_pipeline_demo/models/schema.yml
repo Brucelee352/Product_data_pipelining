@@ -2,14 +2,11 @@ version: 2
 
 sources:
   - name: raw_data
-    database: dbt_pipeline_demo
     schema: main
     tables:
       - name: user_activity
-        description: "Raw user activity data"
-
-models:
-version: 2
+        description: "Raw user activity data from DuckDB"
+        loaded_at_field: "account_updated"
 
 models:
   - name: dim_user
@@ -17,9 +14,27 @@ models:
     columns:
       - name: user_id
         description: "Unique identifier for each user."
+        tests:
+          - unique
+          - not_null
       - name: first_name
         description: "User's first name."
+      - name: last_name
+        description: "User's last name."
+      - name: email
+        description: "User's email address."
+      - name: is_active
+        description: "Whether the user is active."
+
+  - name: stg_product_schema
+    description: "Staging table for product data"
+    schema: main
+    
   - name: product_schema
+    description: "Production product data"
+    schema: main
+    depends_on:
+      - ref('stg_product_schema')
     columns:
       - name: user_id
         description: "Unique identifier for each user."
@@ -32,7 +47,7 @@ models:
         tests:
           - unique
           - not_null
-    
+
     indexes:
       - columns: ['user_id']
       - columns: ['login_time']

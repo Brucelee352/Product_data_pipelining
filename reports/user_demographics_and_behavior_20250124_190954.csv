@@ -1,0 +1,26 @@
+device_type,os,browser,avg_session_duration,unique_users,total_sessions,conversion_rate,avg_purchase_value
+Desktop,Windows,IE,136.41,1467,1467,32.04,803.24
+Desktop,Linux,Opera,137.82,723,723,32.92,858.42
+Desktop,Windows,Opera,137.15,713,713,30.43,797.8
+Mac,Mac OS X,Safari,140.56,502,502,35.06,900.81
+Desktop,Windows,Safari,134.21,484,484,32.64,881.8
+iPod,iOS,Mobile Safari,133.72,484,484,33.88,849.04
+Mac,Mac OS X,Chrome,136.69,315,315,28.25,765.49
+Desktop,Linux,Firefox,133.22,308,308,31.82,785.35
+Desktop,Linux,Chrome,136.4,306,306,33.33,955.96
+Desktop,Windows,Chrome,136.87,277,277,29.96,680.99
+Mac,Mac OS X,Firefox,131.88,276,276,35.51,915.92
+Generic Smartphone,Android,Chrome,129.12,272,272,30.88,741.02
+Desktop,Windows,Firefox,126.61,269,269,31.23,787.5
+Generic Smartphone,Android,Firefox Mobile,136.59,266,266,33.46,834.2
+iPad,iOS,Firefox iOS,122.04,177,177,35.59,884.97
+iPhone,iOS,Firefox iOS,136.94,153,153,34.64,930.4
+iPhone,iOS,Chrome Mobile iOS,134.63,129,129,34.88,932.08
+iPad,iOS,Chrome Mobile iOS,131.87,121,121,37.19,955.2
+Generic Smartphone,Windows,IE,127.31,93,93,25.81,679.21
+Generic Tablet,Android,Firefox Mobile,158.02,50,50,36.0,876.27
+Generic Smartphone,Windows,Opera,140.01,48,48,33.33,1109.12
+Generic Smartphone,Windows,Safari,135.05,35,35,34.29,869.4
+Generic Tablet,Android,Chrome,135.63,31,31,16.13,159.44
+Generic Smartphone,Windows,Chrome,140.82,22,22,22.73,625.81
+Generic Smartphone,Windows,Firefox,142.92,21,21,33.33,1173.36
