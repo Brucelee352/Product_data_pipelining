@@ -1,4 +1,4 @@
-## Product Data Pipeline Ver. 4: 
+# Product Data Pipeline Ver. 4: 
 
 ## Introduction
 
@@ -12,7 +12,7 @@ The central piece of this project is the Python script that produces the data it
 
 ## Recent Changes:
 
-1/30/2025 
+1/30/2025:
   1. Extensive rewrites of the pipeline's functions, analytical query logic and dbt environmental models, their configurations, and references in joins.
   2. Established proper file structure in dbt to prevent errors and vet for reproducibility for the repo.
   3. Pipeline is stable and working, with all models properly executed.
