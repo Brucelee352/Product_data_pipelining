@@ -1,6 +1,10 @@
-{{ config(
-    materialized='table'
-) }}
+{{ 
+    config(
+        materialized='table',
+        indexes=[{'columns': ['user_id']}]
+    ) 
+}}
+
 
 SELECT
     user_id,
