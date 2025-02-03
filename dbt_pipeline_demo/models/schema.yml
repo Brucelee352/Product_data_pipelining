@@ -2,15 +2,20 @@ version: 2
 
 sources:
   - name: raw_data
+    database: dbt_pipeline_demo
     schema: main
     tables:
       - name: user_activity
-        description: "Raw user activity data from DuckDB"
+        description: "User activity data"
         loaded_at_field: "account_updated"
 
 models:
   - name: dim_user
-    description: "Dimension table for user data."
+    description: "Dimension table for user data"
+    config:
+      indexes:
+        - columns: ['user_id']
+          name: idx_dim_user_user_id
     columns:
       - name: user_id
         description: "Unique identifier for each user."
@@ -25,30 +30,95 @@ models:
         description: "User's email address."
       - name: is_active
         description: "Whether the user is active."
-
+  
   - name: stg_product_schema
     description: "Staging table for product data"
     schema: main
-    
+
   - name: product_schema
     description: "Production product data"
     schema: main
-    depends_on:
-      - ref('stg_product_schema')
+    config:
+      indexes:
+        - columns: ['user_id']
+          name: idx_product_schema_user_id
+        - columns: ['login_time']
+          name: idx_product_schema_login_time
+        - columns: ['product_name']
+          name: idx_product_schema_product_name
     columns:
+      - name: session_id
+        description: "Unique identifier for each session"
+        tests:
+          - unique
+          - not_null
       - name: user_id
-        description: "Unique identifier for each user."
+        description: "Unique identifier for each user"
         tests:
           - relationships:
               to: ref('dim_user')
               field: user_id
-      - name: session_id
-        description: "Primary key for the model"
-        tests:
-          - unique
-          - not_null
 
-    indexes:
-      - columns: ['user_id']
-      - columns: ['login_time']
-      - columns: ['product_name']
+  - name: stg_user_activity
+    description: "Staging table for user activity data"
+    config:
+      indexes:
+        - columns: ['user_id']
+          name: idx_stg_user_activity_user_id
+        - columns: ['login_time']
+          name: idx_stg_user_activity_login_time
+    columns:
+      - name: user_id
+        description: "Unique identifier for the user"
+      - name: transact_id
+        description: "Unique identifier for the transaction"
+      - name: login_time
+        description: "Timestamp when user logged in"
+      - name: logout_time
+        description: "Timestamp when user logged out"
+      - name: session_duration_minutes
+        description: "Duration of the session in minutes"
+      - name: product_name
+        description: "Name of the product interacted with"
+      - name: price
+        description: "Price of the product"
+      - name: purchase_status
+        description: "Status of the purchase (completed, pending, failed)"
+      - name: device_type
+        description: "Type of device used"
+      - name: os
+        description: "Operating system of the device"
+      - name: browser
+        description: "Browser used for the session"
+
+  - name: fact_user_activity
+    description: "Fact table containing all user activity events"
+    config:
+      indexes:
+        - columns: ['user_key']
+          name: idx_fact_user_activity_user_key
+        - columns: ['login_time']
+          name: idx_fact_user_activity_login_time
+    columns:
+      - name: user_key
+        description: "Surrogate key for the user"
+      - name: transact_id
+        description: "Unique identifier for the transaction"
+      - name: login_time
+        description: "Timestamp when user logged in"
+      - name: logout_time
+        description: "Timestamp when user logged out"
+      - name: session_duration_minutes
+        description: "Duration of the session in minutes"
+      - name: product_name
+        description: "Name of the product interacted with"
+      - name: price
+        description: "Price of the product"
+      - name: purchase_status
+        description: "Status of the purchase (completed, pending, failed)"
+      - name: device_type
+        description: "Type of device used"
+      - name: os
+        description: "Operating system of the device"
+      - name: browser
+        description: "Browser used for the session"

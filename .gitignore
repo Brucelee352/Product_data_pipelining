@@ -183,3 +183,7 @@ dbt_pipeline_demo/databases
 logs/
 *.log
 *.duckdb
+
+# dbt
+dbt_packages/
+pdp_config.env

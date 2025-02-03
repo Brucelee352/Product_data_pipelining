@@ -1,5 +1,5 @@
-"""
-Product Data Pipeline v3.0
+""" 
+Product Data Pipeline v4.0
 
 This script is designed to generate, clean, and store product data 
 for a platform I made up.
@@ -13,24 +13,28 @@ project on GitHub for download.
 
 """
 
-# Python specific imports
-import os
-import sys
-from pathlib import Path
-import random
+# Standard library imports
 import logging
+import os
+import random
+import sys
 from datetime import datetime as dt
 from datetime import timedelta
-from dotenv import load_dotenv
-
-# Data specific imports
-import minio
-import duckdb
+from pathlib import Path
 import pandas as pd
+from typing import Dict, Union, List, Any
+import time
+import subprocess
+
+# Third-party imports
+import duckdb
+import minio
+from dotenv import load_dotenv
 from faker import Faker
+from dbt.cli.main import dbtRunner
 from user_agents import parse
 
-# Reporting specific imports
+# Local imports for analytics queries
 from analytics_queries import (
     run_lifecycle_analysis,
     run_purchase_analysis,
@@ -43,91 +47,129 @@ from analytics_queries import (
     save_analysis_results
 )
 
+## Configuration and constants
 
-# Load environment variables:
-load_dotenv()
+# Initialize paths and configuration
+PROJECT_ROOT = Path(__file__).parents[1]
+load_dotenv(dotenv_path=PROJECT_ROOT / 'pdp_config.env')
+PRODUCT_SCHEMA = 'main.product_schema'
 
+# Configure logging
 log_dir = Path('logs')
 log_dir.mkdir(parents=True, exist_ok=True)
 
-log_file_path = log_dir / 'generate_fake_data.log'
-
-# Configure logging
+# Set logging level
 logging.basicConfig(
     level=os.getenv('LOG_LEVEL', 'INFO'),
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(
-            os.getenv('LOG_FILE', 'logs/generate_fake_data.log')),
+        logging.FileHandler(os.getenv('LOG_FILE', 'logs/generate_fake_data.log')),
         logging.StreamHandler(sys.stdout)
     ]
 )
-
 log = logging.getLogger(__name__)
 
 # Constants
-num_rows = int(os.getenv('NUM_ROWS', 8000))
-start_datetime = dt.strptime(
-    os.getenv('START_DATETIME', '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
-end_datetime = dt.strptime(
-    os.getenv('END_DATETIME', '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
-valid_statuses = ['pending', 'completed', 'failed']
+DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', 8000))
+START_DATETIME = dt.strptime(os.getenv('START_DATETIME', '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
+END_DATETIME = dt.strptime(os.getenv('END_DATETIME', '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
+VALID_STATUSES = os.getenv('VALID_STATUSES', 'pending,completed,failed').split(',')
 
-# Configure Faker
+# Random seed configuration
 fake = Faker()
-Faker.seed(42)
-random.seed(42)
+Faker.seed(int(os.getenv('FAKER_SEED', 42)))
+random.seed(int(os.getenv('RANDOM_SEED', 42)))
+
+# Database configuration
+DBT_ROOT = PROJECT_ROOT / 'dbt_pipeline_demo'
+db_dir = DBT_ROOT / 'databases'
+db_dir.mkdir(parents=True, exist_ok=True)
+db_path = db_dir / 'dbt_pipeline_demo.duckdb'
 
 # S3 Configuration
-S3_CONFIG = {
-    'endpoint': 'localhost:9000',
-    'access_key': 'admin',
-    'secret_key': 'password123',
-    'bucket': 'sim-api-data',
-    'use_ssl': False,
-    'url_style': 'path'
+S3_CONFIG: Dict[str, Union[str, bool]] = {
+    'endpoint': os.getenv('MINIO_ENDPOINT'),
+    'access_key': os.getenv('MINIO_ACCESS_KEY'),
+    'secret_key': os.getenv('MINIO_SECRET_KEY'),
+    'bucket': os.getenv('MINIO_BUCKET_NAME'),
+    'use_ssl': os.getenv('MINIO_USE_SSL', 'False').lower() in {'true', '1', 'yes'},
 }
 
-# S3 URL for cleaned data
-S3_URL = f"s3://{S3_CONFIG['bucket']}/cleaned_data.json"
+## Functions
 
+def ellipsis(process_name="Loading", num_dots=3, interval=20):
+    """Prints static loading messages with trailing periods."""
+    try:
+        # Print the process name
+        sys.stdout.write(process_name)
+        sys.stdout.flush()
+        
+        # Prints trailing ellipses with a delay
+        for _ in range(num_dots):
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            time.sleep(interval)
+        
+        # Move to the next line
+        sys.stdout.write("\n")
+    except Exception as e:
+        log.error(f"Error in ellipsis function: {str(e)}")
+        raise
+
+def activate_venv():
+    """Activate the dbt virtual environment."""
+    try:
+        # Get the project root directory
+        venv_root = Path(__file__).parents[4]
+        
+        # Relative path to your virtual environment
+        venv_path = venv_root / '.dbt' / 'Envs' / 'dbt-env'
+        
+        # Verify the virtual environment exists
+        if not venv_path.exists():
+            raise FileNotFoundError(f"Virtual environment not found at {venv_path}")
+        
+        # Activate the virtual environment
+        if sys.platform == 'win32':
+            activate_script = venv_path / 'Scripts' / 'activate.bat'
+            subprocess.run([str(activate_script)], shell=False, check=True)
+        else:
+            activate_script = venv_path / 'bin' / 'activate'
+            subprocess.run(['source', str(activate_script)], shell=False, check=True)
+            
+        log.info(f"Virtual environment activated successfully from {venv_path}")
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        log.error(f"Failed to activate virtual environment: {str(e)}")
+        sys.exit(1)
 
 def generate_data():
-    """Generate and save fake data to JSON, Parquet, and CSV files."""
+    """Generates synthetic data for the pipeline."""
+        
     try:
         data = []
-        # Add data validation during generation
-        for _ in range(num_rows):
-            # Persist user data for each record
+        for _ in range(DEFAULT_NUM_ROWS):
+            # Generate user data
             first_name = fake.first_name()
             last_name = fake.last_name()
+            is_active = random.random() < 0.8
 
-            # Generates data around account creation, deletion and updates
-            is_active = 1 if random.random() < 0.8 else 0
-            account_created = fake.date_time_between(
-                start_date=start_datetime, end_date=end_datetime)
-            account_updated = fake.date_time_between(
-                start_date=account_created, end_date=end_datetime)
-            account_deleted = fake.date_time_between(
-                start_date=account_updated, end_date=end_datetime) if is_active == 0 else None
-
-            # Generates login and logout times for each record
+            # Generate timestamps
+            account_created = fake.date_time_between(start_date=START_DATETIME, end_date=END_DATETIME)
+            account_updated = fake.date_time_between(start_date=account_created, end_date=END_DATETIME)
+            account_deleted = None if is_active else fake.date_time_between(start_date=account_updated, end_date=END_DATETIME)
+            
             login_time = fake.date_time_between(
                 start_date=account_created,
-                end_date=account_deleted if account_deleted else end_datetime
+                end_date=account_deleted if account_deleted else END_DATETIME
             )
-
-            # This guarantees that logout time is always .5 to 4 hours after login time
             logout_time = login_time + timedelta(hours=random.uniform(0.5, 4))
-
-            # Calculates session duration in minutes
-            session_duration = (logout_time - login_time).total_seconds() / 60
-
+            
+            # Create record
             record = {
                 "user_id": fake.uuid4(),
                 "first_name": first_name,
                 "last_name": last_name,
-                "email": f"{first_name}_{last_name}@example.com",
+                "email": f"{first_name.lower()}_{last_name.lower()}@{fake.domain_name()}",
                 "date_of_birth": fake.date_of_birth(minimum_age=18, maximum_age=72).isoformat(),
                 "phone_number": fake.phone_number(),
                 "address": fake.address(),
@@ -138,37 +180,22 @@ def generate_data():
                 "company": fake.company(),
                 "job_title": fake.job(),
                 "ip_address": fake.ipv4(),
-                "is_active": is_active,
+                "is_active": "yes" if is_active else "no",
                 "login_time": login_time.isoformat(),
                 "logout_time": logout_time.isoformat(),
                 "account_created": account_created.isoformat(),
                 "account_updated": account_updated.isoformat(),
                 "account_deleted": account_deleted.isoformat() if account_deleted else None,
-                "session_duration_minutes": round(session_duration, 2),
+                "session_duration_minutes": (logout_time - login_time).total_seconds() / 60,
                 "product_id": fake.uuid4(),
-                "product_name": fake.random_element(["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Mu", "Nu", "Xi", "Omicron", "Pi", "Rho", "Sigma", "Tau", "Upsilon", "Phi", "Chi", "Psi", "Omega"]),
+                "product_name": fake.random_element(["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Omicron", "Sigma", "Tau", "Upsilon", "Phi", "Omega"]),
                 "price": round(fake.pyfloat(min_value=100, max_value=5000, right_digits=2), 2),
                 "purchase_status": fake.random_element(["completed", "pending", "failed"]),
                 "user_agent": fake.user_agent()
             }
-
-            # Validate record before adding
-            if not all([
-                record['login_time'] < record['logout_time'],
-                record['account_created'] <= record['account_updated'],
-                record['price'] > 0
-            ]):
-                continue
-
             data.append(record)
 
-        # Add basic statistics logging
-        log.info("Generated %s records", num_rows)
-        log.info("Active users: %s", sum(1 for r in data if r['is_active']))
-        log.info("Average price: $%s", sum(r['price'] for r in data)/len(data))
-
-        return data
-
+        return pd.DataFrame(data)
     except Exception as e:
         log.error("Error generating data: %s", str(e))
         raise
@@ -180,64 +207,16 @@ def validate_timestamps(row):
         login = pd.to_datetime(row['login_time'])
         logout = pd.to_datetime(row['logout_time'])
         return pd.notnull(login) and pd.notnull(logout) and login <= logout
-    except (ValueError, TypeError, pd.errors.OutOfBoundsDatetime) as e:
+    except Exception as e:
         log.error("Error validating timestamps for row %s: %s", row.name, str(e))
         return False
-
-
-def save_data_formats(df, project_root):
-    """Save cleaned data in multiple formats (CSV, JSON, Parquet)."""
-    try:
-        data_dir = project_root / 'data'
-        data_dir.mkdir(parents=True, exist_ok=True)
-
-        # Save in different formats
-        csv_path = data_dir / 'cleaned_data.csv'
-        json_path = data_dir / 'cleaned_data.json'
-        parquet_path = data_dir / 'cleaned_data.parquet'
-
-        df.to_csv(csv_path, index=False)
-        df.to_json(json_path, orient='records', date_format='iso')
-        df.to_parquet(parquet_path, index=False)
-
-        log.info("Data saved in CSV, JSON, and Parquet formats")
-        return csv_path, json_path, parquet_path
-    except Exception as e:
-        log.error("Error saving data formats: %s", str(e))
-        raise
-
-
-def prepare_data():
-    """Function prepares the generated data for cleaning and loading."""
-    try:
-        # Get the project root directory and setup paths
-        project_root = Path(__file__).parents[1]
-        data_dir = project_root / 'data'
-        db_dir = project_root / 'dbt_pipeline_demo' / 'databases'
-        db_dir.mkdir(parents=True, exist_ok=True)
-
-        # Load and process data
-        df = pd.read_csv(data_dir / 'simulated_api_data.csv')
-        df = process_basic_cleaning(df)
-        df = process_advanced_cleaning(df)
-
-        # Save metrics and data
-        save_metrics(df, project_root)
-        file_paths = save_data_formats(df, project_root)
-
-        return df, file_paths
-
-    except Exception as e:
-        log.error("Error in data cleaning: %s", str(e))
-        raise
-
 
 def process_basic_cleaning(df):
     """Handle basic data cleaning operations."""
     # Generate transaction ID
     df['transact_id'] = df.apply(
         lambda row: f"txn_{row['user_id']}_{pd.to_datetime(
-            row['login_time']).strftime('%Y%m%d%H%M%S')}"
+        row['login_time']).strftime('%Y%m%d%H%M%S')}"
         if pd.notnull(row['login_time']) else None,
         axis=1
     )
@@ -249,8 +228,7 @@ def process_basic_cleaning(df):
     df = df.drop_duplicates(subset=['email'])
 
     # Remove irrelevant columns
-    drop_columns = ['phone_number', 'email_address',
-                    'city', 'postal_code', 'country', 'product_id']
+    drop_columns = ['phone_number', 'city', 'postal_code', 'product_id']
     df = df.drop([col for col in drop_columns if col in df.columns], axis=1)
 
     df['country'] = 'United States'
@@ -280,7 +258,7 @@ def process_advanced_cleaning(df):
     df = df[df['price'] > 0]
 
     df['purchase_status'] = df['purchase_status'].str.lower()
-    df = df[df['purchase_status'].isin(valid_statuses)]
+    df = df[df['purchase_status'].isin(VALID_STATUSES)]
     return df
 
 
@@ -328,28 +306,39 @@ def add_analysis_fields(df):
 
     return df
 
+def prepare_data(df):
+    """Function prepares the generated data for cleaning and loading."""
+    try:
+        df = process_basic_cleaning(df)
+        df = process_advanced_cleaning(df)
+        df = add_analysis_fields(df)
+        # Save metrics and data
+        save_metrics(df, PROJECT_ROOT)
+        save_data_formats(df, PROJECT_ROOT)
+        return df  # Return only the DataFrame
+    except Exception as e:
+        log.error("Error in data cleaning: %s", str(e))
+        raise
+
 
 def save_metrics(df, project_root):
     """Save data quality metrics."""
     initial_count = len(df)
     metrics_dir = project_root / 'metrics'
     metrics_dir.mkdir(exist_ok=True)
-
     cleaning_metrics = {
         'initial_records': initial_count,
         'duplicate_emails_removed': initial_count - len(df.drop_duplicates(subset=['email'])),
         'invalid_sessions_removed': len(df[~df.apply(validate_timestamps, axis=1)]),
         'invalid_prices_removed': len(df[df['price'] <= 0]),
-        'invalid_status_removed': len(df[~df['purchase_status'].isin(valid_statuses)])
+        'invalid_status_removed': len(df[~df['purchase_status'].isin(VALID_STATUSES)])
     }
-
     quality_metrics = {
         'null_percentage': df.isnull().sum().to_dict(),
         'price_stats': df['price'].describe().to_dict(),
         'session_duration_stats': df['session_duration_minutes'].describe().to_dict(),
         'device_type_distribution': df['device_type'].value_counts().to_dict()
     }
-
     timestamp = dt.now().strftime("%Y%m%d")
     pd.DataFrame([cleaning_metrics]).to_csv(
         metrics_dir / f'cleaning_metrics_{timestamp}.csv')
@@ -357,167 +346,226 @@ def save_metrics(df, project_root):
         metrics_dir / f'quality_metrics_{timestamp}.csv')
 
 
-def generate_reports(df):
-    """Generate reports and run analytics on the data."""
+def save_data_formats(df, project_root):
+    """Save cleaned data in multiple formats (CSV, JSON, Parquet)
+       and saves to the data directory, locally.
+    """
     try:
-        start_time = dt.now()
-        project_root = Path(__file__).parents[1]
-
-        # Create reports directory
-        reports_dir = project_root / 'reports'
-        reports_dir.mkdir(parents=True, exist_ok=True)
-
-        # Connect to DuckDB
-        conn = duckdb.connect(
-            str(project_root / 'dbt_pipeline_demo' / 'databases' / 'dbt_pipeline_demo.duckdb'))
-
-        # Add indexes if they don't exist - for the source table
-        conn.execute("""
-            CREATE INDEX IF NOT EXISTS idx_user_id ON user_activity(user_id);
-            CREATE INDEX IF NOT EXISTS idx_login_time ON user_activity(login_time);
-            CREATE INDEX IF NOT EXISTS idx_account_updated ON user_activity(account_updated);
-            CREATE INDEX IF NOT EXISTS idx_is_active ON user_activity(is_active);
-        """)
-
-        # Add indexes for the dbt models if they exist
-        try:
-            conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_ps_user_id ON product_schema(user_id);
-                CREATE INDEX IF NOT EXISTS idx_ps_login_time ON product_schema(login_time);
-                CREATE INDEX IF NOT EXISTS idx_ps_product_name ON product_schema(product_name);
-            """)
-            log.info("Created indexes on product_schema")
-
-            # Run all analytics after indexes are created
-            analysis_results = {
-                "lifecycle_analysis": run_lifecycle_analysis(conn),
-                "purchase_analysis": run_purchase_analysis(conn),
-                "demographics_analysis": run_demographics_analysis(conn),
-                "business_analysis": run_business_analysis(conn),
-                "engagement_analysis": run_engagement_analysis(conn),
-                "churn_analysis": run_churn_analysis(conn),
-                "session_analysis": run_session_analysis(conn),
-                "funnel_analysis": run_funnel_analysis(conn)
-            }
-
-            # Save analysis results
-            save_analysis_results(analysis_results, reports_dir)
-
-        except duckdb.Error as e:
-            log.warning(
-                "Could not create indexes or run analytics on product_schema (table may not exist yet): %s",
-                str(e)
-            )
-
-        # Add performance metrics
-        end_time = dt.now()
-        execution_time = (end_time - start_time).total_seconds()
-
-        performance_metrics = pd.DataFrame([{
-            'execution_timestamp': start_time,
-            'execution_time_seconds': execution_time,
-            'queries_executed': len(analysis_results) if 'analysis_results' in locals() else 0
-        }])
-
-        performance_file = reports_dir / \
-            f"query_performance_{dt.now().strftime('%Y%m%d_%H%M%S')}.csv"
-        performance_metrics.to_csv(performance_file, index=False)
-        log.info("Performance metrics saved to %s", performance_file)
-
-    except (duckdb.Error, IOError, ConnectionError) as e:
-        log.error("Error occurred: %s", str(e))
+        # Create data directory if it doesn't exist
+        data_dir = project_root / 'data'
+        data_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Define file paths
+        csv_path = data_dir / 'cleaned_data.csv'
+        json_path = data_dir / 'cleaned_data.json'
+        parquet_path = data_dir / 'cleaned_data.parquet'
+        
+        # Save data in different formats
+        df.to_csv(csv_path, index=False)
+        df.to_json(json_path, orient='records', date_format='iso')
+        df.to_parquet(parquet_path, index=False)
+        
+        # Log success
+        log.info(f"Data saved in CSV, JSON, and Parquet formats at {data_dir}")
+        
+        # Return paths for further use
+        return csv_path, json_path, parquet_path
+    except Exception as e:
+        log.error(f"Error saving data formats: {str(e)}")
         raise
 
+
+def make_ua_table(df: pd.DataFrame) -> None:
+    """Create the source user_activity table in DuckDB."""
+    try:
+        conn = duckdb.connect(str(db_path))
+        
+        # Drop existing table
+        conn.execute("DROP TABLE IF EXISTS user_activity")
+        
+        # Create table from DataFrame
+        conn.register('temp_df', df)
+        conn.execute("""
+            CREATE SCHEMA IF NOT EXISTS raw_data;
+            CREATE TABLE user_activity AS
+            SELECT * FROM temp_df;
+        """)
+        
+        count = conn.execute("SELECT COUNT(*) FROM user_activity").fetchone()[0]
+        log.info(f"Created user_activity table with {count} records")
+        
+    except Exception as e:
+        log.error("Error creating user_activity table: %s", str(e))
+        raise
     finally:
         if 'conn' in locals():
             conn.close()
-            log.info("Connection closed")
 
 
-def upload_data(df, s3_bucket="sim-api-data"):
-    """Upload cleaned data to S3.
-
-    Args:
-        df (pd.DataFrame): Cleaned DataFrame to upload
-        s3_bucket (str): Name of the S3 bucket to upload to
-    """
+def run_dbt_models() -> None:
+    """Run dbt models to transform the data."""
     try:
-        log.info("Attempting to connect to MinIO...")
-        client = minio.Minio("localhost:9000",
-                             access_key="admin",
-                             secret_key="password123",
-                             secure=False)
-        log.info("Connected to MinIO")
-
-        # Get project root and create temporary directory for files
-        project_root = Path(__file__).parents[1]
-        temp_dir = project_root / 'temp'
-        temp_dir.mkdir(parents=True, exist_ok=True)
-
-        # Save files temporarily
-        json_path = temp_dir / 'cleaned_data.json'
-        parquet_path = temp_dir / 'cleaned_data.parquet'
-
-        # Save in different formats
-        df.to_json(json_path, orient='records', date_format='iso')
-        df.to_parquet(parquet_path, index=False)
-
-        # Ensure bucket exists
-        if not client.bucket_exists(s3_bucket):
-            client.make_bucket(s3_bucket)
-            log.info("Created bucket: %s", s3_bucket)
-
-        # Upload files to S3
-        for file_path, object_name in [
-            (json_path, 'cleaned_data.json'),
-            (parquet_path, 'cleaned_data.parquet')
-        ]:
-            client.fput_object(
-                s3_bucket,
-                object_name,
-                str(file_path),
-                content_type='application/json' if object_name.endswith(
-                    '.json') else 'application/octet-stream'
-            )
-            log.info("Uploaded %s to S3 bucket: %s", object_name, s3_bucket)
-
-        # Clean up temporary files
-        json_path.unlink()
-        parquet_path.unlink()
-        temp_dir.rmdir()
-        log.info("Temporary files cleaned up")
-
-    except minio.error.MinioException as e:
-        log.error("MinIO error: %s", str(e))
-        raise
+        # Store original directory
+        original_dir = os.getcwd()
+        
+        # Change to dbt project directory
+        os.chdir(DBT_ROOT)
+        log.info(f"Changed working directory to {DBT_ROOT}")
+        
+        # Run dbt commands
+        dbt = dbtRunner()
+        result = dbt.invoke([
+            "run",
+            "--target", "dev",
+            "--full-refresh"
+        ])
+        
+        if not result.success:
+            log.error("Failed to run dbt models")
+            raise Exception("Failed to run dbt models")
+        else:
+            log.info("Successfully ran dbt models")
+        
+        # Change back to original directory
+        os.chdir(original_dir)
+        log.info(f"Changed back to original directory: {original_dir}")
+        
     except Exception as e:
-        log.error("Error uploading data to S3: %s", str(e))
+        log.error("Error running dbt models: %s", str(e))
         raise
 
+def generate_reports() -> None:
+    """Generate analytics reports from transformed data."""
+    try:
+        reports_dir = PROJECT_ROOT / 'reports'
+        reports_dir.mkdir(parents=True, exist_ok=True)
+
+        conn = duckdb.connect(str(db_path))
+        
+        # Run analytics
+        analysis_results = {
+            "lifecycle_analysis": run_lifecycle_analysis(conn),
+            "purchase_analysis": run_purchase_analysis(conn),
+            "demographics_analysis": run_demographics_analysis(conn),
+            "business_analysis": run_business_analysis(conn),
+            "engagement_analysis": run_engagement_analysis(conn),
+            "churn_analysis": run_churn_analysis(conn),
+            "session_analysis": run_session_analysis(conn),
+            "funnel_analysis": run_funnel_analysis(conn)
+        }
+
+        save_analysis_results(analysis_results, reports_dir)
+
+    except Exception as e:
+        log.error(f"Error generating reports: {str(e)}")
+        raise
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+def upload_data() -> str:
+    """Upload transformed data to S3."""
+    try:
+        conn = duckdb.connect(str(db_path))
+        
+        # Get final data
+        final_df = conn.sql(f"""
+            SELECT * FROM {PRODUCT_SCHEMA}
+        """).df()
+        
+        # Upload to S3
+        client = minio.Minio(
+            S3_CONFIG['endpoint'],
+            access_key=S3_CONFIG['access_key'],
+            secret_key=S3_CONFIG['secret_key'],
+            secure=S3_CONFIG['use_ssl']
+        )
+        
+        # Save data locally, temporarily
+        final_df.to_json('temp_upload.json', orient='records')
+        final_df.to_parquet('temp_upload.parquet', index=False)
+        
+        # Upload to S3
+        client.fput_object(
+            bucket_name=S3_CONFIG['bucket'],
+            object_name='cleaned_data.json',
+            file_path='temp_upload.json'
+        )
+        client.fput_object(
+            bucket_name=S3_CONFIG['bucket'],
+            object_name='cleaned_data.parquet',
+            file_path='temp_upload.parquet'
+        )
+        
+        # Clean up local files
+        os.remove('temp_upload.json')
+        os.remove('temp_upload.parquet')
+        
+        log.info(f"Data uploaded to S3 successfully: {len(final_df)} rows")
+        return 'success'  
+        
+    except Exception as e:
+        log.error("Error uploading data: %s", str(e))
+        return 'failed' 
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
 def main():
-    """Execute the main data pipeline workflow."""
     try:
-        # Generate fresh data
-        generate_data()
-
-        # Cleans data and prepares it for analysis
-        df, _ = prepare_data()
-
-        # Add analysis fields
-        df = add_analysis_fields(df)
-
-        # Generate reporting across various modalities
-        generate_reports(df)
-
-        # Upload cleaned data to DuckDB & S3
-        upload_data(df)
-
-    except (minio.error.MinioException,
-            duckdb.Error, IOError, ConnectionError) as e:
-        log.error("Pipeline failed: %s", str(e))
+        # Activate virtual environment
+        log.info("Pipeline initialized at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+        ellipsis("Activating virtual environment")
+        activate_venv()
+        
+        # Drop existing database (for reproducibility)
+        ellipsis("Dropping existing database")
+        if db_path.exists():
+            os.remove(str(db_path))
+            log.info(f"Removed existing database at {db_path}")
+        
+        # Initialize new database connection
+        ellipsis("Initializing new database connection")
+        conn = duckdb.connect(str(db_path))
+        log.info(f"Created new database at {db_path}")
+        
+        # 1. Generate fresh data
+        ellipsis("Generating fresh data")
+        df = generate_data()
+        
+        # 2. Prepare data
+        ellipsis("Preparing data")
+        df = prepare_data(df)
+        
+        # 3. Create source table
+        ellipsis("Creating source table")
+        make_ua_table(df)
+        
+        # 4. Run dbt transformations
+        print("Running dbt transformations!")
+        run_dbt_models()
+        
+        # 5. Generate reports
+        ellipsis("Generating reports")
+        generate_reports()
+        
+        # 6. Upload data
+        ellipsis("Uploading data")
+        upload_status = upload_data()
+        if upload_status == 'success':
+            print("Data uploaded to S3 successfully!")
+            print("Pipeline completed successfully at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+            log.info("Pipeline completed successfully at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+        else:
+            print("Data upload failed!")
+            log.error("S3 upload failed!")
+        
+    except Exception as e:
+        log.error(f"Pipeline failed: {str(e)}")
         sys.exit(1)
-
+    finally:
+        if 'conn' in locals():
+            conn.close()
 
 if __name__ == "__main__":
     main()
