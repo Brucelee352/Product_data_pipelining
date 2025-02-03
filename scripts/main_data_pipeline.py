@@ -1,4 +1,4 @@
-""" 
+"""
 Product Data Pipeline v4.0
 
 This script is designed to generate, clean, and store product data 
@@ -21,10 +21,10 @@ import sys
 from datetime import datetime as dt
 from datetime import timedelta
 from pathlib import Path
-import pandas as pd
-from typing import Dict, Union, List, Any
+from typing import Dict, Union
 import time
 import subprocess
+import pandas as pd
 
 # Third-party imports
 import duckdb
@@ -47,7 +47,7 @@ from analytics_queries import (
     save_analysis_results
 )
 
-## Configuration and constants
+# Configuration and constants
 
 # Initialize paths and configuration
 PROJECT_ROOT = Path(__file__).parents[1]
@@ -63,7 +63,8 @@ logging.basicConfig(
     level=os.getenv('LOG_LEVEL', 'INFO'),
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(os.getenv('LOG_FILE', 'logs/generate_fake_data.log')),
+        logging.FileHandler(
+            os.getenv('LOG_FILE', 'logs/generate_fake_data.log')),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -71,9 +72,12 @@ log = logging.getLogger(__name__)
 
 # Constants
 DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', 8000))
-START_DATETIME = dt.strptime(os.getenv('START_DATETIME', '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
-END_DATETIME = dt.strptime(os.getenv('END_DATETIME', '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
-VALID_STATUSES = os.getenv('VALID_STATUSES', 'pending,completed,failed').split(',')
+START_DATETIME = dt.strptime(
+    os.getenv('START_DATETIME', '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
+END_DATETIME = dt.strptime(
+    os.getenv('END_DATETIME', '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
+VALID_STATUSES = os.getenv(
+    'VALID_STATUSES', 'pending,completed,failed').split(',')
 
 # Random seed configuration
 fake = Faker()
@@ -95,7 +99,8 @@ S3_CONFIG: Dict[str, Union[str, bool]] = {
     'use_ssl': os.getenv('MINIO_USE_SSL', 'False').lower() in {'true', '1', 'yes'},
 }
 
-## Functions
+# Functions
+
 
 def ellipsis(process_name="Loading", num_dots=3, interval=20):
     """Prints static loading messages with trailing periods."""
@@ -103,48 +108,86 @@ def ellipsis(process_name="Loading", num_dots=3, interval=20):
         # Print the process name
         sys.stdout.write(process_name)
         sys.stdout.flush()
-        
+
         # Prints trailing ellipses with a delay
         for _ in range(num_dots):
             sys.stdout.write(".")
             sys.stdout.flush()
             time.sleep(interval)
-        
+
         # Move to the next line
         sys.stdout.write("\n")
     except Exception as e:
         log.error(f"Error in ellipsis function: {str(e)}")
         raise
 
+
 def activate_venv():
-    """Activate the dbt virtual environment."""
+    """
+        Activates the project's virtual environment.
+
+        Needed for dependencies to function for portability reasons.  
+
+    """
     try:
         # Get the project root directory
-        venv_root = Path(__file__).parents[4]
-        
-        # Relative path to your virtual environment
-        venv_path = venv_root / '.dbt' / 'Envs' / 'dbt-env'
-        
+        project_root = Path(__file__).parents[1]
+
+        # Temporary print statement
+        print(f"Project root path: {project_root}")
+
+        # Path to virtual environment in project directory
+        venv_path = project_root / '.venv'
+
         # Verify the virtual environment exists
         if not venv_path.exists():
-            raise FileNotFoundError(f"Virtual environment not found at {venv_path}")
-        
+            log.error("Virtual environment not found at %s", venv_path)
+            log.info("Please create one with: python -m venv .venv")
+            sys.exit(1)
+
         # Activate the virtual environment
         if sys.platform == 'win32':
+
             activate_script = venv_path / 'Scripts' / 'activate.bat'
             subprocess.run([str(activate_script)], shell=False, check=True)
         else:
             activate_script = venv_path / 'bin' / 'activate'
-            subprocess.run(['source', str(activate_script)], shell=False, check=True)
-            
-        log.info(f"Virtual environment activated successfully from {venv_path}")
+            subprocess.run(['source', str(activate_script)],
+                           shell=False, check=True)
+
+        log.info(
+            f"Virtual environment activated successfully from {venv_path}")
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
         log.error(f"Failed to activate virtual environment: {str(e)}")
         sys.exit(1)
 
+
+def check_dependencies():
+    """
+       Verifies if the required packages are installed.
+
+       Exits the program if not.      
+
+    """
+
+    required = {'duckdb', 'minio', 'pandas', 'faker'}
+    try:
+        import pkg_resources
+
+        installed = {pkg.key for pkg in pkg_resources.working_set}
+        missing = required - installed
+        if missing:
+            log.error(f"Missing packages: {missing}")
+            log.info("Please run: pip install -r requirements.txt")
+            sys.exit(1)
+    except ImportError:
+        log.error("Could not verify package installations")
+        sys.exit(1)
+
+
 def generate_data():
     """Generates synthetic data for the pipeline."""
-        
+
     try:
         data = []
         for _ in range(DEFAULT_NUM_ROWS):
@@ -154,16 +197,19 @@ def generate_data():
             is_active = random.random() < 0.8
 
             # Generate timestamps
-            account_created = fake.date_time_between(start_date=START_DATETIME, end_date=END_DATETIME)
-            account_updated = fake.date_time_between(start_date=account_created, end_date=END_DATETIME)
-            account_deleted = None if is_active else fake.date_time_between(start_date=account_updated, end_date=END_DATETIME)
-            
+            account_created = fake.date_time_between(
+                start_date=START_DATETIME, end_date=END_DATETIME)
+            account_updated = fake.date_time_between(
+                start_date=account_created, end_date=END_DATETIME)
+            account_deleted = None if is_active else fake.date_time_between(
+                start_date=account_updated, end_date=END_DATETIME)
+
             login_time = fake.date_time_between(
                 start_date=account_created,
                 end_date=account_deleted if account_deleted else END_DATETIME
             )
             logout_time = login_time + timedelta(hours=random.uniform(0.5, 4))
-            
+
             # Create record
             record = {
                 "user_id": fake.uuid4(),
@@ -211,12 +257,13 @@ def validate_timestamps(row):
         log.error("Error validating timestamps for row %s: %s", row.name, str(e))
         return False
 
+
 def process_basic_cleaning(df):
     """Handle basic data cleaning operations."""
     # Generate transaction ID
     df['transact_id'] = df.apply(
         lambda row: f"txn_{row['user_id']}_{pd.to_datetime(
-        row['login_time']).strftime('%Y%m%d%H%M%S')}"
+            row['login_time']).strftime('%Y%m%d%H%M%S')}"
         if pd.notnull(row['login_time']) else None,
         axis=1
     )
@@ -306,6 +353,7 @@ def add_analysis_fields(df):
 
     return df
 
+
 def prepare_data(df):
     """Function prepares the generated data for cleaning and loading."""
     try:
@@ -354,20 +402,20 @@ def save_data_formats(df, project_root):
         # Create data directory if it doesn't exist
         data_dir = project_root / 'data'
         data_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Define file paths
         csv_path = data_dir / 'cleaned_data.csv'
         json_path = data_dir / 'cleaned_data.json'
         parquet_path = data_dir / 'cleaned_data.parquet'
-        
+
         # Save data in different formats
         df.to_csv(csv_path, index=False)
         df.to_json(json_path, orient='records', date_format='iso')
         df.to_parquet(parquet_path, index=False)
-        
+
         # Log success
         log.info(f"Data saved in CSV, JSON, and Parquet formats at {data_dir}")
-        
+
         # Return paths for further use
         return csv_path, json_path, parquet_path
     except Exception as e:
@@ -379,10 +427,10 @@ def make_ua_table(df: pd.DataFrame) -> None:
     """Create the source user_activity table in DuckDB."""
     try:
         conn = duckdb.connect(str(db_path))
-        
+
         # Drop existing table
         conn.execute("DROP TABLE IF EXISTS user_activity")
-        
+
         # Create table from DataFrame
         conn.register('temp_df', df)
         conn.execute("""
@@ -390,10 +438,11 @@ def make_ua_table(df: pd.DataFrame) -> None:
             CREATE TABLE user_activity AS
             SELECT * FROM temp_df;
         """)
-        
-        count = conn.execute("SELECT COUNT(*) FROM user_activity").fetchone()[0]
+
+        count = conn.execute(
+            "SELECT COUNT(*) FROM user_activity").fetchone()[0]
         log.info(f"Created user_activity table with {count} records")
-        
+
     except Exception as e:
         log.error("Error creating user_activity table: %s", str(e))
         raise
@@ -407,11 +456,11 @@ def run_dbt_models() -> None:
     try:
         # Store original directory
         original_dir = os.getcwd()
-        
+
         # Change to dbt project directory
         os.chdir(DBT_ROOT)
         log.info(f"Changed working directory to {DBT_ROOT}")
-        
+
         # Run dbt commands
         dbt = dbtRunner()
         result = dbt.invoke([
@@ -419,20 +468,21 @@ def run_dbt_models() -> None:
             "--target", "dev",
             "--full-refresh"
         ])
-        
+
         if not result.success:
             log.error("Failed to run dbt models")
             raise Exception("Failed to run dbt models")
         else:
             log.info("Successfully ran dbt models")
-        
+
         # Change back to original directory
         os.chdir(original_dir)
         log.info(f"Changed back to original directory: {original_dir}")
-        
+
     except Exception as e:
         log.error("Error running dbt models: %s", str(e))
         raise
+
 
 def generate_reports() -> None:
     """Generate analytics reports from transformed data."""
@@ -441,7 +491,7 @@ def generate_reports() -> None:
         reports_dir.mkdir(parents=True, exist_ok=True)
 
         conn = duckdb.connect(str(db_path))
-        
+
         # Run analytics
         analysis_results = {
             "lifecycle_analysis": run_lifecycle_analysis(conn),
@@ -463,16 +513,17 @@ def generate_reports() -> None:
         if 'conn' in locals():
             conn.close()
 
+
 def upload_data() -> str:
     """Upload transformed data to S3."""
     try:
         conn = duckdb.connect(str(db_path))
-        
+
         # Get final data
         final_df = conn.sql(f"""
             SELECT * FROM {PRODUCT_SCHEMA}
         """).df()
-        
+
         # Upload to S3
         client = minio.Minio(
             S3_CONFIG['endpoint'],
@@ -480,11 +531,11 @@ def upload_data() -> str:
             secret_key=S3_CONFIG['secret_key'],
             secure=S3_CONFIG['use_ssl']
         )
-        
+
         # Save data locally, temporarily
         final_df.to_json('temp_upload.json', orient='records')
         final_df.to_parquet('temp_upload.parquet', index=False)
-        
+
         # Upload to S3
         client.fput_object(
             bucket_name=S3_CONFIG['bucket'],
@@ -496,76 +547,86 @@ def upload_data() -> str:
             object_name='cleaned_data.parquet',
             file_path='temp_upload.parquet'
         )
-        
+
         # Clean up local files
         os.remove('temp_upload.json')
         os.remove('temp_upload.parquet')
-        
+
         log.info(f"Data uploaded to S3 successfully: {len(final_df)} rows")
-        return 'success'  
-        
+        return 'success'
+
     except Exception as e:
         log.error("Error uploading data: %s", str(e))
-        return 'failed' 
+        return 'failed'
     finally:
         if 'conn' in locals():
             conn.close()
 
+
 def main():
     try:
         # Activate virtual environment
-        log.info("Pipeline initialized at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+        log.info("Pipeline initialized at %s",
+                 dt.now().strftime('%Y-%m-%d %H:%M:%S'))
         ellipsis("Activating virtual environment")
         activate_venv()
-        
-        # Drop existing database (for reproducibility)
+
+        # Check dependencies
+        ellipsis("Checking dependencies")
+        check_dependencies()
+
+        # Drops existing database (for reproducibility)
         ellipsis("Dropping existing database")
+
         if db_path.exists():
             os.remove(str(db_path))
             log.info(f"Removed existing database at {db_path}")
-        
+
         # Initialize new database connection
         ellipsis("Initializing new database connection")
         conn = duckdb.connect(str(db_path))
         log.info(f"Created new database at {db_path}")
-        
+
         # 1. Generate fresh data
         ellipsis("Generating fresh data")
         df = generate_data()
-        
+
         # 2. Prepare data
         ellipsis("Preparing data")
         df = prepare_data(df)
-        
+
         # 3. Create source table
         ellipsis("Creating source table")
         make_ua_table(df)
-        
+
         # 4. Run dbt transformations
         print("Running dbt transformations!")
         run_dbt_models()
-        
+
         # 5. Generate reports
         ellipsis("Generating reports")
         generate_reports()
-        
+
         # 6. Upload data
         ellipsis("Uploading data")
         upload_status = upload_data()
         if upload_status == 'success':
             print("Data uploaded to S3 successfully!")
-            print("Pipeline completed successfully at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
-            log.info("Pipeline completed successfully at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+            print("Pipeline completed successfully at %s",
+                  dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+            log.info("Pipeline completed successfully at %s",
+                     dt.now().strftime('%Y-%m-%d %H:%M:%S'))
         else:
             print("Data upload failed!")
             log.error("S3 upload failed!")
-        
+
     except Exception as e:
         log.error(f"Pipeline failed: {str(e)}")
         sys.exit(1)
     finally:
         if 'conn' in locals():
             conn.close()
+
 
 if __name__ == "__main__":
     main()

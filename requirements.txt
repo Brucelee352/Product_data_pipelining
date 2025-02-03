@@ -17,6 +17,7 @@ duckdb>=1.1.2
 minio>=7.2.14
 pyarrow>=18.1.0  # Required for parquet support
 fastparquet>=2024.11.0
+dbt-duckdb>=1.9.1
 dbt-adapters>=1.13.2
 dbt-common>=1.14.0
 dbt-core>=1.9.1
