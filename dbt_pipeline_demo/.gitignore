@@ -1,4 +1,4 @@
-
+# dbt specific
 target/
-dbt_packages/
 logs/
+dbt_packages/

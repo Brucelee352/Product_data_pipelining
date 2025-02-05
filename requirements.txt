@@ -1,3 +1,5 @@
+# Optional: Use pyproject.toml to install dependencies instead. 
+
 # requirements.txt
 
 # VSCode should detect this upon making a virtual environment, 

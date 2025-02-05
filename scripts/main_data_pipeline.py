@@ -23,8 +23,9 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Dict, Union
 import time
-import subprocess
 import pandas as pd
+import importlib.metadata as metadata
+import importlib.resources as resources
 
 # Third-party imports
 import duckdb
@@ -51,6 +52,7 @@ from analytics_queries import (
 
 # Initialize paths and configuration
 PROJECT_ROOT = Path(__file__).parents[1]
+os.environ['DBT_PROFILES_DIR'] = str(PROJECT_ROOT / '.dbt')
 load_dotenv(dotenv_path=PROJECT_ROOT / 'pdp_config.env')
 PRODUCT_SCHEMA = 'main.product_schema'
 
@@ -101,8 +103,7 @@ S3_CONFIG: Dict[str, Union[str, bool]] = {
 
 # Functions
 
-
-def ellipsis(process_name="Loading", num_dots=3, interval=20):
+def ellipsis(process_name="Loading", num_dots=3, interval=20) -> None:
     """Prints static loading messages with trailing periods."""
     try:
         # Print the process name
@@ -122,70 +123,69 @@ def ellipsis(process_name="Loading", num_dots=3, interval=20):
         raise
 
 
-def activate_venv():
+def check_dependencies() -> None:
     """
-        Activates the project's virtual environment.
-
-        Needed for dependencies to function for portability reasons.  
-
+    Verifies if the required packages are installed.
+    Exits the program if any are missing.
+    
+    This version uses:
+      - importlib.metadata to list installed packages, and
+      - importlib.resources to load a resource file containing dependency info.
     """
     try:
-        # Get the project root directory
-        project_root = Path(__file__).parents[1]
-
-        # Temporary print statement
-        print(f"Project root path: {project_root}")
-
-        # Path to virtual environment in project directory
-        venv_path = project_root / '.venv'
-
-        # Verify the virtual environment exists
-        if not venv_path.exists():
-            log.error("Virtual environment not found at %s", venv_path)
-            log.info("Please create one with: python -m venv .venv")
-            sys.exit(1)
-
-        # Activate the virtual environment
-        if sys.platform == 'win32':
-
-            activate_script = venv_path / 'Scripts' / 'activate.bat'
-            subprocess.run([str(activate_script)], shell=False, check=True)
-        else:
-            activate_script = venv_path / 'bin' / 'activate'
-            subprocess.run(['source', str(activate_script)],
-                           shell=False, check=True)
-
-        log.info(
-            f"Virtual environment activated successfully from {venv_path}")
-    except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        log.error(f"Failed to activate virtual environment: {str(e)}")
+        # Use importlib.metadata to inspect installed distributions
+        import importlib.metadata as metadata
+        # Use importlib.resources to load dependency info bundled with your package
+        import importlib.resources as resources
+    except ImportError as e:
+        log.error(f"Required module missing: {e}")
         sys.exit(1)
 
-
-def check_dependencies():
-    """
-       Verifies if the required packages are installed.
-
-       Exits the program if not.      
-
-    """
-
-    required = {'duckdb', 'minio', 'pandas', 'faker'}
+    # Attempt to load the dependency list from a resource file.
+    # (Change 'your_package' to the package where the file resides;
+    #  here we assume the file is named "dependencies.txt" and is packaged.)
     try:
-        import pkg_resources
+        # Handle case where __package__ is None (script run directly)
+        package_path = Path(__file__).parent if __package__ is None else resources.files(__package__)
+        with (package_path / "dependencies.txt").open() as f:
+            required_data = f.read()
+        # Each line is assumed to be in the format "package==version" or a comment.
+        required = {
+            line.split("==")[0].strip() 
+            for line in required_data.splitlines() 
+            if line.strip() and not line.strip().startswith("#")
+        }
+    except (FileNotFoundError, TypeError):
+        # Fallback to hardcoded required packages if no resource file is found.
+        required = {
+            'user-agents',
+            'duckdb',
+            'minio',
+            'pandas',
+            'faker',
+            'dbt-core',
+            'dbt-duckdb'
+        }
 
-        installed = {pkg.key for pkg in pkg_resources.working_set}
-        missing = required - installed
-        if missing:
-            log.error(f"Missing packages: {missing}")
-            log.info("Please run: pip install -r requirements.txt")
-            sys.exit(1)
-    except ImportError:
-        log.error("Could not verify package installations")
+    # Use importlib.metadata to get a set of installed package names (in lower case).
+    installed = {
+        dist.metadata.get('Name', '').lower()
+        for dist in metadata.distributions()
+        if dist.metadata.get('Name')
+    }
+
+    # Identify missing packages (case-insensitively).
+    missing = {pkg for pkg in required if pkg.lower() not in installed}
+
+    if missing:
+        log.error(f"Missing packages: {missing}")
+        log.info("Please ensure that the virtual environment is created, and then install dependencies:")
+        log.info("  venv creation: python -m venv .venv")
+        log.info("  venv activation: source .venv/bin/activate  # or .venv\\Scripts\\activate on Windows")
+        log.info("  dependencies: pip install -r requirements.txt")
         sys.exit(1)
 
-
-def generate_data():
+def generate_data() -> pd.DataFrame:
     """Generates synthetic data for the pipeline."""
 
     try:
@@ -234,7 +234,10 @@ def generate_data():
                 "account_deleted": account_deleted.isoformat() if account_deleted else None,
                 "session_duration_minutes": (logout_time - login_time).total_seconds() / 60,
                 "product_id": fake.uuid4(),
-                "product_name": fake.random_element(["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Omicron", "Sigma", "Tau", "Upsilon", "Phi", "Omega"]),
+                "product_name": fake.random_element(
+                    ["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", 
+                     "Kappa", "Lambda", "Omicron", "Sigma", "Tau", "Upsilon", "Phi", "Omega"]
+                    ),
                 "price": round(fake.pyfloat(min_value=100, max_value=5000, right_digits=2), 2),
                 "purchase_status": fake.random_element(["completed", "pending", "failed"]),
                 "user_agent": fake.user_agent()
@@ -247,7 +250,7 @@ def generate_data():
         raise
 
 
-def validate_timestamps(row):
+def validate_timestamps(row) -> bool:
     """Function validates the timestamps for the login and logout times, to ensure consistency."""
     try:
         login = pd.to_datetime(row['login_time'])
@@ -258,7 +261,7 @@ def validate_timestamps(row):
         return False
 
 
-def process_basic_cleaning(df):
+def process_basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     """Handle basic data cleaning operations."""
     # Generate transaction ID
     df['transact_id'] = df.apply(
@@ -289,7 +292,7 @@ def process_basic_cleaning(df):
                'user_agent']]
 
 
-def process_advanced_cleaning(df):
+def process_advanced_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     """Handle advanced data processing and validation."""
     # Process user agent data
     df[['device_type', 'os', 'browser']] = df['user_agent'].apply(lambda ua: pd.Series({
@@ -309,7 +312,7 @@ def process_advanced_cleaning(df):
     return df
 
 
-def add_analysis_fields(df):
+def add_analysis_fields(df: pd.DataFrame) -> pd.DataFrame:
     """Add additional analysis fields to the dataframe."""
     # Ensure datetime columns are properly formatted
     date_columns = ['account_created', 'login_time',
@@ -354,7 +357,7 @@ def add_analysis_fields(df):
     return df
 
 
-def prepare_data(df):
+def prepare_data(df: pd.DataFrame) -> pd.DataFrame:
     """Function prepares the generated data for cleaning and loading."""
     try:
         df = process_basic_cleaning(df)
@@ -363,17 +366,18 @@ def prepare_data(df):
         # Save metrics and data
         save_metrics(df, PROJECT_ROOT)
         save_data_formats(df, PROJECT_ROOT)
-        return df  # Return only the DataFrame
+        return df  
     except Exception as e:
         log.error("Error in data cleaning: %s", str(e))
         raise
 
 
-def save_metrics(df, project_root):
-    """Save data quality metrics."""
+def save_metrics(df: pd.DataFrame, project_root: Path) -> None:
+    """Saves data quality metrics."""
     initial_count = len(df)
     metrics_dir = project_root / 'metrics'
     metrics_dir.mkdir(exist_ok=True)
+
     cleaning_metrics = {
         'initial_records': initial_count,
         'duplicate_emails_removed': initial_count - len(df.drop_duplicates(subset=['email'])),
@@ -394,7 +398,8 @@ def save_metrics(df, project_root):
         metrics_dir / f'quality_metrics_{timestamp}.csv')
 
 
-def save_data_formats(df, project_root):
+def save_data_formats(df: pd.DataFrame, project_root: Path
+                      ) -> tuple[Path, Path, Path]:
     """Save cleaned data in multiple formats (CSV, JSON, Parquet)
        and saves to the data directory, locally.
     """
@@ -449,10 +454,9 @@ def make_ua_table(df: pd.DataFrame) -> None:
     finally:
         if 'conn' in locals():
             conn.close()
-
-
-def run_dbt_models() -> None:
-    """Run dbt models to transform the data."""
+            
+def run_dbt_ops() -> None:
+    """Runs dbt deps and models for data transformation."""
     try:
         # Store original directory
         original_dir = os.getcwd()
@@ -461,15 +465,33 @@ def run_dbt_models() -> None:
         os.chdir(DBT_ROOT)
         log.info(f"Changed working directory to {DBT_ROOT}")
 
-        # Run dbt commands
+        # Clear dbt cache
         dbt = dbtRunner()
+        dbt.invoke(["clean"])
+        
+        # Run dbt deps
+        deps_result = dbt.invoke(["deps"])
+        if not deps_result.success:
+            log.error("Failed to run dbt deps")
+            raise Exception("Failed to run dbt deps")
+        
+        # Verify packages.yml exists
+        if not (DBT_ROOT / 'packages.yml').exists():
+            raise FileNotFoundError("packages.yml not found in dbt project")
+        
+        # Verify dbt_packages directory exists
+        dbt_packages_dir = DBT_ROOT / 'dbt_packages'
+        if not dbt_packages_dir.exists():
+            raise FileNotFoundError(f"dbt_packages directory not found at {dbt_packages_dir}")
+
+        # Run dbt commands
         result = dbt.invoke([
             "run",
             "--target", "dev",
             "--full-refresh"
         ])
 
-        if not result.success:
+        if not result.success or not deps_result.success:
             log.error("Failed to run dbt models")
             raise Exception("Failed to run dbt models")
         else:
@@ -563,54 +585,59 @@ def upload_data() -> str:
             conn.close()
 
 
-def main():
+def main() -> None:
     try:
-        # Activate virtual environment
-        log.info("Pipeline initialized at %s",
-                 dt.now().strftime('%Y-%m-%d %H:%M:%S'))
-        ellipsis("Activating virtual environment")
-        activate_venv()
+        # 1. Verify virtual environment is active
+        if not hasattr(sys, 'real_prefix') and not (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix):
+            log.error("Virtual environment is not active. Please activate it before running the script.")
+            log.info("Activation commands:")
+            log.info("  Windows: .venv\\Scripts\\activate")
+            log.info("  macOS/Linux: source .venv/bin/activate")
+            sys.exit(1)
 
-        # Check dependencies
+        log.info("Pipeline initialized at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+        
+        # 2. Check dependencies
         ellipsis("Checking dependencies")
         check_dependencies()
-
-        # Drops existing database (for reproducibility)
+        
+        # 3. Drop existing database for reproducibility
         ellipsis("Dropping existing database")
 
         if db_path.exists():
             os.remove(str(db_path))
             log.info(f"Removed existing database at {db_path}")
 
-        # Initialize new database connection
+        # 4. Initialize new database connection
         ellipsis("Initializing new database connection")
         conn = duckdb.connect(str(db_path))
         log.info(f"Created new database at {db_path}")
 
-        # 1. Generate fresh data
+        # 5. Generate fresh data
         ellipsis("Generating fresh data")
         df = generate_data()
 
-        # 2. Prepare data
+        # 6. Prepare data
         ellipsis("Preparing data")
         df = prepare_data(df)
 
-        # 3. Create source table
+        # 7. Create source table
         ellipsis("Creating source table")
         make_ua_table(df)
 
-        # 4. Run dbt transformations
+        # 8. Run dbt transformations
         print("Running dbt transformations!")
-        run_dbt_models()
+        run_dbt_ops()
 
-        # 5. Generate reports
+        # 9. Generate reports
         ellipsis("Generating reports")
         generate_reports()
 
-        # 6. Upload data
+        # 10. Upload data
         ellipsis("Uploading data")
         upload_status = upload_data()
         if upload_status == 'success':
+
             print("Data uploaded to S3 successfully!")
             print("Pipeline completed successfully at %s",
                   dt.now().strftime('%Y-%m-%d %H:%M:%S'))

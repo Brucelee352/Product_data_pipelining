@@ -187,3 +187,12 @@ logs/
 # dbt
 dbt_packages/
 pdp_config.env
+
+# dbt_pipeline_demo
+dbt_pipeline_demo/dbt_packages/
+
+# dbt specific
+target/
+logs/
+dbt_packages/
+profiles.yml
