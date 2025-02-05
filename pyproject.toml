@@ -31,10 +31,17 @@ dependencies = [
     "dbt-core>=1.5.0",
     "dbt-duckdb>=1.5.0",
     "python-dotenv>=1.0.0",
-    "user-agents>=2.2.0"
+    "user-agents>=2.2.0",
+    "streamlit>=1.28.0",
+    "plotly>=5.15.0",
+    "streamlit-plotly-events>=0.0.10",
+    "altair>=5.10.0",
+    "streamlit-altair-chart>=0.2.0"
 ]
 
+
 [project.optional-dependencies]
+
 dev = [
     "black>=23.0.0",
     "flake8>=6.0.0",
@@ -50,6 +57,7 @@ docs = [
 
 [project.scripts]
 run-pipeline = "scripts.main_data_pipeline:main"
+dashboard = "app.app:main" 
 
 [tool.black]
 line-length = 88

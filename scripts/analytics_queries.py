@@ -10,30 +10,39 @@ from duckdb import DuckDBPyConnection
 
 log = logging.getLogger(__name__)
 PRODUCT_SCHEMA = 'main.product_schema'
+REPORTS_DIR = Path('reports')
 
-def run_lifecycle_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
+
+def run_lifecycle_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze user lifecycle metrics."""
     try:
         query = f"""
-            SELECT 
+            SELECT
                 product_name,
                 COUNT(*) AS total_sessions,
                 AVG(session_duration_minutes) AS avg_session_duration,
-                SUM(CASE WHEN purchase_status = 'completed' THEN 1 ELSE 0 END) AS completed_purchases
+                SUM(
+                    CASE WHEN purchase_status = 'completed'
+                    THEN 1
+                    ELSE 0
+                    END
+                ) AS completed_purchases
             FROM {PRODUCT_SCHEMA}
             GROUP BY product_name
         """
-        result = conn.execute(query).fetchdf()
+        result = con.execute(query).fetchdf()
         return result
+
     except Exception as e:
-        log.error(f"Error in lifecycle analysis: {str(e)}")
+        log.error("Error in lifecycle analysis: %s", str(e))
         raise
 
-def run_purchase_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
+
+def run_purchase_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze purchase patterns."""
     try:
         query = f"""
-            SELECT 
+            SELECT
                 price_tier,
                 COUNT(*) AS total_purchases,
                 AVG(price) AS avg_price
@@ -41,13 +50,15 @@ def run_purchase_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
             WHERE purchase_status = 'completed'
             GROUP BY price_tier
         """
-        result = conn.execute(query).fetchdf()
+        result = con.execute(query).fetchdf()
         return result
+
     except Exception as e:
-        log.error(f"Error in purchase analysis: {str(e)}")
+        log.error("Error in purchase analysis: %s", str(e))
         raise
 
-def run_demographics_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
+
+def run_demographics_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze user demographics and platform usage."""
     try:
         query = f"""
@@ -57,101 +68,156 @@ def run_demographics_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
                 browser,
                 COUNT(DISTINCT user_id) as unique_users,
                 COUNT(*) as total_sessions,
-                ROUND(AVG(session_duration_minutes), 2) as avg_session_duration,
-                ROUND(AVG(CASE 
-                    WHEN purchase_status = 'completed' THEN price 
-                    ELSE 0 
-                END), 2) as avg_purchase_value
+                ROUND(
+                    AVG(session_duration_minutes), 2
+                    ) as avg_session_duration,
+                ROUND(
+                    AVG(
+                        CASE
+                            WHEN purchase_status = 'completed'
+                            THEN price
+                            ELSE 0
+                        END), 2) as avg_purchase_value
             FROM {PRODUCT_SCHEMA}
             GROUP BY device_type, os, browser
             HAVING COUNT(*) > 10
             ORDER BY unique_users DESC;
         """
-        return conn.execute(query).fetchdf()
+        result = con.execute(query).fetchdf()
+        return result
+
     except Exception as e:
-        log.error(f"Error in demographics analysis: {str(e)}")
+        log.error("Error in demographics analysis: %s", str(e))
         raise
 
-def run_business_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
+
+def run_business_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze business metrics by job title."""
     try:
-        return conn.sql(f"""
+        query = f"""
             SELECT
                 job_title,
                 COUNT(DISTINCT user_id) as unique_users,
                 COUNT(*) as total_sessions,
-                ROUND(AVG(session_duration_minutes), 2) as avg_session_duration,
                 ROUND(
-                    COUNT(CASE WHEN purchase_status = 'completed' THEN 1 END) * 100.0 / 
+                    AVG(
+                        session_duration_minutes), 2
+                        ) as avg_session_duration,
+                ROUND(
+                    COUNT(
+                        CASE
+                            WHEN purchase_status = 'completed'
+                            THEN 1
+                        END) * 100.0 /
                     COUNT(*),
                 2) as conversion_rate
             FROM {PRODUCT_SCHEMA}
             GROUP BY job_title
             HAVING COUNT(DISTINCT user_id) > 5
             ORDER BY unique_users DESC;
-        """).fetchdf()
+        """
+        result = con.execute(query).fetchdf()
+        return result
+
     except Exception as e:
         log.error("Error in business analysis: %s", str(e))
         raise
 
-def run_engagement_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
+
+def run_engagement_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze user engagement patterns."""
     try:
-        return conn.sql(f"""
+        query = f"""
             SELECT
-                DATE_TRUNC('hour', TRY_CAST(login_time AS TIMESTAMP)) as hour,
+                DATE_TRUNC('hour',
+                TRY_CAST(login_time AS TIMESTAMP)) as hour,
                 COUNT(*) as total_sessions,
                 COUNT(DISTINCT user_id) as unique_users,
-                ROUND(AVG(session_duration_minutes), 2) as avg_session_duration,
-                ROUND(SUM(CASE 
-                    WHEN purchase_status = 'completed' THEN price 
-                    ELSE 0 
-                END), 2) as revenue
+                ROUND(
+                    AVG(
+                        session_duration_minutes), 2
+                        ) as avg_session_duration,
+                ROUND(
+                    SUM(
+                        CASE
+                            WHEN purchase_status = 'completed'
+                            THEN price
+                            ELSE 0
+                        END), 2) as revenue
             FROM {PRODUCT_SCHEMA}
-            GROUP BY DATE_TRUNC('hour', TRY_CAST(login_time AS TIMESTAMP))
+            GROUP BY DATE_TRUNC('hour',
+                     TRY_CAST(
+                        login_time AS TIMESTAMP)
+                        )
             ORDER BY total_sessions DESC;
-        """).fetchdf()
+        """
+        result = con.execute(query).fetchdf()
+        return result
+
     except Exception as e:
         log.error("Error in engagement analysis: %s", str(e))
         raise
 
-def run_churn_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
+
+def run_churn_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze user churn patterns."""
     try:
-        return conn.sql(f"""
+        query = f"""
             SELECT
-                DATE_TRUNC('month', TRY_CAST(account_created AS TIMESTAMP)) as cohort_month,
+                DATE_TRUNC('month',
+                           TRY_CAST(
+                               account_created AS TIMESTAMP)
+                               ) as cohort_month,
                 COUNT(DISTINCT user_id) as cohort_size,
                 ROUND(
-                    COUNT(CASE WHEN account_deleted IS NOT NULL THEN 1 END) * 100.0 / 
-                    NULLIF(COUNT(*), 0),
+                    COUNT(
+                        CASE
+                            WHEN account_deleted IS NOT NULL
+                            THEN 1
+                        END) * 100.0 /
+                    NULLIF(
+                        COUNT(*), 0),
+
                 2) as churn_rate,
                 ROUND(
-                    AVG(CASE 
-                        WHEN account_deleted IS NOT NULL THEN 
-                            DATEDIFF('day', account_created, account_deleted)
-                        ELSE NULL 
+                    AVG(CASE
+                        WHEN account_deleted IS NOT NULL THEN
+                            DATEDIFF('day',
+                            account_created,
+                            account_deleted)
+                        ELSE NULL
                     END),
                 2) as avg_days_to_churn
             FROM {PRODUCT_SCHEMA}
-            GROUP BY DATE_TRUNC('month', TRY_CAST(account_created AS TIMESTAMP))
+            GROUP BY
+                DATE_TRUNC(
+                        'month',
+                        TRY_CAST(account_created
+                        AS TIMESTAMP)
+                        )
             ORDER BY cohort_month;
-        """).fetchdf()
+        """
+        result = con.execute(query).fetchdf()
+        return result
+
     except Exception as e:
         log.error("Error in churn analysis: %s", str(e))
         raise
 
-def run_session_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
+
+def run_session_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze session patterns."""
     try:
-        return conn.sql(f"""
+        query = f"""
             SELECT
                 user_id,
                 first_name,
                 last_name,
                 COUNT(*) as total_sessions,
-                ROUND(AVG(session_duration_minutes), 2) as avg_session_duration,
-                ROUND(DATEDIFF('hour', 
+                ROUND(
+                    AVG(session_duration_minutes),
+                        2) as avg_session_duration,
+                ROUND(DATEDIFF('hour',
                     MIN(TRY_CAST(login_time AS TIMESTAMP)),
                     MAX(TRY_CAST(login_time AS TIMESTAMP))
                 ) / 3600.0, 1) AS session_duration_hours
@@ -160,40 +226,54 @@ def run_session_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
             GROUP BY user_id, first_name, last_name
             ORDER BY total_sessions DESC
             LIMIT 100;
-        """).fetchdf()
+        """
+        result = con.execute(query).fetchdf()
+        return result
+
     except Exception as e:
         log.error("Error in session analysis: %s", str(e))
         raise
 
-def run_funnel_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
+
+def run_funnel_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze conversion funnel metrics."""
     try:
-        return conn.sql(f"""
+        query = f"""
             SELECT
                 product_name,
                 COUNT(*) as total_views,
                 COUNT(DISTINCT user_id) as unique_viewers,
                 ROUND(
-                    COUNT(CASE WHEN purchase_status = 'completed' THEN 1 END) * 100.0 / 
-                    NULLIF(COUNT(*), 0),
+
+                    COUNT(
+                        CASE WHEN purchase_status = 'completed'
+                        THEN 1 END) * 100.0 /
+                        NULLIF(COUNT(*), 0),
                 2) as conversion_rate
             FROM {PRODUCT_SCHEMA}
             GROUP BY product_name
             ORDER BY conversion_rate DESC;
-        """).fetchdf()
+        """
+        result = con.execute(query).fetchdf()
+        return result
+
     except Exception as e:
         log.error("Error in funnel analysis: %s", str(e))
         raise
-    
-def run_analysis(conn, query):
+
+
+def run_analysis(con, query):
+    """Run an analysis query and return the result."""
     try:
-        return conn.sql(query).fetchdf()
+        return con.sql(query).fetchdf()
     except Exception as e:
         if "does not exist" in str(e):
-            log.error("Table not found. Please ensure the dbt models have been run.")
+            log.error(
+                "Table not found. Please ensure the dbt models have been run.")
         else:
             log.error("Analysis error: %s", str(e))
         raise
+
 
 def save_analysis_results(results: dict, reports_dir: Path) -> None:
     """Save analysis results to CSV files."""
@@ -201,38 +281,24 @@ def save_analysis_results(results: dict, reports_dir: Path) -> None:
         for name, df in results.items():
             output_path = reports_dir / f"{name}.csv"
             df.to_csv(output_path, index=False)
-            log.info(f"Saved {name} to {output_path}")
+            log.info("Saved %s to %s", name, output_path)
     except Exception as e:
         log.error("Error saving analysis results: %s", str(e))
         raise
 
-def main(conn: DuckDBPyConnection, reports_dir: Path) -> None:
+
+def main(con: DuckDBPyConnection, reports_dir: Path) -> None:
     """Main function to execute all analytics queries in sequence."""
     try:
-        # 1. Run lifecycle analysis
-        lifecycle_df = run_lifecycle_analysis(conn)
-        
-        # 2. Run purchase analysis
-        purchase_df = run_purchase_analysis(conn)
-        
-        # 3. Run demographics analysis
-        demographics_df = run_demographics_analysis(conn)
-        
-        # 4. Run business analysis
-        business_df = run_business_analysis(conn)
-        
-        # 5. Run engagement analysis
-        engagement_df = run_engagement_analysis(conn)
-        
-        # 6. Run churn analysis
-        churn_df = run_churn_analysis(conn)
-        
-        # 7. Run session analysis
-        session_df = run_session_analysis(conn)
-        
-        # 8. Run funnel analysis
-        funnel_df = run_funnel_analysis(conn)
-        
+        lifecycle_df = run_lifecycle_analysis(con)
+        purchase_df = run_purchase_analysis(con)
+        demographics_df = run_demographics_analysis(con)
+        business_df = run_business_analysis(con)
+        engagement_df = run_engagement_analysis(con)
+        churn_df = run_churn_analysis(con)
+        session_df = run_session_analysis(con)
+        funnel_df = run_funnel_analysis(con)
+
         # Save all results
         results = {
             "lifecycle_analysis": lifecycle_df,
@@ -244,21 +310,20 @@ def main(conn: DuckDBPyConnection, reports_dir: Path) -> None:
             "session_analysis": session_df,
             "funnel_analysis": funnel_df
         }
-        
+
         save_analysis_results(results, reports_dir)
-        
+
     except Exception as e:
         log.error("Error in main analytics execution: %s", str(e))
         raise
 
+
 if __name__ == "__main__":
     import duckdb
-    from pathlib import Path
-    
-    # Initialize connection and reports directory
-    conn = duckdb.connect('dbt_pipeline_demo.duckdb')
-    reports_dir = Path('reports')
-    reports_dir.mkdir(exist_ok=True)
-    
+
+    # Initialize conection and reports directory
+    db_connection = duckdb.connect('dbt_pipeline_demo.duckdb')
+    REPORTS_DIR.mkdir(exist_ok=True)
+
     # Run main analytics
-    main(conn, reports_dir)
+    main(db_connection, REPORTS_DIR)
