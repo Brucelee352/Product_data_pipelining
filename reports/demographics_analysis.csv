@@ -4,26 +4,26 @@ device_type,os,browser,unique_users,total_sessions,avg_session_duration,avg_purc
 (Windows; U; Windows 98),,,44,55,140.59,1136.31
 (Windows; U; Windows NT 5.1),,,43,50,135.52,1035.38
 (X11; Linux x86_64; rv:1.9.7.20),,,40,49,160.1,1142.62
-(Windows; U; Windows NT 5.0),,,39,44,136.41,1021.89
 (X11; Linux i686; rv:1.9.5.20),,,39,47,142.96,939.15
+(Windows; U; Windows NT 5.0),,,39,44,136.41,1021.89
 (Windows; U; Windows NT 6.2),,,37,50,145.75,860.49
 (X11; Linux i686; rv:1.9.6.20),,,36,44,114.51,701.04
 (Windows; U; Windows NT 10.0),,,35,41,113.32,1019.22
 (X11; Linux x86_64; rv:1.9.6.20),,,35,44,122.52,670.27
 (Windows; U; Windows NT 5.01),,,34,38,138.43,1079.25
-(X11; Linux x86_64; rv:1.9.5.20),,,34,42,159.77,893.59
 (X11; Linux i686; rv:1.9.7.20),,,34,46,136.39,1196.19
+(X11; Linux x86_64; rv:1.9.5.20),,,34,42,159.77,893.59
 (Windows; U; Windows CE),,,33,39,144.45,1146.48
 (Windows; U; Windows NT 5.2),,,30,41,119.48,607.57
 (Windows; U; Windows NT 6.1),,,29,39,160.27,977.42
-(Windows; U; Windows 98; Win 9x 4.90),,,26,33,156.45,605.68
 (Windows; U; Windows NT 6.0),,,26,33,132.65,1250.23
-(Windows NT 10.0),,,24,27,134.92,1389.82
+(Windows; U; Windows 98; Win 9x 4.90),,,26,33,156.45,605.68
 (Windows NT 4.0),,,24,29,146.89,618.19
 (Windows; U; Windows NT 11.0),,,24,32,146.71,598.88
+(Windows NT 10.0),,,24,27,134.92,1389.82
 (Windows; U; Windows 95),,,22,29,132.21,961.08
-(Windows NT 6.0),,,22,27,128.58,1013.72
 (Windows NT 5.2),,,22,29,128.82,1240.64
+(Windows NT 6.0),,,22,27,128.58,1013.72
 (Windows NT 11.0),,,20,24,124.81,632.05
 (Windows NT 6.1),,,20,26,135.96,822.83
 (Windows NT 6.2),,,20,21,125.44,1421.68
@@ -40,18 +40,18 @@ device_type,os,browser,unique_users,total_sessions,avg_session_duration,avg_purc
 (iPhone; CPU iPhone OS 11_4_1 like Mac OS X),,,13,16,152.85,656.25
 (iPad; CPU iPad OS 7_1_2 like Mac OS X),,,12,13,120.02,847.16
 (iPad; CPU iPad OS 14_8_1 like Mac OS X),,,11,13,143.33,1273.26
+(iPhone; CPU iPhone OS 13_7 like Mac OS X),,,11,14,138.28,103.3
+(Windows CE),,,11,13,123.71,1150.07
 (iPhone; CPU iPhone OS 7_1_2 like Mac OS X),,,11,15,138.61,691.68
 (iPhone; CPU iPhone OS 17_3 like Mac OS X),,,11,16,111.78,349.45
 (iPad; CPU iPad OS 17_2 like Mac OS X),,,11,11,125.22,860.18
-(Windows CE),,,11,13,123.71,1150.07
-(iPhone; CPU iPhone OS 13_7 like Mac OS X),,,11,14,138.28,103.3
 (iPad; CPU iPad OS 16_7_6 like Mac OS X),,,10,13,125.71,1854.47
 (Windows 95),,,10,19,128.44,128.31
 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X),,,10,13,155.57,599.24
-(iPad; CPU iPad OS 17_1_2 like Mac OS X),,,9,11,143.81,1009.91
-(Linux; Android 2.2.1),,,9,11,148.25,2341.64
 (compatible; MSIE 7.0; Windows 98; Win 9x 4.90; Trident/5.1),,,9,12,130.14,1075.95
 (iPhone; CPU iPhone OS 3_1_3 like Mac OS X),,,9,11,141.32,59.43
+(iPad; CPU iPad OS 17_1_2 like Mac OS X),,,9,11,143.81,1009.91
+(Linux; Android 2.2.1),,,9,11,148.25,2341.64
 (iPhone; CPU iPhone OS 4_3_5 like Mac OS X),,,8,11,107.49,70.93
 (iPad; CPU iPad OS 2_2_1 like Mac OS X),,,8,11,131.39,583.71
 (iPhone; CPU iPhone OS 17_1_2 like Mac OS X),,,8,12,117.7,1248.5
