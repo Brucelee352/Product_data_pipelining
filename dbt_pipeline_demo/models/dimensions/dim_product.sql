@@ -13,12 +13,7 @@
 SELECT 
     product_name,
     MAX(price) as price,
-    MAX(CASE 
-        WHEN price < 500 THEN 'Budget'
-        WHEN price < 1000 THEN 'Standard'
-        WHEN price < 2500 THEN 'Premium'
-        ELSE 'Luxury'
-    END) as price_tier
+    price_tier
 FROM {{ ref('stg_product_schema') }}
 WHERE product_name IS NOT NULL
-GROUP BY product_name
+GROUP BY product_name, price_tier

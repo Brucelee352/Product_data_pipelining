@@ -9,6 +9,7 @@
 SELECT
     user_id,
     product_name,
+    price_tier,
     TRY_CAST(login_time AS TIMESTAMP) as login_time,
     TRY_CAST(logout_time AS TIMESTAMP) as logout_time,
     session_duration_minutes::DOUBLE as session_duration_minutes,

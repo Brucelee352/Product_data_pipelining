@@ -4,7 +4,27 @@
 
 This project serves as a guide on how to produce business-centric product data as JSON, for containerized data ingestion; and further orchestration using Docker, MinIO and Python. I'm looking to make this as simple as possible, while being applicable to real-world business scenarios and use-cases.
 
+<<<<<<< Updated upstream
 ## Data Sourcing
+=======
+## Project Structure
+```
+├── dbt_pipeline_demo/          # dbt project
+│   ├── models/                 # dbt models
+│   ├── databases/              # DuckDB database files
+│   ├── dbt_project.yml         # dbt project configuration
+│   └── packages.yml            # dbt package dependencies
+├── scripts/                    # Pipeline scripts
+│   └── main_data_pipeline.py   # Main pipeline script
+├── .dbt/                       # dbt profiles directory
+│   └── profiles.yml           # dbt connection profiles
+├── data/                       # Processed data files
+├── metrics/                    # Data quality metrics
+├── reports/                    # Generated analytics reports
+├── pdp_config.env             # Environment configuration
+└── README.md                  # This file
+```
+>>>>>>> Stashed changes
 
 The central piece of this project is the Python script that produces the data itself. I'm specifically generating columns that reflect how real-world users interact with transactional databases; relying on the following assumptions:
 

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 product_name,total_sessions,avg_session_duration,completed_purchases
 Tau,487,140.8863010984258,153.0
 Epsilon,478,136.27652398940023,176.0
@@ -16,3 +17,17 @@ Zeta,461,134.40555309866224,150.0
 Lambda,486,134.66419422448573,155.0
 Omicron,450,137.5380478210001,147.0
 Sigma,428,138.6204825717291,124.0
+=======
+product_name,total_purchases,total_revenue,total_customers,avg_purchase_value,avg_purchase_frequency_rate,avg_customer_value
+Beta Product,60,35752.0,14,595.87,0.23,137.05
+Delta,1468,992232.0,289,675.91,0.2,135.18
+Zeta,1344,908060.0,270,675.64,0.2,135.13
+Omega,1384,963880.0,269,696.45,0.19,132.33
+Omicron,1496,939628.0,305,628.09,0.2,125.62
+Beta,1308,812592.0,263,621.25,0.2,124.25
+Phi,1324,821580.0,277,620.53,0.21,130.31
+Alpha,1500,957240.0,300,638.16,0.2,127.63
+Epsilon,1476,975992.0,291,661.24,0.2,132.25
+Gamma,1616,1155900.0,339,715.28,0.21,150.21
+Legacy Product,36,28500.0,8,791.67,0.22,174.17
+>>>>>>> Stashed changes

@@ -70,10 +70,22 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # Constants
+<<<<<<< Updated upstream
 DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', 8000))
 START_DATETIME = dt.strptime(os.getenv('START_DATETIME', '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
 END_DATETIME = dt.strptime(os.getenv('END_DATETIME', '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
 VALID_STATUSES = os.getenv('VALID_STATUSES', 'pending,completed,failed').split(',')
+=======
+DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', '10000'))
+START_DATETIME = dt.strptime(
+    os.getenv('START_DATETIME',
+              '2020-01-01 10:30'), '%Y-%m-%d %H:%M')
+END_DATETIME = dt.strptime(
+    os.getenv('END_DATETIME',
+              '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
+VALID_STATUSES = os.getenv(
+    'VALID_STATUSES', 'pending,completed,failed,refunded,chargeback').split(',')
+>>>>>>> Stashed changes
 
 # Random seed configuration
 fake = Faker()
@@ -95,7 +107,21 @@ S3_CONFIG: Dict[str, Union[str, bool]] = {
     'use_ssl': os.getenv('MINIO_USE_SSL', 'False').lower() in {'true', '1', 'yes'},
 }
 
+<<<<<<< Updated upstream
 ## Functions
+=======
+# Move global variables into a class or function
+class PipelineState:
+    def __init__(self):
+        self.cached_data = None
+
+    def reset_state(self):
+        """Reset the pipeline state."""
+        self.cached_data = None
+
+# Create a global instance (optional)
+pipeline_state = PipelineState()
+>>>>>>> Stashed changes
 
 def ellipsis(process_name="Loading", num_dots=3, interval=20):
     """Prints static loading messages with trailing periods."""
@@ -151,7 +177,28 @@ def generate_data():
             # Generate user data
             first_name = fake.first_name()
             last_name = fake.last_name()
+            base_price = round(fake.pyfloat(
+                min_value=100, 
+                max_value=5000, 
+                right_digits=2), 
+                               2)
+            price = (random.choice([base_price * 10, base_price / 10]) 
+                     if random.random() < 0.01 else base_price)  
+            product_name = (random.choice(["Alpha", "Beta", 
+                                           "Gamma", "Delta",
+                                           "Omicron", "Phi", 
+                                           "Epsilon", "Zeta", 
+                                           "Omega"])
+                            if random.random() > 0.009  else 
+                            random.choice(["Legacy Product", 
+                                           "Beta Product"]))
+            purchase_status = (
+                random.choice(["completed", "pending", "failed"] 
+                if random.random() > 0.005 else
+                random.choice(["refunded", "chargeback"]))
+            )
             is_active = random.random() < 0.8
+
 
             # Generate timestamps
             account_created = fake.date_time_between(start_date=START_DATETIME, end_date=END_DATETIME)
@@ -185,14 +232,36 @@ def generate_data():
                 "logout_time": logout_time.isoformat(),
                 "account_created": account_created.isoformat(),
                 "account_updated": account_updated.isoformat(),
+<<<<<<< Updated upstream
                 "account_deleted": account_deleted.isoformat() if account_deleted else None,
                 "session_duration_minutes": (logout_time - login_time).total_seconds() / 60,
                 "product_id": fake.uuid4(),
                 "product_name": fake.random_element(["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Omicron", "Sigma", "Tau", "Upsilon", "Phi", "Omega"]),
                 "price": round(fake.pyfloat(min_value=100, max_value=5000, right_digits=2), 2),
                 "purchase_status": fake.random_element(["completed", "pending", "failed"]),
+=======
+                "account_deleted": (
+                    account_deleted.isoformat()
+                    if account_deleted else None
+                ),
+                "session_duration_minutes": (
+                    random.gauss(30, 10)
+                    if random.random() < 0.05 else 30 * 1.5
+                ),
+                "product_id": fake.uuid4(),
+                "product_name": product_name,
+                "price": (
+                    round(price, 2)
+                    if purchase_status == ['refunded', 'chargeback']  
+                    else round(price * 0.25, 2)
+                ),
+                "purchase_status": purchase_status,
+>>>>>>> Stashed changes
                 "user_agent": fake.user_agent()
+
+
             }
+
             data.append(record)
 
         return pd.DataFrame(data)
@@ -513,12 +582,40 @@ def upload_data() -> str:
 
 def main():
     try:
+<<<<<<< Updated upstream
         # Activate virtual environment
         log.info("Pipeline initialized at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
         ellipsis("Activating virtual environment")
         activate_venv()
         
         # Drop existing database (for reproducibility)
+=======
+        # Use pipeline_state instead of global variables
+        pipeline_state.reset_state()
+
+        # 1. Verify virtual environment is active
+        is_venv = hasattr(sys, 'real_prefix')
+        is_venv_modern = (hasattr(sys, 'base_prefix')
+                          and sys.base_prefix != sys.prefix)
+        if not (is_venv or is_venv_modern):
+            log.error(
+                "Virtual environment is not active. "
+                "Please activate it before running the script."
+            )
+            log.info("Activation commands:")
+            log.info("  Windows: .venv\\Scripts\\activate")
+            log.info("  macOS/Linux: source .venv/bin/activate")
+            sys.exit(1)
+
+        log.info("Pipeline initialized at %s",
+                 dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+        # 2. Check dependencies
+        ellipsis("Checking dependencies")
+        check_dependencies()
+
+        # 3. Drop existing database for reproducibility
+>>>>>>> Stashed changes
         ellipsis("Dropping existing database")
         if db_path.exists():
             os.remove(str(db_path))

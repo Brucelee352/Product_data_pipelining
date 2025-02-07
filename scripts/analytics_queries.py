@@ -15,6 +15,7 @@ def run_lifecycle_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze user lifecycle metrics."""
     try:
         query = f"""
+<<<<<<< Updated upstream
             SELECT 
                 product_name,
                 COUNT(*) AS total_sessions,
@@ -22,9 +23,37 @@ def run_lifecycle_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
                 SUM(CASE WHEN purchase_status = 'completed' THEN 1 ELSE 0 END) AS completed_purchases
             FROM {PRODUCT_SCHEMA}
             GROUP BY product_name
+=======
+            WITH lifecycle_data AS (
+                SELECT
+                    product_name,
+                    purchase_status,
+                    SUM(TRY_CAST(price AS INTEGER)) AS total_revenue,
+                    COUNT(DISTINCT user_id) as total_customers,
+                    COUNT(*) as total_purchases
+                FROM {PRODUCT_SCHEMA}
+                WHERE purchase_status = 'completed'
+                GROUP BY product_name, purchase_status
+            )
+            SELECT 
+                   product_name,
+                   total_purchases,
+                   total_revenue,
+                   total_customers,
+                   ROUND(total_revenue / total_purchases, 2) as avg_purchase_value,
+                   ROUND(total_customers / total_purchases, 2) as avg_purchase_frequency_rate,
+                   ROUND(avg_purchase_value * avg_purchase_frequency_rate, 2) as avg_customer_value
+            FROM lifecycle_data
+            GROUP BY product_name, total_revenue, total_customers, total_purchases;
+>>>>>>> Stashed changes
         """
         result = conn.execute(query).fetchdf()
         return result
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
     except Exception as e:
         log.error(f"Error in lifecycle analysis: {str(e)}")
         raise
@@ -33,13 +62,18 @@ def run_purchase_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
     """Analyze purchase patterns."""
     try:
         query = f"""
+<<<<<<< Updated upstream
             SELECT 
+=======
+            SELECT
+                product_name,
+>>>>>>> Stashed changes
                 price_tier,
                 COUNT(*) AS total_purchases,
-                AVG(price) AS avg_price
+                ROUND(AVG(price), 2) AS avg_price
             FROM {PRODUCT_SCHEMA}
             WHERE purchase_status = 'completed'
-            GROUP BY price_tier
+            GROUP BY price_tier, product_name
         """
         result = conn.execute(query).fetchdf()
         return result
@@ -52,9 +86,9 @@ def run_demographics_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
     try:
         query = f"""
             SELECT
-                device_type,
-                os,
-                browser,
+                job_title,
+                price_tier,
+                product_name,
                 COUNT(DISTINCT user_id) as unique_users,
                 COUNT(*) as total_sessions,
                 ROUND(AVG(session_duration_minutes), 2) as avg_session_duration,
@@ -63,11 +97,16 @@ def run_demographics_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
                     ELSE 0 
                 END), 2) as avg_purchase_value
             FROM {PRODUCT_SCHEMA}
-            GROUP BY device_type, os, browser
+            GROUP BY job_title, price_tier, product_name
             HAVING COUNT(*) > 10
             ORDER BY unique_users DESC;
         """
+<<<<<<< Updated upstream
         return conn.execute(query).fetchdf()
+=======
+        result = con.execute(query).fetchdf()
+        return result
+>>>>>>> Stashed changes
     except Exception as e:
         log.error(f"Error in demographics analysis: {str(e)}")
         raise
@@ -99,6 +138,7 @@ def run_engagement_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
     try:
         return conn.sql(f"""
             SELECT
+<<<<<<< Updated upstream
                 DATE_TRUNC('hour', TRY_CAST(login_time AS TIMESTAMP)) as hour,
                 COUNT(*) as total_sessions,
                 COUNT(DISTINCT user_id) as unique_users,
@@ -109,6 +149,19 @@ def run_engagement_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
                 END), 2) as revenue
             FROM {PRODUCT_SCHEMA}
             GROUP BY DATE_TRUNC('hour', TRY_CAST(login_time AS TIMESTAMP))
+=======
+                DATE_TRUNC('hour', login_time) AS hour,
+                COUNT(*) AS total_sessions,
+                COUNT(DISTINCT user_id) AS unique_users,
+                ROUND(
+                    AVG(
+                        COALESCE(session_duration_minutes, 0)), 
+                        2) AS avg_session_duration,
+                ROUND(SUM(COALESCE(price, 0)), 2) AS revenue
+            FROM {PRODUCT_SCHEMA}
+            WHERE purchase_status = 'completed'
+            GROUP BY DATE_TRUNC('hour', login_time)
+>>>>>>> Stashed changes
             ORDER BY total_sessions DESC;
         """).fetchdf()
     except Exception as e:
@@ -123,8 +176,18 @@ def run_churn_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
                 DATE_TRUNC('month', TRY_CAST(account_created AS TIMESTAMP)) as cohort_month,
                 COUNT(DISTINCT user_id) as cohort_size,
                 ROUND(
+<<<<<<< Updated upstream
                     COUNT(CASE WHEN account_deleted IS NOT NULL THEN 1 END) * 100.0 / 
                     NULLIF(COUNT(*), 0),
+=======
+                    COUNT(
+                        CASE
+                            WHEN account_deleted IS NOT NULL
+                            THEN 1
+                        END) * 100.0 /
+                    NULLIF(
+                        COUNT(*), 0),
+>>>>>>> Stashed changes
                 2) as churn_rate,
                 ROUND(
                     AVG(CASE 
@@ -174,8 +237,15 @@ def run_funnel_analysis(conn: DuckDBPyConnection) -> pd.DataFrame:
                 COUNT(*) as total_views,
                 COUNT(DISTINCT user_id) as unique_viewers,
                 ROUND(
+<<<<<<< Updated upstream
                     COUNT(CASE WHEN purchase_status = 'completed' THEN 1 END) * 100.0 / 
                     NULLIF(COUNT(*), 0),
+=======
+                    COUNT(
+                        CASE WHEN purchase_status = 'completed'
+                        THEN 1 END) * 100.0 /
+                        NULLIF(COUNT(*), 0),
+>>>>>>> Stashed changes
                 2) as conversion_rate
             FROM {PRODUCT_SCHEMA}
             GROUP BY product_name
