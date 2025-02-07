@@ -1,2 +1,45 @@
-price_tier,total_purchases,avg_price
-Standard,2634,2572.98460516325
+product_name,price_tier,total_purchases,avg_price
+Omicron,Premium,374,628.12
+Gamma,Standard,404,715.28
+Epsilon,Budget,369,661.24
+Alpha,Premium,375,638.14
+Alpha,Standard,375,638.14
+Omicron,Standard,374,628.12
+Gamma,Premium,404,715.28
+Beta,Budget,327,621.26
+Gamma,Luxury,404,715.28
+Zeta,Budget,336,675.64
+Omicron,Luxury,374,628.12
+Alpha,Luxury,375,638.14
+Legacy Product,Budget,9,791.7
+Delta,Luxury,367,675.91
+Omega,Budget,346,696.45
+Delta,Standard,367,675.91
+Phi,Budget,331,620.51
+Delta,Premium,367,675.91
+Beta Product,Budget,15,595.79
+Zeta,Standard,336,675.64
+Beta,Premium,327,621.26
+Legacy Product,Premium,9,791.7
+Zeta,Premium,336,675.64
+Epsilon,Luxury,369,661.24
+Beta,Standard,327,621.26
+Legacy Product,Standard,9,791.7
+Epsilon,Premium,369,661.24
+Alpha,Budget,375,638.14
+Omicron,Budget,374,628.12
+Zeta,Luxury,336,675.64
+Epsilon,Standard,369,661.24
+Beta,Luxury,327,621.26
+Gamma,Budget,404,715.28
+Legacy Product,Luxury,9,791.7
+Omega,Luxury,346,696.45
+Phi,Premium,331,620.51
+Delta,Budget,367,675.91
+Phi,Standard,331,620.51
+Beta Product,Luxury,15,595.79
+Omega,Standard,346,696.45
+Beta Product,Premium,15,595.79
+Omega,Premium,346,696.45
+Phi,Luxury,331,620.51
+Beta Product,Standard,15,595.79

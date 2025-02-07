@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 device_type,os,browser,unique_users,total_sessions,avg_session_duration,avg_purchase_value
 (X11; Linux i686),,,126,161,131.22,858.83
 (X11; Linux x86_64),,,120,150,134.47,861.21
@@ -56,3 +57,46 @@ device_type,os,browser,unique_users,total_sessions,avg_session_duration,avg_purc
 (iPad; CPU iPad OS 2_2_1 like Mac OS X),,,8,11,131.39,583.71
 (iPhone; CPU iPhone OS 17_1_2 like Mac OS X),,,8,12,117.7,1248.5
 (iPhone; CPU iPhone OS 17_1_1 like Mac OS X),,,7,11,154.23,409.65
+=======
+job_title,price_tier,product_name,unique_users,total_sessions,avg_session_duration,avg_purchase_value
+,Premium,Beta,0,232,44.38,186.69
+,Budget,Beta Product,0,12,45.0,19.48
+,Premium,Omicron,0,220,44.36,209.81
+,Premium,Alpha,0,203,43.44,214.41
+,Budget,Delta,0,237,44.55,222.83
+,Premium,Gamma,0,217,44.07,204.74
+,Standard,Phi,0,202,43.93,158.67
+,Standard,Omega,0,237,43.82,217.34
+,Luxury,Gamma,0,217,44.07,204.74
+,Luxury,Omicron,0,220,44.36,209.81
+,Luxury,Alpha,0,203,43.44,214.41
+,Standard,Beta Product,0,12,45.0,19.48
+,Luxury,Omega,0,237,43.82,217.34
+,Standard,Gamma,0,217,44.07,204.74
+,Premium,Phi,0,202,43.93,158.67
+,Budget,Epsilon,0,244,44.28,212.36
+,Premium,Zeta,0,209,44.57,232.15
+,Budget,Omega,0,237,43.82,217.34
+,Luxury,Epsilon,0,244,44.28,212.36
+,Standard,Delta,0,237,44.55,222.83
+,Luxury,Zeta,0,209,44.57,232.15
+,Budget,Phi,0,202,43.93,158.67
+,Premium,Epsilon,0,244,44.28,212.36
+,Luxury,Beta,0,232,44.38,186.69
+,Luxury,Delta,0,237,44.55,222.83
+,Standard,Zeta,0,209,44.57,232.15
+,Standard,Beta,0,232,44.38,186.69
+,Budget,Alpha,0,203,43.44,214.41
+,Budget,Omicron,0,220,44.36,209.81
+,Premium,Delta,0,237,44.55,222.83
+,Budget,Gamma,0,217,44.07,204.74
+,Standard,Epsilon,0,244,44.28,212.36
+,Standard,Omicron,0,220,44.36,209.81
+,Standard,Alpha,0,203,43.44,214.41
+,Budget,Beta,0,232,44.38,186.69
+,Budget,Zeta,0,209,44.57,232.15
+,Premium,Omega,0,237,43.82,217.34
+,Luxury,Phi,0,202,43.93,158.67
+,Luxury,Beta Product,0,12,45.0,19.48
+,Premium,Beta Product,0,12,45.0,19.48
+>>>>>>> Stashed changes

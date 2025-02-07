@@ -1,26 +1,16 @@
-"""
-#----------------------------------------------------------------#
+""" 
 Product Data Pipeline v4.0
 
-This script is designed to generate, clean, and store product data
-for a made up platform that emulates a real-world SaaS platform.
-
-You can refer to the README.md file for more information.
-
-#----------------------------------------------------------------#
+This script is designed to generate, clean, and store product data 
+for a platform I made up.
 
 Please install dependencies via CLI, before running:
 
-pip install -e . [dev] # This runs the pyproject.toml file.
-
-An optional requirements.txt file can be found in the root
-directory of the project on GitHub for download.
-
-That can be installed with via CLI (cmd, Bash, PwSh):
-
 pip install -r requirements.txt
 
-#----------------------------------------------------------------#
+requirements.txt file can be found in the root directory of the 
+project on GitHub for download.
+
 """
 
 # Standard library imports
@@ -31,10 +21,10 @@ import sys
 from datetime import datetime as dt
 from datetime import timedelta
 from pathlib import Path
-from typing import Dict, Union
-import importlib.metadata as metadata
-import importlib.resources as resources
+import pandas as pd
+from typing import Dict, Union, List, Any
 import time
+import subprocess
 
 # Third-party imports
 import duckdb
@@ -43,7 +33,6 @@ from dotenv import load_dotenv
 from faker import Faker
 from dbt.cli.main import dbtRunner
 from user_agents import parse
-import pandas as pd
 
 # Local imports for analytics queries
 from analytics_queries import (
@@ -58,11 +47,10 @@ from analytics_queries import (
     save_analysis_results
 )
 
-# Configuration and constants
+## Configuration and constants
 
 # Initialize paths and configuration
 PROJECT_ROOT = Path(__file__).parents[1]
-os.environ['DBT_PROFILES_DIR'] = str(PROJECT_ROOT / '.dbt')
 load_dotenv(dotenv_path=PROJECT_ROOT / 'pdp_config.env')
 PRODUCT_SCHEMA = 'main.product_schema'
 
@@ -75,29 +63,34 @@ logging.basicConfig(
     level=os.getenv('LOG_LEVEL', 'INFO'),
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(
-            os.getenv('LOG_FILE',
-                      'logs/generate_fake_data.log')),
+        logging.FileHandler(os.getenv('LOG_FILE', 'logs/generate_fake_data.log')),
         logging.StreamHandler(sys.stdout)
     ]
 )
 log = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', '8000'))
+<<<<<<< Updated upstream
+DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', 8000))
+START_DATETIME = dt.strptime(os.getenv('START_DATETIME', '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
+END_DATETIME = dt.strptime(os.getenv('END_DATETIME', '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
+VALID_STATUSES = os.getenv('VALID_STATUSES', 'pending,completed,failed').split(',')
+=======
+DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', '10000'))
 START_DATETIME = dt.strptime(
     os.getenv('START_DATETIME',
-              '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
+              '2020-01-01 10:30'), '%Y-%m-%d %H:%M')
 END_DATETIME = dt.strptime(
     os.getenv('END_DATETIME',
               '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
 VALID_STATUSES = os.getenv(
-    'VALID_STATUSES', 'pending,completed,failed').split(',')
+    'VALID_STATUSES', 'pending,completed,failed,refunded,chargeback').split(',')
+>>>>>>> Stashed changes
 
 # Random seed configuration
 fake = Faker()
-Faker.seed(int(os.getenv('FAKER_SEED', '42')))
-random.seed(int(os.getenv('RANDOM_SEED', '42')))
+Faker.seed(int(os.getenv('FAKER_SEED', 42)))
+random.seed(int(os.getenv('RANDOM_SEED', 42)))
 
 # Database configuration
 DBT_ROOT = PROJECT_ROOT / 'dbt_pipeline_demo'
@@ -111,158 +104,120 @@ S3_CONFIG: Dict[str, Union[str, bool]] = {
     'access_key': os.getenv('MINIO_ACCESS_KEY'),
     'secret_key': os.getenv('MINIO_SECRET_KEY'),
     'bucket': os.getenv('MINIO_BUCKET_NAME'),
-    'use_ssl': os.getenv('MINIO_USE_SSL', 'False'
-                         ).lower() in {'true', '1', 'yes'},
+    'use_ssl': os.getenv('MINIO_USE_SSL', 'False').lower() in {'true', '1', 'yes'},
 }
 
+<<<<<<< Updated upstream
+## Functions
+=======
+# Move global variables into a class or function
+class PipelineState:
+    def __init__(self):
+        self.cached_data = None
 
-# Functions
+    def reset_state(self):
+        """Reset the pipeline state."""
+        self.cached_data = None
 
+# Create a global instance (optional)
+pipeline_state = PipelineState()
+>>>>>>> Stashed changes
 
-def ellipsis(process_name="Loading", num_dots=3, interval=20) -> None:
-    """
-    Prints static loading messages with trailing periods.
-    Unnecessary, but for flare, why not? I like it.
-
-    Args:
-        process_name(str): The name of the process to display.
-        num_dots(int): The number of dots to print.
-        interval(int): The interval between dots in seconds.
-    """
+def ellipsis(process_name="Loading", num_dots=3, interval=20):
+    """Prints static loading messages with trailing periods."""
     try:
-        # Print out the process name
+        # Print the process name
         sys.stdout.write(process_name)
         sys.stdout.flush()
-
-        # Prints out trailing ellipses with a delay
+        
+        # Prints trailing ellipses with a delay
         for _ in range(num_dots):
             sys.stdout.write(".")
             sys.stdout.flush()
             time.sleep(interval)
-
+        
         # Move to the next line
         sys.stdout.write("\n")
     except Exception as e:
-        log.error("Error in ellipsis function: %s", str(e))
+        log.error(f"Error in ellipsis function: {str(e)}")
         raise
 
-
-def check_dependencies() -> None:
-    """
-    Verifies if the required packages are installed.
-    Exits the program if any are missing.
-
-    This version uses:
-      - importlib.metadata to list installed packages, and
-      - importlib.resources to load a file containing dependency info.
- """
-
-    # Attempts to load the dependency list from a resource file.
-    # Change 'your_package' to the package where the file resides;
-    # here we assume the file is named "dependencies.txt" and is packaged.
-
+def activate_venv():
+    """Activate the dbt virtual environment."""
     try:
-        # Handle case where __package__ is None (script run directly)
-        package_path = Path(__file__).parent
-        if __package__ is None:
-            package_path = Path(__file__).parent
+        # Get the project root directory
+        venv_root = Path(__file__).parents[4]
+        
+        # Relative path to your virtual environment
+        venv_path = venv_root / '.dbt' / 'Envs' / 'dbt-env'
+        
+        # Verify the virtual environment exists
+        if not venv_path.exists():
+            raise FileNotFoundError(f"Virtual environment not found at {venv_path}")
+        
+        # Activate the virtual environment
+        if sys.platform == 'win32':
+            activate_script = venv_path / 'Scripts' / 'activate.bat'
+            subprocess.run([str(activate_script)], shell=False, check=True)
         else:
-            package_path = Path(__file__).parent / resources.files(__package__)
-        with (package_path / "dependencies.txt").open() as f:
-            required_data = f.read()
-
-        # Each line is assumed to be "package==version" or a comment.
-        required = {
-            line.split("==")[0].strip()
-            for line in required_data.splitlines()
-            if line.strip() and not line.strip().startswith("#")
-        }
-    except (FileNotFoundError, TypeError):
-        # Fallback to hardcoded required packages if no resource file is found.
-        required = {
-            'user-agents',
-            'duckdb',
-            'minio',
-            'pandas',
-            'faker',
-            'dbt-core',
-            'dbt-duckdb'
-        }
-
-    # Use importlib.metadata to get a set of installed package names.
-    installed = {
-        dist.metadata.get('Name', '').lower()
-        for dist in metadata.distributions()
-        if dist.metadata.get('Name')
-    }
-
-    # Identify missing packages (case-insensitively).
-    missing = {pkg for pkg in required if pkg.lower() not in installed}
-
-    if missing:
-        log.error("Missing packages: %s", missing)
-        log.info(
-            "Please ensure that the virtual environment is created, "
-            "and then install dependencies:"
-        )
-        log.info("  venv creation: python -m venv .venv")
-        log.info(
-            "  venv activation: source .venv/bin/activate  # or "
-            ".venv\\Scripts\\activate on Windows")
-        log.info("  dependencies: pip install -r requirements.txt")
+            activate_script = venv_path / 'bin' / 'activate'
+            subprocess.run(['source', str(activate_script)], shell=False, check=True)
+            
+        log.info(f"Virtual environment activated successfully from {venv_path}")
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        log.error(f"Failed to activate virtual environment: {str(e)}")
         sys.exit(1)
 
-
-def generate_data() -> pd.DataFrame:
-    """
-    Generates synthetic data for the pipeline.
-
-    Args:
-        DEFAULT_NUM_ROWS (int): The number of rows to generate,
-        can be set in .env file, as well as START_DATETIME and END_DATETIME.
-    """
-
+def generate_data():
+    """Generates synthetic data for the pipeline."""
+        
     try:
         data = []
         for _ in range(DEFAULT_NUM_ROWS):
             # Generate user data
             first_name = fake.first_name()
             last_name = fake.last_name()
+            base_price = round(fake.pyfloat(
+                min_value=100, 
+                max_value=5000, 
+                right_digits=2), 
+                               2)
+            price = (random.choice([base_price * 10, base_price / 10]) 
+                     if random.random() < 0.01 else base_price)  
+            product_name = (random.choice(["Alpha", "Beta", 
+                                           "Gamma", "Delta",
+                                           "Omicron", "Phi", 
+                                           "Epsilon", "Zeta", 
+                                           "Omega"])
+                            if random.random() > 0.009  else 
+                            random.choice(["Legacy Product", 
+                                           "Beta Product"]))
+            purchase_status = (
+                random.choice(["completed", "pending", "failed"] 
+                if random.random() > 0.005 else
+                random.choice(["refunded", "chargeback"]))
+            )
             is_active = random.random() < 0.8
 
-            # Generate timestamps
-            account_created = fake.date_time_between(
-                start_date=START_DATETIME, end_date=END_DATETIME)
-            account_updated = fake.date_time_between(
-                start_date=account_created, end_date=END_DATETIME)
-            account_deleted = (
-                None if is_active else fake.date_time_between(
-                    start_date=account_updated, end_date=END_DATETIME
-                )
-            )
 
+            # Generate timestamps
+            account_created = fake.date_time_between(start_date=START_DATETIME, end_date=END_DATETIME)
+            account_updated = fake.date_time_between(start_date=account_created, end_date=END_DATETIME)
+            account_deleted = None if is_active else fake.date_time_between(start_date=account_updated, end_date=END_DATETIME)
+            
             login_time = fake.date_time_between(
                 start_date=account_created,
-                end_date=account_deleted
-                if account_deleted else END_DATETIME
+                end_date=account_deleted if account_deleted else END_DATETIME
             )
-            logout_time = (
-                login_time + timedelta(hours=random.uniform(0.5, 4))
-            )
-
+            logout_time = login_time + timedelta(hours=random.uniform(0.5, 4))
+            
             # Create record
             record = {
                 "user_id": fake.uuid4(),
                 "first_name": first_name,
                 "last_name": last_name,
-                "email": (
-                    f"{first_name.lower()}_{
-                        last_name.lower()
-                    }@{fake.domain_name()}"
-                ),
-                "date_of_birth": fake.date_of_birth(
-                    minimum_age=18, maximum_age=72
-                ).isoformat(),
+                "email": f"{first_name.lower()}_{last_name.lower()}@{fake.domain_name()}",
+                "date_of_birth": fake.date_of_birth(minimum_age=18, maximum_age=72).isoformat(),
                 "phone_number": fake.phone_number(),
                 "address": fake.address(),
                 "city": fake.city(),
@@ -277,33 +232,36 @@ def generate_data() -> pd.DataFrame:
                 "logout_time": logout_time.isoformat(),
                 "account_created": account_created.isoformat(),
                 "account_updated": account_updated.isoformat(),
+<<<<<<< Updated upstream
+                "account_deleted": account_deleted.isoformat() if account_deleted else None,
+                "session_duration_minutes": (logout_time - login_time).total_seconds() / 60,
+                "product_id": fake.uuid4(),
+                "product_name": fake.random_element(["Alpha", "Beta", "Gamma", "Delta", "Epsilon", "Zeta", "Eta", "Theta", "Iota", "Kappa", "Lambda", "Omicron", "Sigma", "Tau", "Upsilon", "Phi", "Omega"]),
+                "price": round(fake.pyfloat(min_value=100, max_value=5000, right_digits=2), 2),
+                "purchase_status": fake.random_element(["completed", "pending", "failed"]),
+=======
                 "account_deleted": (
                     account_deleted.isoformat()
                     if account_deleted else None
                 ),
                 "session_duration_minutes": (
-                    (logout_time - login_time).total_seconds() / 60
+                    random.gauss(30, 10)
+                    if random.random() < 0.05 else 30 * 1.5
                 ),
                 "product_id": fake.uuid4(),
-                "product_name": fake.random_element(
-                    ["Alpha", "Beta", "Gamma", "Delta",
-                     "Epsilon", "Zeta", "Eta", "Theta", "Iota",
-                     "Kappa", "Lambda", "Omicron", "Sigma",
-                     "Tau", "Upsilon", "Phi", "Omega"
-                     ]
+                "product_name": product_name,
+                "price": (
+                    round(price, 2)
+                    if purchase_status == ['refunded', 'chargeback']  
+                    else round(price * 0.25, 2)
                 ),
-                "price": round(fake.pyfloat(
-                    min_value=100,
-                    max_value=5000,
-                    right_digits=2), 2
-                ),
-                "purchase_status": (
-                    fake.random_element(
-                        ["completed", "pending", "failed"]
-                    )
-                ),
+                "purchase_status": purchase_status,
+>>>>>>> Stashed changes
                 "user_agent": fake.user_agent()
+
+
             }
+
             data.append(record)
 
         return pd.DataFrame(data)
@@ -312,38 +270,22 @@ def generate_data() -> pd.DataFrame:
         raise
 
 
-def validate_timestamps(row) -> bool:
-    """
-    Function validates the timestamps for the login
-    and logout times, to ensure consistency.
-
-    Args:
-        row (pd.Series): The row to validate.
-    """
+def validate_timestamps(row):
+    """Function validates the timestamps for the login and logout times, to ensure consistency."""
     try:
         login = pd.to_datetime(row['login_time'])
         logout = pd.to_datetime(row['logout_time'])
-        return (pd.notnull(login) and pd.notnull(logout)
-                and login <= logout)
-    except (ValueError, FileNotFoundError, ImportError) as e:
-        log.error(
-            "Error validating timestamps for row %s: %s",
-            row.name, str(e)
-        )
+        return pd.notnull(login) and pd.notnull(logout) and login <= logout
+    except Exception as e:
+        log.error("Error validating timestamps for row %s: %s", row.name, str(e))
         return False
 
-
-def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle basic data cleaning operations.
-
-    Args:
-        df (pd.DataFrame): The dataframe to process.
-    """
+def process_basic_cleaning(df):
+    """Handle basic data cleaning operations."""
     # Generate transaction ID
     df['transact_id'] = df.apply(
         lambda row: f"txn_{row['user_id']}_{pd.to_datetime(
-            row['login_time']).strftime('%Y%m%d%H%M%S')}"
+        row['login_time']).strftime('%Y%m%d%H%M%S')}"
         if pd.notnull(row['login_time']) else None,
         axis=1
     )
@@ -361,32 +303,22 @@ def basic_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     df['country'] = 'United States'
     df['is_active'] = df['is_active'].replace({0: 'no', 1: 'yes'})
 
-    return df[['user_id', 'transact_id', 'first_name', 'last_name',
-               'email', 'date_of_birth', 'address', 'state', 'country',
-               'company', 'job_title', 'ip_address', 'is_active',
-               'login_time', 'logout_time', 'account_created',
-               'account_updated', 'account_deleted',
-               'session_duration_minutes', 'product_name', 'price',
-               'purchase_status', 'user_agent']]
+    return df[['user_id', 'transact_id', 'first_name', 'last_name', 'email',
+              'date_of_birth', 'address', 'state', 'country',
+               'company', 'job_title', 'ip_address', 'is_active', 'login_time',
+               'logout_time', 'account_created', 'account_updated', 'account_deleted',
+               'session_duration_minutes', 'product_name', 'price', 'purchase_status',
+               'user_agent']]
 
 
-def advanced_cleaning(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle advanced data processing and validation.
-
-    Parses user_agents(str) into the following fields:
-        - device_type(str)
-        - os(str)
-        - browser(str)
-    """
+def process_advanced_cleaning(df):
+    """Handle advanced data processing and validation."""
     # Process user agent data
-    df[['device_type', 'os', 'browser']] = df['user_agent'].apply(
-        lambda ua: pd.Series(
-            {
-                'device_type': parse(ua).device.family,
-                'os': parse(ua).os.family,
-                'browser': parse(ua).browser.family
-            }))
+    df[['device_type', 'os', 'browser']] = df['user_agent'].apply(lambda ua: pd.Series({
+        'device_type': parse(ua).device.family,
+        'os': parse(ua).os.family,
+        'browser': parse(ua).browser.family
+    }))
     df['device_type'] = df['device_type'].str.replace('Other', 'Desktop')
 
     # Validate and filter data
@@ -399,20 +331,8 @@ def advanced_cleaning(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def add_analysis_fields(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Add additional analysis fields to the dataframe.
-
-    Produces an additive dataframe with the following fields:
-        - cohort_date
-        - user_age_days
-        - engagement_level
-        - price_tier
-        - customer_lifetime_value
-
-    Needed to make the data more useful for analysis.
-    """
-
+def add_analysis_fields(df):
+    """Add additional analysis fields to the dataframe."""
     # Ensure datetime columns are properly formatted
     date_columns = ['account_created', 'login_time',
                     'logout_time', 'account_updated', 'account_deleted']
@@ -455,71 +375,38 @@ def add_analysis_fields(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-
-def prepare_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Function prepares the generated data for cleaning and loading,
-    Then saves the data in multiple formats, and metrics.
-
-    It runs the following functions:
-        - basic_cleaning
-        - advanced_cleaning
-        - add_analysis_fields
-
-    It saves the following metrics:
-        - cleaning_metrics
-        - quality_metrics
-    """
-
+def prepare_data(df):
+    """Function prepares the generated data for cleaning and loading."""
     try:
-        df = basic_cleaning(df)
-        df = advanced_cleaning(df)
+        df = process_basic_cleaning(df)
+        df = process_advanced_cleaning(df)
         df = add_analysis_fields(df)
         # Save metrics and data
         save_metrics(df, PROJECT_ROOT)
         save_data_formats(df, PROJECT_ROOT)
-        return df
+        return df  # Return only the DataFrame
     except Exception as e:
         log.error("Error in data cleaning: %s", str(e))
         raise
 
 
-def save_metrics(df: pd.DataFrame, project_root: Path) -> None:
-    """
-    Saves data quality metrics, locally for debugging purposes.
-
-    Args:
-        df (pd.DataFrame): The dataframe to save.
-        project_root (Path): The root directory of the project.
-    """
+def save_metrics(df, project_root):
+    """Save data quality metrics."""
     initial_count = len(df)
     metrics_dir = project_root / 'metrics'
     metrics_dir.mkdir(exist_ok=True)
-
     cleaning_metrics = {
         'initial_records': initial_count,
-        'duplicate_emails_removed': (
-            initial_count - len(df.drop_duplicates(subset=['email']))
-        ),
-        'invalid_sessions_removed': (
-            len(df[~df.apply(validate_timestamps, axis=1)])
-        ),
-        'invalid_prices_removed': (
-            len(df[df['price'] <= 0])
-        ),
-        'invalid_status_removed': (
-            len(df[~df['purchase_status'].isin(VALID_STATUSES)])
-        )
+        'duplicate_emails_removed': initial_count - len(df.drop_duplicates(subset=['email'])),
+        'invalid_sessions_removed': len(df[~df.apply(validate_timestamps, axis=1)]),
+        'invalid_prices_removed': len(df[df['price'] <= 0]),
+        'invalid_status_removed': len(df[~df['purchase_status'].isin(VALID_STATUSES)])
     }
     quality_metrics = {
         'null_percentage': df.isnull().sum().to_dict(),
         'price_stats': df['price'].describe().to_dict(),
-        'session_duration_stats': (
-            df['session_duration_minutes'].describe().to_dict()
-        ),
-        'device_type_distribution': (
-            df['device_type'].value_counts().to_dict()
-        )
+        'session_duration_stats': df['session_duration_minutes'].describe().to_dict(),
+        'device_type_distribution': df['device_type'].value_counts().to_dict()
     }
     timestamp = dt.now().strftime("%Y%m%d")
     pd.DataFrame([cleaning_metrics]).to_csv(
@@ -528,39 +415,32 @@ def save_metrics(df: pd.DataFrame, project_root: Path) -> None:
         metrics_dir / f'quality_metrics_{timestamp}.csv')
 
 
-def save_data_formats(df: pd.DataFrame, project_root: Path
-                      ) -> tuple[Path, Path, Path]:
-    """
-    Save cleaned data in multiple formats (CSV, JSON, Parquet)
-    and saves to the data directory, locally.
-
-    Args:
-        df (pd.DataFrame): The dataframe to save.
-        project_root (Path): The root directory of the project.
+def save_data_formats(df, project_root):
+    """Save cleaned data in multiple formats (CSV, JSON, Parquet)
+       and saves to the data directory, locally.
     """
     try:
         # Create data directory if it doesn't exist
         data_dir = project_root / 'data'
         data_dir.mkdir(parents=True, exist_ok=True)
-
+        
         # Define file paths
         csv_path = data_dir / 'cleaned_data.csv'
         json_path = data_dir / 'cleaned_data.json'
         parquet_path = data_dir / 'cleaned_data.parquet'
-
+        
         # Save data in different formats
         df.to_csv(csv_path, index=False)
         df.to_json(json_path, orient='records', date_format='iso')
         df.to_parquet(parquet_path, index=False)
-
+        
         # Log success
-        log.info("Data saved in CSV, JSON, "
-                 "and Parquet formats at %s", data_dir)
-
+        log.info(f"Data saved in CSV, JSON, and Parquet formats at {data_dir}")
+        
         # Return paths for further use
         return csv_path, json_path, parquet_path
     except Exception as e:
-        log.error("Error saving data formats: %s", str(e))
+        log.error(f"Error saving data formats: {str(e)}")
         raise
 
 
@@ -568,10 +448,10 @@ def make_ua_table(df: pd.DataFrame) -> None:
     """Create the source user_activity table in DuckDB."""
     try:
         conn = duckdb.connect(str(db_path))
-
+        
         # Drop existing table
         conn.execute("DROP TABLE IF EXISTS user_activity")
-
+        
         # Create table from DataFrame
         conn.register('temp_df', df)
         conn.execute("""
@@ -579,11 +459,10 @@ def make_ua_table(df: pd.DataFrame) -> None:
             CREATE TABLE user_activity AS
             SELECT * FROM temp_df;
         """)
-
-        count = conn.execute(
-            "SELECT COUNT(*) FROM user_activity").fetchone()[0]
-        log.info("Created user_activity table with %s records", count)
-
+        
+        count = conn.execute("SELECT COUNT(*) FROM user_activity").fetchone()[0]
+        log.info(f"Created user_activity table with {count} records")
+        
     except Exception as e:
         log.error("Error creating user_activity table: %s", str(e))
         raise
@@ -592,81 +471,46 @@ def make_ua_table(df: pd.DataFrame) -> None:
             conn.close()
 
 
-def run_dbt_ops() -> None:
-    """
-    Runs dbt deps and build model tables for data transformation.
-
-    Executes the following commands:
-        - dbt deps
-        - dbt run --target dev --full-refresh
-    """
+def run_dbt_models() -> None:
+    """Run dbt models to transform the data."""
     try:
         # Store original directory
         original_dir = os.getcwd()
-
+        
         # Change to dbt project directory
         os.chdir(DBT_ROOT)
-        log.info("Changed working directory to %s", DBT_ROOT)
-
-        # Clear dbt cache
-        dbt = dbtRunner()
-        dbt.invoke(["clean"])
-
-        # Run dbt deps
-        deps_result = dbt.invoke(["deps"])
-        if not deps_result.success:
-            log.error("Failed to run dbt deps")
-            raise RuntimeError("Failed to run dbt deps")
-
-        # Verify packages.yml exists
-        if not (DBT_ROOT / 'packages.yml').exists():
-            raise FileNotFoundError("packages.yml not "
-                                    "found in dbt project")
-
-        # Verify dbt_packages directory exists
-        dbt_packages_dir = DBT_ROOT / 'dbt_packages'
-        if not dbt_packages_dir.exists():
-            raise FileNotFoundError(
-                f"dbt_packages directory not found at {dbt_packages_dir}")
-
+        log.info(f"Changed working directory to {DBT_ROOT}")
+        
         # Run dbt commands
+        dbt = dbtRunner()
         result = dbt.invoke([
             "run",
             "--target", "dev",
             "--full-refresh"
         ])
-
-        if not result.success or not deps_result.success:
+        
+        if not result.success:
             log.error("Failed to run dbt models")
-            raise RuntimeError("Failed to run dbt models")
+            raise Exception("Failed to run dbt models")
         else:
             log.info("Successfully ran dbt models")
-
+        
         # Change back to original directory
         os.chdir(original_dir)
-        log.info("Changed back to original directory: %s",
-                 original_dir)
-
+        log.info(f"Changed back to original directory: {original_dir}")
+        
     except Exception as e:
         log.error("Error running dbt models: %s", str(e))
         raise
 
-
 def generate_reports() -> None:
-    """
-    Generate analytics reports from transformed data.
-
-    Runs all of the imported analytics queries from the
-    analytics_queries.py file.
-
-    Saves the reports to the reports directory.
-    """
+    """Generate analytics reports from transformed data."""
     try:
         reports_dir = PROJECT_ROOT / 'reports'
         reports_dir.mkdir(parents=True, exist_ok=True)
 
         conn = duckdb.connect(str(db_path))
-
+        
         # Run analytics
         analysis_results = {
             "lifecycle_analysis": run_lifecycle_analysis(conn),
@@ -682,30 +526,22 @@ def generate_reports() -> None:
         save_analysis_results(analysis_results, reports_dir)
 
     except Exception as e:
-        log.error("Error generating reports: %s", str(e))
+        log.error(f"Error generating reports: {str(e)}")
         raise
     finally:
         if 'conn' in locals():
             conn.close()
 
-
 def upload_data() -> str:
-    """
-    Upload transformed data to S3.
-
-    Uses DuckDB to get the final data, and then uploads it to S3.
-
-    Returns:
-        str: 'success' if the upload is successful, 'failed' otherwise.
-    """
+    """Upload transformed data to S3."""
     try:
         conn = duckdb.connect(str(db_path))
-
+        
         # Get final data
         final_df = conn.sql(f"""
             SELECT * FROM {PRODUCT_SCHEMA}
         """).df()
-
+        
         # Upload to S3
         client = minio.Minio(
             S3_CONFIG['endpoint'],
@@ -713,11 +549,11 @@ def upload_data() -> str:
             secret_key=S3_CONFIG['secret_key'],
             secure=S3_CONFIG['use_ssl']
         )
-
+        
         # Save data locally, temporarily
         final_df.to_json('temp_upload.json', orient='records')
         final_df.to_parquet('temp_upload.parquet', index=False)
-
+        
         # Upload to S3
         client.fput_object(
             bucket_name=S3_CONFIG['bucket'],
@@ -729,39 +565,34 @@ def upload_data() -> str:
             object_name='cleaned_data.parquet',
             file_path='temp_upload.parquet'
         )
-
+        
         # Clean up local files
         os.remove('temp_upload.json')
         os.remove('temp_upload.parquet')
-
-        log.info("Data uploaded to S3 successfully: "
-                 "%s rows", len(final_df))
-        return 'success'
-
-    except (minio.error.S3Error, IOError, ValueError) as e:
+        
+        log.info(f"Data uploaded to S3 successfully: {len(final_df)} rows")
+        return 'success'  
+        
+    except Exception as e:
         log.error("Error uploading data: %s", str(e))
-        return 'failed'
+        return 'failed' 
     finally:
         if 'conn' in locals():
             conn.close()
 
-
-def main() -> None:
-    """
-    Main function that orchestrates the data pipeline.
-
-    Runs the following steps:
-        - Verify virtual environment is active
-        - Drop existing database
-        - Initialize new database connection
-        - Generate fresh data
-        - Prepare data
-        - Create source table
-        - Run dbt transformations
-        - Generate reports
-        - Upload data
-    """
+def main():
     try:
+<<<<<<< Updated upstream
+        # Activate virtual environment
+        log.info("Pipeline initialized at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+        ellipsis("Activating virtual environment")
+        activate_venv()
+        
+        # Drop existing database (for reproducibility)
+=======
+        # Use pipeline_state instead of global variables
+        pipeline_state.reset_state()
+
         # 1. Verify virtual environment is active
         is_venv = hasattr(sys, 'real_prefix')
         is_venv_modern = (hasattr(sys, 'base_prefix')
@@ -784,58 +615,54 @@ def main() -> None:
         check_dependencies()
 
         # 3. Drop existing database for reproducibility
+>>>>>>> Stashed changes
         ellipsis("Dropping existing database")
-
         if db_path.exists():
             os.remove(str(db_path))
-            log.info("Removed existing database at %s", db_path)
-
-        # 4. Initialize new database connection
+            log.info(f"Removed existing database at {db_path}")
+        
+        # Initialize new database connection
         ellipsis("Initializing new database connection")
         conn = duckdb.connect(str(db_path))
-        log.info("Created new database at %s", db_path)
-
-        # 5. Generate fresh data
+        log.info(f"Created new database at {db_path}")
+        
+        # 1. Generate fresh data
         ellipsis("Generating fresh data")
         df = generate_data()
-
-        # 6. Prepare data
+        
+        # 2. Prepare data
         ellipsis("Preparing data")
         df = prepare_data(df)
-
-        # 7. Create source table
+        
+        # 3. Create source table
         ellipsis("Creating source table")
         make_ua_table(df)
-
-        # 8. Run dbt transformations
+        
+        # 4. Run dbt transformations
         print("Running dbt transformations!")
-        run_dbt_ops()
-
-        # 9. Generate reports
+        run_dbt_models()
+        
+        # 5. Generate reports
         ellipsis("Generating reports")
         generate_reports()
-
-        # 10. Upload data
+        
+        # 6. Upload data
         ellipsis("Uploading data")
         upload_status = upload_data()
         if upload_status == 'success':
-            timestamp = dt.now().strftime('%Y-%m-%d %H:%M:%S')
-            print(f"Pipeline completed successfully at {timestamp}")
-            log.info("Pipeline completed successfully at %s", timestamp)
+            print("Data uploaded to S3 successfully!")
+            print("Pipeline completed successfully at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
+            log.info("Pipeline completed successfully at %s", dt.now().strftime('%Y-%m-%d %H:%M:%S'))
         else:
-            log.error("Upload process failed!")
-
-    except (RuntimeError,
-            IOError,
-            ValueError,
-            duckdb.Error,
-            minio.error.S3Error) as e:
-        log.error("Pipeline failed: %s", str(e))
+            print("Data upload failed!")
+            log.error("S3 upload failed!")
+        
+    except Exception as e:
+        log.error(f"Pipeline failed: {str(e)}")
         sys.exit(1)
     finally:
         if 'conn' in locals():
             conn.close()
-
 
 if __name__ == "__main__":
     main()
