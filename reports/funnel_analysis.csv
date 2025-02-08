@@ -1,5 +1,4 @@
 product_name,total_views,unique_viewers,conversion_rate
-<<<<<<< Updated upstream
 Epsilon,478,366,36.82
 Phi,438,363,36.76
 Alpha,488,392,35.25
@@ -17,16 +16,3 @@ Tau,487,397,31.42
 Iota,483,392,31.06
 Omega,482,391,30.5
 Sigma,428,342,28.97
-=======
-Gamma,4556,922,35.47
-Alpha,4388,894,34.18
-Delta,4328,845,33.92
-Omicron,4464,896,33.51
-Epsilon,4464,872,33.06
-Phi,4152,836,31.89
-Beta Product,192,36,31.25
-Omega,4476,882,30.92
-Zeta,4352,879,30.88
-Beta,4244,829,30.82
-Legacy Product,168,36,21.43
->>>>>>> Stashed changes
