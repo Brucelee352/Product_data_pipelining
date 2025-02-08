@@ -114,34 +114,70 @@ def ddb_connect():
 st.set_page_config(
     page_icon='📊',
     layout='wide',
-    initial_sidebar_state='auto'
+    initial_sidebar_state='collapsed'
 )
 
 st.title('Bruce\'s Analytics Portfolio')
 st.subheader('An app showcasing customer analytics across modalities.')
 
-col1, col2 = st.columns(2, gap="small", vertical_alignment="center")
+st.divider()
+
+col1, col2, col3, col4, col5 = st.columns([0.5, 0.5, 0.5, 0.5, 0.5],
+                                          gap="small",
+                                          vertical_alignment="center")
+
 
 with col1:
-    st.page_link("https://github.com/brucelee352",
-                 label="Repository", icon="💾")
+    st.link_button(label="Repository",
+                   url="https://github.com/brucelee352/Product_data_pipelining",
+                   icon="💾",
+                   help="This project's GitHub repository",
+                   type="primary")
 with col2:
-    st.page_link("https://www.linkedin.com/in/brucealee/",
-                 label="LinkedIn", icon="👔")
+    st.link_button(label="LinkedIn",
+                   url="https://www.linkedin.com/in/brucealee/",
+                   icon="👔",
+                   help="My LinkedIn profile",
+                   type="primary")
+
+url = "https://github.com/Brucelee352/Product_data_pipelining/blob/e0b968643ea3455fc5368490c73133f6fb70ac37/misc/BruceLee_2025Resume_b.pdf"
+with col3:
+    st.link_button(label="Resume",
+                   url=url,
+                   icon="📄",
+                   help="Click to open my resume in a new tab",
+                   type="primary")
 
 
 # Run the pipeline and load data
-if st.button("Refresh Data"):
-    with st.spinner("Re-running data materialization..."):
-        try:
-            # Load Parquet file from MinIO
-            df = load_from_s3(S3_CONFIG['bucket'], 'cleaned_data.parquet')
-            run_dbt(df)
-            st.success("Data pipeline completed successfully!")
-        except FileNotFoundError as e:
-            st.error(log.error("Error running data pipeline: %s", str(e)))
-        except ValueError as e:
-            st.error(log.error("Error running data pipeline: %s", str(e)))
+
+with col4:
+    if st.button(label="Refresh",
+                 type="secondary",
+                 help="Rerun the data pipeline's models"):
+
+        with st.spinner("Re-running data materialization..."):
+            try:
+                # Load Parquet file from MinIO
+                df = load_from_s3(S3_CONFIG['bucket'], 'cleaned_data.parquet')
+                run_dbt(df)
+                st.success("Data pipeline completed successfully!")
+            except FileNotFoundError as e:
+                st.error(log.error("Error running data pipeline: %s", str(e)))
+            except ValueError as e:
+                st.error(log.error("Error running data pipeline: %s", str(e)))
+
+with col5:
+    df = load_from_s3(S3_CONFIG['bucket'], 'cleaned_data.parquet')
+    if st.download_button(label="Download Data",
+                          data=df.to_csv(),
+                          file_name="cleaned_data.csv",
+                          mime="text/csv"):
+        with st.spinner("Downloading data..."):
+            try:
+                st.success("Data downloaded successfully!")
+            except Exception as e:
+                st.error(log.error("Error downloading data: %s", str(e)))
 
 # Main application
 
@@ -160,27 +196,28 @@ def app():
                     if churn_analysis.empty:
                         st.warning("No data found for churn analysis.")
                     else:
-
-                        fig6 = px.line(churn_analysis,
-                                       x='cohort_month',
-                                       y='churn_rate',
-                                       color='cohort_size',
-                                       text='avg_days_to_churn',
-                                       title='Churn Analysis by Cohort',
-                                       height=600,
-                                       line_group="cohort_size"
-                                       )
-                        fig6.update_layout(
+                        fig6 = px.line(
+                            churn_analysis,
+                            x='cohort_month',
+                            y='churn_rate',
+                            color='cohort_size',
+                            text='avg_days_to_churn',
                             title='Churn Analysis by Cohort',
+                            height=600,
+                            line_group="cohort_size"
+                        )
+                        fig6.update_layout(
                             xaxis_title='Cohort Month',
                             yaxis_title='Churn Rate',
                             legend_title='Cohort Size'
                         )
                         st.plotly_chart(fig6, use_container_width=True)
+
                 except Exception as e:
                     st.error(
                         log.error("Error fetching churn analysis data: %s",
-                                  str(e)))
+                                  str(e))
+                    )
 
             with col2:
                 try:
@@ -216,6 +253,7 @@ def app():
                             "Error fetching purchase analysis data: %s", str(e)
                         )
                     )
+            st.divider()
             try:
                 lifecycle_analysis = la(con=con)
                 if lifecycle_analysis.empty:
@@ -319,7 +357,7 @@ def app():
                             "Error fetching business analysis data: %s", str(e)
                         )
                     )
-
+            st.divider()
             try:
                 engagement_analysis = ea(con=con)
                 if engagement_analysis.empty:
