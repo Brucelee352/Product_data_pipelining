@@ -3,7 +3,8 @@
 Product Data Pipeline v4.0
 
 This script is designed to generate, clean, and store product data
-for a made up platform that emulates a real-world SaaS platform.
+for a made up platform that emulates a real-world browser-based 
+SaaS platform.
 
 You can refer to the README.md file for more information.
 
@@ -11,7 +12,7 @@ You can refer to the README.md file for more information.
 
 Please install dependencies via CLI, before running:
 
-pip install -e . [dev] # This runs the pyproject.toml file.
+pip install -e . # This runs the pyproject.toml file.
 
 An optional requirements.txt file can be found in the root
 directory of the project on GitHub for download.
@@ -84,10 +85,10 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', '8000'))
+DEFAULT_NUM_ROWS = int(os.getenv('DEFAULT_NUM_ROWS', '10000'))
 START_DATETIME = dt.strptime(
     os.getenv('START_DATETIME',
-              '2022-01-01 10:30'), '%Y-%m-%d %H:%M')
+              '2021-01-01 10:30'), '%Y-%m-%d %H:%M')
 END_DATETIME = dt.strptime(
     os.getenv('END_DATETIME',
               '2024-12-31 23:59'), '%Y-%m-%d %H:%M')
@@ -116,9 +117,27 @@ S3_CONFIG: Dict[str, Union[str, bool]] = {
 }
 
 
+class PipelineState:
+    """
+    Class to manage the pipeline state.
+    """
+
+    def __init__(self):
+        """
+        Initialize the pipeline state.
+        """
+        self.cached_data = None
+
+    def reset_state(self):
+        """Reset the pipeline state."""
+        self.cached_data = None
+
+
+# Create a global instance (optional)
+pipeline_state = PipelineState()
+
+
 # Functions
-
-
 def ellipsis(process_name="Loading", num_dots=3, interval=20) -> None:
     """
     Prints static loading messages with trailing periods.
@@ -156,10 +175,6 @@ def check_dependencies() -> None:
       - importlib.metadata to list installed packages, and
       - importlib.resources to load a file containing dependency info.
  """
-
-    # Attempts to load the dependency list from a resource file.
-    # Change 'your_package' to the package where the file resides;
-    # here we assume the file is named "dependencies.txt" and is packaged.
 
     try:
         # Handle case where __package__ is None (script run directly)
@@ -228,6 +243,25 @@ def generate_data() -> pd.DataFrame:
             # Generate user data
             first_name = fake.first_name()
             last_name = fake.last_name()
+            base_price = round(fake.pyfloat(
+                min_value=100,
+                max_value=5000,
+                right_digits=2), 2)
+            price = (random.choice([base_price * 10, base_price / 10])
+                     if random.random() < 0.01 else base_price)
+            product_name = (random.choice(["Alpha", "Beta",
+                                           "Gamma", "Delta",
+                                           "Omicron", "Phi",
+                                           "Epsilon", "Zeta",
+                                           "Omega"])
+                            if random.random() > 0.009 else
+                            random.choice(["Legacy Product",
+                                           "Beta Product"]))
+            purchase_status = (
+                random.choice(["completed", "pending", "failed"]
+                              if random.random() > 0.005 else
+                              random.choice(["refunded", "chargeback"]))
+            )
             is_active = random.random() < 0.8
 
             # Generate timestamps
@@ -282,26 +316,18 @@ def generate_data() -> pd.DataFrame:
                     if account_deleted else None
                 ),
                 "session_duration_minutes": (
-                    (logout_time - login_time).total_seconds() / 60
+                    max(1, min(120, random.gauss(30, 10)))
+                    if random.random() < 0.95 else
+                    random.uniform(0.5, 5)
                 ),
                 "product_id": fake.uuid4(),
-                "product_name": fake.random_element(
-                    ["Alpha", "Beta", "Gamma", "Delta",
-                     "Epsilon", "Zeta", "Eta", "Theta", "Iota",
-                     "Kappa", "Lambda", "Omicron", "Sigma",
-                     "Tau", "Upsilon", "Phi", "Omega"
-                     ]
-                ),
-                "price": round(fake.pyfloat(
-                    min_value=100,
-                    max_value=5000,
-                    right_digits=2), 2
-                ),
-                "purchase_status": (
-                    fake.random_element(
-                        ["completed", "pending", "failed"]
-                    )
-                ),
+                "product_name": product_name,
+                "price": (price
+                          if purchase_status != "refunded" or
+                          purchase_status != "chargeback"
+                          else price * 0.25
+                          ),
+                "purchase_status": purchase_status,
                 "user_agent": fake.user_agent()
             }
             data.append(record)
@@ -762,6 +788,8 @@ def main() -> None:
         - Upload data
     """
     try:
+        pipeline_state.reset_state()
+
         # 1. Verify virtual environment is active
         is_venv = hasattr(sys, 'real_prefix')
         is_venv_modern = (hasattr(sys, 'base_prefix')

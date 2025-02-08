@@ -14,25 +14,21 @@ REPORTS_DIR = Path('reports')
 
 
 def run_lifecycle_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
-    """Analyze user lifecycle metrics."""
+    """Analyze user lifecycle metrics by price tier."""
     try:
         query = f"""
-            SELECT
-                product_name,
-                COUNT(*) AS total_sessions,
-                AVG(session_duration_minutes) AS avg_session_duration,
-                SUM(
-                    CASE WHEN purchase_status = 'completed'
-                    THEN 1
-                    ELSE 0
-                    END
-                ) AS completed_purchases
-            FROM {PRODUCT_SCHEMA}
-            GROUP BY product_name
-        """
+                SELECT
+                    os,
+                    price_tier,
+                    ROUND(SUM(price), 2) AS total_revenue,
+                    COUNT(DISTINCT user_id) AS total_customers,
+                    COUNT(*) AS total_purchases
+                FROM {PRODUCT_SCHEMA}
+                WHERE purchase_status = 'completed'
+                GROUP BY price_tier, os
+                """
         result = con.execute(query).fetchdf()
         return result
-
     except Exception as e:
         log.error("Error in lifecycle analysis: %s", str(e))
         raise
@@ -43,16 +39,21 @@ def run_purchase_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     try:
         query = f"""
             SELECT
+                product_name,
                 price_tier,
                 COUNT(*) AS total_purchases,
-                AVG(price) AS avg_price
+                ROUND(AVG(TRY_CAST(price AS DECIMAL(10,2))), 2) AS avg_price,
+                ROUND(SUM(TRY_CAST(price AS DECIMAL(10,2))), 2) AS total_revenue,
+                COUNT(DISTINCT user_id) AS unique_customers,
+                EXTRACT(MONTH FROM login_time) AS month
             FROM {PRODUCT_SCHEMA}
             WHERE purchase_status = 'completed'
-            GROUP BY price_tier
+            GROUP BY product_name, price_tier, month
+            HAVING COUNT(*) > 0
+            ORDER BY total_purchases DESC
         """
         result = con.execute(query).fetchdf()
         return result
-
     except Exception as e:
         log.error("Error in purchase analysis: %s", str(e))
         raise
@@ -63,24 +64,22 @@ def run_demographics_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     try:
         query = f"""
             SELECT
+                job_title,
+                price_tier,
+                product_name,
                 device_type,
-                os,
                 browser,
+                os,
                 COUNT(DISTINCT user_id) as unique_users,
                 COUNT(*) as total_sessions,
-                ROUND(
-                    AVG(session_duration_minutes), 2
-                    ) as avg_session_duration,
-                ROUND(
-                    AVG(
-                        CASE
-                            WHEN purchase_status = 'completed'
-                            THEN price
-                            ELSE 0
-                        END), 2) as avg_purchase_value
+                ROUND(AVG(session_duration_minutes), 2) as avg_session_duration,
+                ROUND(AVG(CASE
+                    WHEN purchase_status = 'completed' THEN price
+                    ELSE 0
+                END), 2) as avg_purchase_value
             FROM {PRODUCT_SCHEMA}
-            GROUP BY device_type, os, browser
-            HAVING COUNT(*) > 10
+            GROUP BY job_title, price_tier, product_name, device_type, browser, os
+            HAVING COUNT(DISTINCT user_id) > 1
             ORDER BY unique_users DESC;
         """
         result = con.execute(query).fetchdf()
@@ -92,11 +91,11 @@ def run_demographics_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
 
 
 def run_business_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
-    """Analyze business metrics by job title."""
+    """Analyze business metrics by device used."""
     try:
         query = f"""
             SELECT
-                job_title,
+                device_type,
                 COUNT(DISTINCT user_id) as unique_users,
                 COUNT(*) as total_sessions,
                 ROUND(
@@ -112,7 +111,7 @@ def run_business_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
                     COUNT(*),
                 2) as conversion_rate
             FROM {PRODUCT_SCHEMA}
-            GROUP BY job_title
+            GROUP BY device_type
             HAVING COUNT(DISTINCT user_id) > 5
             ORDER BY unique_users DESC;
         """
@@ -129,31 +128,21 @@ def run_engagement_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     try:
         query = f"""
             SELECT
-                DATE_TRUNC('hour',
-                TRY_CAST(login_time AS TIMESTAMP)) as hour,
+                EXTRACT(HOUR FROM login_time) AS hour,
                 COUNT(*) as total_sessions,
                 COUNT(DISTINCT user_id) as unique_users,
                 ROUND(
                     AVG(
-                        session_duration_minutes), 2
-                        ) as avg_session_duration,
-                ROUND(
-                    SUM(
-                        CASE
-                            WHEN purchase_status = 'completed'
-                            THEN price
-                            ELSE 0
-                        END), 2) as revenue
+                       COALESCE(session_duration_minutes, 0)),
+                        2) AS avg_session_duration,
+                ROUND(SUM(COALESCE(price, 0)), 2) AS revenue
             FROM {PRODUCT_SCHEMA}
-            GROUP BY DATE_TRUNC('hour',
-                     TRY_CAST(
-                        login_time AS TIMESTAMP)
-                        )
-            ORDER BY total_sessions DESC;
+            WHERE purchase_status = 'completed'
+            GROUP BY EXTRACT(HOUR FROM login_time)
+            ORDER BY hour ASC;
         """
         result = con.execute(query).fetchdf()
         return result
-
     except Exception as e:
         log.error("Error in engagement analysis: %s", str(e))
         raise
@@ -176,9 +165,7 @@ def run_churn_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
                             THEN 1
                         END) * 100.0 /
                     NULLIF(
-                        COUNT(*), 0),
-
-                2) as churn_rate,
+                        COUNT(*), 0),2) as churn_rate,
                 ROUND(
                     AVG(CASE
                         WHEN account_deleted IS NOT NULL THEN
@@ -199,7 +186,6 @@ def run_churn_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
         """
         result = con.execute(query).fetchdf()
         return result
-
     except Exception as e:
         log.error("Error in churn analysis: %s", str(e))
         raise
@@ -214,13 +200,11 @@ def run_session_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
                 first_name,
                 last_name,
                 COUNT(*) as total_sessions,
-                ROUND(
-                    AVG(session_duration_minutes),
-                        2) as avg_session_duration,
+                ROUND(AVG(session_duration_minutes), 2) as avg_session_duration,
                 ROUND(DATEDIFF('hour',
-                    MIN(TRY_CAST(login_time AS TIMESTAMP)),
-                    MAX(TRY_CAST(login_time AS TIMESTAMP))
-                ) / 3600.0, 1) AS session_duration_hours
+                        MIN(TRY_CAST(login_time AS TIMESTAMP)),
+                        MAX(TRY_CAST(login_time AS TIMESTAMP))
+                        ) / 3600.0, 1) AS session_duration_hours 
             FROM {PRODUCT_SCHEMA}
             WHERE TRY_CAST(login_time AS TIMESTAMP) IS NOT NULL
             GROUP BY user_id, first_name, last_name
@@ -244,7 +228,6 @@ def run_funnel_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
                 COUNT(*) as total_views,
                 COUNT(DISTINCT user_id) as unique_viewers,
                 ROUND(
-
                     COUNT(
                         CASE WHEN purchase_status = 'completed'
                         THEN 1 END) * 100.0 /

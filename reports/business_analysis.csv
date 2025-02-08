@@ -1,601 +1,631 @@
 job_title,unique_users,total_sessions,avg_session_duration,conversion_rate
-Arts administrator,20,20,146.52,20.0
-"Production assistant, television",20,20,132.5,30.0
-"Engineer, drilling",19,19,134.68,21.05
-Equality and diversity officer,18,18,146.12,27.78
-Best boy,18,18,156.21,22.22
-"Psychologist, sport and exercise",18,18,141.89,27.78
-Oceanographer,18,18,126.1,22.22
-"Scientist, research (maths)",18,18,131.93,38.89
-Warehouse manager,18,18,165.2,38.89
-Chief Financial Officer,18,18,148.59,38.89
-"Administrator, arts",18,18,102.02,50.0
-Garment/textile technologist,18,18,139.27,38.89
-Public affairs consultant,17,17,112.65,52.94
-Scientific laboratory technician,17,17,126.82,35.29
-Building control surveyor,17,17,149.53,29.41
-Investment analyst,17,17,166.07,35.29
-Immunologist,17,17,118.57,35.29
-Chiropodist,17,17,153.01,35.29
-Sports therapist,17,17,157.05,23.53
-Midwife,16,16,132.65,31.25
-Facilities manager,16,16,123.96,31.25
-Politician's assistant,16,16,124.87,31.25
-"Biochemist, clinical",16,16,164.73,37.5
-Counselling psychologist,16,16,134.04,43.75
-Environmental manager,16,16,157.21,31.25
-Information officer,16,16,123.64,43.75
-Osteopath,16,16,144.15,37.5
-Public house manager,16,16,114.3,25.0
-Quality manager,16,16,138.39,43.75
-Amenity horticulturist,15,15,136.55,26.67
-Geoscientist,15,15,141.33,33.33
-Environmental health practitioner,15,15,142.53,33.33
-"Engineer, civil (consulting)",15,15,137.96,46.67
-Chartered legal executive (England and Wales),15,15,133.23,46.67
-Data processing manager,15,15,112.57,33.33
-Passenger transport manager,15,15,133.37,60.0
-"Psychologist, counselling",15,15,131.2,20.0
-Camera operator,15,15,146.7,40.0
-Horticultural consultant,15,15,144.54,20.0
-Water quality scientist,15,15,146.84,33.33
-Personal assistant,15,15,124.98,46.67
-Proofreader,15,15,157.42,40.0
-Bonds trader,15,15,127.35,13.33
-"Lighting technician, broadcasting/film/video",15,15,123.05,33.33
-"Civil engineer, consulting",15,15,124.53,40.0
-Minerals surveyor,15,15,132.44,46.67
-Television/film/video producer,15,15,129.21,40.0
-"Editor, commissioning",15,15,140.94,46.67
-"Engineer, maintenance",15,15,147.14,73.33
-"Horticulturist, amenity",15,15,129.97,26.67
-Outdoor activities/education manager,15,15,162.96,46.67
-Broadcast engineer,15,15,147.77,26.67
-"Teacher, adult education",15,15,131.42,40.0
-Chief Technology Officer,15,15,140.11,40.0
-Field trials officer,15,15,183.96,33.33
-Tree surgeon,15,15,143.12,33.33
-"Engineer, electronics",14,14,147.62,28.57
-"Accountant, chartered public finance",14,14,121.76,21.43
-Lexicographer,14,14,156.23,35.71
-Teaching laboratory technician,14,14,146.01,21.43
-Archivist,14,14,130.1,35.71
-Volunteer coordinator,14,14,113.85,35.71
-"Psychologist, forensic",14,14,139.97,14.29
-Surgeon,14,14,126.27,21.43
-Printmaker,14,14,138.72,28.57
-"Pilot, airline",14,14,130.13,21.43
-Hydrogeologist,14,14,146.13,28.57
-"Geologist, wellsite",14,14,139.27,28.57
-Sub,14,14,135.21,35.71
-"Research officer, trade union",14,14,121.8,28.57
-Operational researcher,14,14,103.33,28.57
-Video editor,14,14,123.25,7.14
-Paramedic,14,14,125.93,50.0
-Commercial/residential surveyor,14,14,125.63,14.29
-"Surveyor, planning and development",14,14,120.64,42.86
-Museum/gallery curator,14,14,152.29,35.71
-"Designer, interior/spatial",14,14,132.21,42.86
-Product designer,14,14,128.93,57.14
-Catering manager,14,14,151.96,21.43
-Commercial art gallery manager,14,14,152.22,21.43
-"Teacher, primary school",14,14,130.87,57.14
-Charity fundraiser,14,14,124.02,28.57
-Toxicologist,14,14,122.44,35.71
-Health service manager,14,14,141.62,28.57
-Operational investment banker,14,14,122.16,42.86
-"Programmer, multimedia",13,13,130.35,23.08
-"Engineer, chemical",13,13,134.16,38.46
-Gaffer,13,13,146.03,38.46
-"Surveyor, minerals",13,13,110.21,23.08
-"Nurse, learning disability",13,13,159.65,38.46
-Learning disability nurse,13,13,96.25,38.46
-Pensions consultant,13,13,101.67,15.38
-Product/process development scientist,13,13,180.88,30.77
-Risk manager,13,13,149.86,38.46
-"Librarian, academic",13,13,125.33,23.08
-"Administrator, sports",13,13,147.62,7.69
-Jewellery designer,13,13,143.08,7.69
-"Radiographer, diagnostic",13,13,109.61,38.46
-"Scientist, forensic",13,13,152.12,38.46
-English as a second language teacher,13,13,129.16,38.46
-"Scientist, marine",13,13,172.1,30.77
-Conference centre manager,13,13,119.06,38.46
-Logistics and distribution manager,13,13,134.72,23.08
-Sports administrator,13,13,115.9,38.46
-"Surveyor, building",13,13,146.25,53.85
-Museum/gallery conservator,13,13,156.05,38.46
-Ophthalmologist,13,13,177.13,53.85
-"Conservation officer, historic buildings",13,13,106.23,61.54
-Statistician,13,13,126.57,46.15
-"Pharmacist, hospital",13,13,168.36,46.15
-Research scientist (maths),13,13,122.96,30.77
-Child psychotherapist,13,13,126.54,38.46
-Housing manager/officer,13,13,145.76,61.54
-Chiropractor,13,13,134.8,30.77
-"Engineer, automotive",13,13,138.21,46.15
-Theatre manager,13,13,146.85,30.77
-Nature conservation officer,13,13,143.23,30.77
-Make,13,13,106.3,15.38
-Education administrator,13,13,115.66,30.77
-"Scientist, product/process development",13,13,127.32,15.38
-Building services engineer,13,13,146.29,30.77
-Multimedia specialist,13,13,128.98,23.08
-Trading standards officer,13,13,143.96,30.77
-"Investment banker, operational",13,13,137.56,30.77
-Immigration officer,13,13,129.34,30.77
-Homeopath,13,13,136.5,38.46
-Waste management officer,13,13,154.91,23.08
-IT sales professional,13,13,140.2,23.08
-Holiday representative,13,13,124.45,46.15
-Haematologist,13,13,138.41,23.08
-"Surveyor, commercial/residential",13,13,130.3,38.46
-"Buyer, retail",13,13,130.43,53.85
-"Engineer, biomedical",13,13,134.49,23.08
-Dancer,13,13,126.57,53.85
-Animal technologist,13,13,151.97,15.38
-Public relations officer,13,13,147.08,23.08
-Chartered management accountant,13,13,157.21,46.15
-Therapeutic radiographer,13,13,133.23,30.77
-Music therapist,13,13,135.99,7.69
-Consulting civil engineer,12,12,116.5,33.33
-Comptroller,12,12,108.14,25.0
-Insurance broker,12,12,111.89,25.0
-Pension scheme manager,12,12,128.34,50.0
-Nutritional therapist,12,12,125.3,25.0
-Optometrist,12,12,130.89,33.33
-Chief of Staff,12,12,132.79,41.67
-Diplomatic Services operational officer,12,12,134.23,58.33
-Financial planner,12,12,159.83,33.33
-Dance movement psychotherapist,12,12,139.92,41.67
-Warden/ranger,12,12,147.48,33.33
-"Engineer, manufacturing",12,12,154.6,58.33
-"Engineer, control and instrumentation",12,12,130.56,41.67
-Television camera operator,12,12,134.87,33.33
-Television floor manager,12,12,161.36,8.33
-"Psychologist, occupational",12,12,133.63,33.33
-Social researcher,12,12,147.33,25.0
-"Therapist, sports",12,12,147.42,16.67
-Associate Professor,12,12,114.75,58.33
-Graphic designer,12,12,131.08,16.67
-"Merchandiser, retail",12,12,141.29,50.0
-"Designer, fashion/clothing",12,12,166.36,25.0
-Hydrologist,12,12,107.76,25.0
-Insurance account manager,12,12,164.06,33.33
-Armed forces operational officer,12,12,128.99,33.33
-Radio producer,12,12,117.03,33.33
-Cabin crew,12,12,136.88,25.0
-"Psychologist, clinical",12,12,158.98,66.67
-Product manager,12,12,124.09,25.0
-"Teacher, secondary school",12,12,155.76,33.33
-Operations geologist,12,12,133.37,25.0
-"Engineer, civil (contracting)",12,12,169.15,50.0
-Web designer,12,12,131.81,16.67
-"Lecturer, further education",12,12,136.75,33.33
-"Psychologist, prison and probation services",12,12,173.07,33.33
-Water engineer,12,12,131.9,41.67
-Agricultural engineer,12,12,133.97,41.67
-Magazine features editor,12,12,98.68,16.67
-IT technical support officer,12,12,157.27,16.67
-Medical laboratory scientific officer,12,12,104.72,25.0
-"Administrator, charities/voluntary organisations",12,12,143.46,41.67
-Forensic psychologist,12,12,107.81,16.67
-"Research officer, political party",12,12,111.7,25.0
-Learning mentor,12,12,133.77,33.33
-Technical author,12,12,159.05,33.33
-Medical sales representative,12,12,128.07,16.67
-Information systems manager,12,12,124.85,41.67
-Financial trader,12,12,145.76,33.33
-"Loss adjuster, chartered",12,12,120.45,41.67
-Adult nurse,12,12,155.83,41.67
-Retail banker,12,12,145.6,25.0
-Retail buyer,12,12,113.8,16.67
-"Therapist, speech and language",12,12,166.59,41.67
-Air traffic controller,12,12,151.39,25.0
-Tourist information centre manager,12,12,152.92,33.33
-"Engineer, maintenance (IT)",12,12,153.98,41.67
-Office manager,12,12,118.78,25.0
-Economist,12,12,144.29,33.33
-Chartered accountant,12,12,127.87,50.0
-Physiotherapist,12,12,157.88,16.67
-Wellsite geologist,11,11,139.81,45.45
-Film/video editor,11,11,131.32,27.27
-TEFL teacher,11,11,151.96,36.36
-"Engineer, communications",11,11,165.94,18.18
-Applications developer,11,11,100.63,27.27
-Claims inspector/assessor,11,11,149.46,54.55
-Research scientist (life sciences),11,11,119.14,27.27
-Public librarian,11,11,141.78,63.64
-Food technologist,11,11,144.06,36.36
-Police officer,11,11,135.75,18.18
-Environmental consultant,11,11,129.68,45.45
-Furniture designer,11,11,135.4,36.36
-"Journalist, broadcasting",11,11,134.71,27.27
-"Doctor, hospital",11,11,150.61,27.27
-"Presenter, broadcasting",11,11,134.17,36.36
-"Programmer, applications",11,11,139.87,36.36
-"Engineer, technical sales",11,11,121.65,54.55
-Dentist,11,11,143.71,27.27
-Actor,11,11,113.43,27.27
-"Engineer, petroleum",11,11,140.0,45.45
-"Designer, jewellery",11,11,137.27,45.45
-Chartered certified accountant,11,11,143.55,9.09
-Financial manager,11,11,128.77,27.27
-Production manager,11,11,144.04,45.45
-Mudlogger,11,11,147.56,36.36
-Podiatrist,11,11,152.25,36.36
-Estate agent,11,11,118.44,18.18
-Special effects artist,11,11,137.58,9.09
-Games developer,11,11,143.48,9.09
-Recruitment consultant,11,11,112.66,54.55
-Trade mark attorney,11,11,153.13,63.64
-Trade union research officer,11,11,140.25,54.55
-Higher education careers adviser,11,11,158.5,63.64
-Publishing copy,11,11,150.28,36.36
-Animal nutritionist,11,11,163.37,27.27
-Public relations account executive,11,11,132.05,27.27
-Structural engineer,11,11,138.06,36.36
-Diagnostic radiographer,11,11,146.41,27.27
-Art gallery manager,11,11,165.25,27.27
-"Designer, exhibition/display",11,11,163.05,18.18
-"Scientist, water quality",11,11,140.82,18.18
-Manufacturing engineer,11,11,131.55,45.45
-Barista,11,11,104.95,9.09
-Community arts worker,11,11,122.31,54.55
-Transport planner,11,11,126.66,27.27
-Advice worker,11,11,148.33,45.45
-"Development worker, community",11,11,119.48,36.36
-"Pharmacist, community",11,11,118.05,45.45
-Private music teacher,11,11,130.93,18.18
-Herpetologist,11,11,135.93,45.45
-"Copywriter, advertising",11,11,121.67,18.18
-Location manager,11,11,129.19,36.36
-Fish farm manager,11,11,137.19,36.36
-Probation officer,11,11,147.37,9.09
-Professor Emeritus,11,11,119.27,9.09
-"Therapist, art",10,10,122.38,10.0
-Systems developer,10,10,135.34,50.0
-Planning and development surveyor,10,10,157.24,20.0
-Training and development officer,10,10,134.61,40.0
-"Surveyor, rural practice",10,10,156.22,30.0
-Corporate treasurer,10,10,150.9,40.0
-"Conservation officer, nature",10,10,128.05,30.0
-Patent attorney,10,10,146.14,40.0
-Barrister's clerk,10,10,140.15,20.0
-Radiation protection practitioner,10,10,141.79,40.0
-Network engineer,10,10,109.85,40.0
-Neurosurgeon,10,10,131.31,40.0
-Museum education officer,10,10,118.42,70.0
-IT consultant,10,10,138.13,10.0
-Legal executive,10,10,139.9,30.0
-"Physicist, medical",10,10,113.42,10.0
-"Scientist, research (life sciences)",10,10,132.62,20.0
-"Investment banker, corporate",10,10,137.77,40.0
-"Programme researcher, broadcasting/film/video",10,10,124.32,30.0
-Cartographer,10,10,152.24,40.0
-"Surveyor, land/geomatics",10,10,119.35,50.0
-Electronics engineer,10,10,141.97,60.0
-Media planner,10,10,127.6,30.0
-Occupational psychologist,10,10,144.07,50.0
-"Engineer, energy",10,10,127.89,20.0
-Accommodation manager,10,10,136.08,20.0
-International aid/development worker,10,10,126.32,50.0
-Senior tax professional/tax inspector,10,10,186.58,40.0
-"Engineer, agricultural",10,10,104.26,30.0
-Exercise physiologist,10,10,137.49,20.0
-Print production planner,10,10,147.34,20.0
-"Engineer, land",10,10,129.16,50.0
-Geographical information systems officer,10,10,140.44,30.0
-Clinical biochemist,10,10,149.87,10.0
-"Journalist, newspaper",10,10,95.46,30.0
-Astronomer,10,10,98.7,60.0
-Management consultant,10,10,100.67,40.0
-Materials engineer,10,10,133.9,20.0
-Air broker,10,10,158.06,10.0
-Farm manager,10,10,119.11,80.0
-"Surveyor, hydrographic",10,10,161.49,10.0
-Paediatric nurse,10,10,152.25,60.0
-Research scientist (physical sciences),10,10,139.62,20.0
-"Radiographer, therapeutic",10,10,142.06,10.0
-"Teacher, special educational needs",10,10,111.2,40.0
-Television production assistant,10,10,138.27,40.0
-Clinical cytogeneticist,10,10,162.92,0.0
-Writer,10,10,133.14,30.0
-"Editor, film/video",10,10,131.45,40.0
-Technical sales engineer,10,10,182.69,40.0
-Dealer,10,10,154.4,60.0
-Tax inspector,10,10,124.41,60.0
-"Psychotherapist, child",10,10,172.95,30.0
-Emergency planning/management officer,10,10,104.97,10.0
-Risk analyst,10,10,99.67,30.0
-Purchasing manager,10,10,130.03,20.0
-Banker,10,10,147.12,50.0
-Hospital doctor,10,10,158.58,20.0
-Tax adviser,10,10,133.2,30.0
-"Sound technician, broadcasting/film/video",10,10,125.26,40.0
-Glass blower/designer,10,10,152.25,20.0
-Biomedical engineer,10,10,146.85,50.0
-Chartered public finance accountant,10,10,160.6,20.0
-Intelligence analyst,10,10,135.67,20.0
-Data scientist,10,10,134.11,30.0
-Insurance underwriter,10,10,138.68,40.0
-"Engineer, building services",10,10,121.96,20.0
-"Therapist, music",10,10,127.41,20.0
-Youth worker,10,10,100.95,20.0
-Field seismologist,10,10,94.51,40.0
-Sports development officer,10,10,173.21,20.0
-Hotel manager,10,10,149.28,50.0
-Advertising account planner,10,10,126.31,30.0
-Commissioning editor,10,10,100.53,40.0
-Veterinary surgeon,10,10,112.37,30.0
-"Teacher, English as a foreign language",10,10,161.7,30.0
-Mining engineer,10,10,134.95,10.0
-Artist,10,10,126.13,20.0
-Fisheries officer,10,10,116.49,50.0
-Accounting technician,10,10,155.95,50.0
-"Restaurant manager, fast food",10,10,133.67,50.0
-Research scientist (medical),10,10,114.51,40.0
-Records manager,10,10,178.83,40.0
-Human resources officer,10,10,115.19,40.0
-Ceramics designer,9,9,130.93,33.33
-"Teacher, music",9,9,143.83,22.22
-Health physicist,9,9,104.48,33.33
-Medical illustrator,9,9,147.09,55.56
-Maintenance engineer,9,9,111.09,11.11
-Tour manager,9,9,141.68,22.22
-Armed forces technical officer,9,9,130.51,33.33
-Secondary school teacher,9,9,98.77,33.33
-"Psychologist, educational",9,9,118.95,55.56
-Lobbyist,9,9,122.51,22.22
-Aid worker,9,9,125.55,22.22
-Patent examiner,9,9,117.91,33.33
-Translator,9,9,175.45,11.11
-Exhibition designer,9,9,103.85,33.33
-"Engineer, mining",9,9,183.66,33.33
-Forest/woodland manager,9,9,157.92,0.0
-Soil scientist,9,9,124.89,22.22
-Geophysicist/field seismologist,9,9,130.26,22.22
-Insurance claims handler,9,9,141.14,33.33
-"Editor, magazine features",9,9,114.34,22.22
-Building surveyor,9,9,132.86,44.44
-"Production assistant, radio",9,9,139.11,22.22
-Health and safety inspector,9,9,111.81,55.56
-Adult guidance worker,9,9,131.43,22.22
-Aeronautical engineer,9,9,133.85,22.22
-Quantity surveyor,9,9,151.05,11.11
-Broadcast journalist,9,9,125.98,11.11
-Chartered loss adjuster,9,9,128.51,22.22
-Visual merchandiser,9,9,100.11,33.33
-"Nurse, adult",9,9,78.99,33.33
-IT trainer,9,9,143.3,22.22
-Musician,9,9,146.8,55.56
-Careers information officer,9,9,170.54,66.67
-Travel agency manager,9,9,134.9,11.11
-"Exhibitions officer, museum/gallery",9,9,135.2,55.56
-Civil Service fast streamer,9,9,132.05,22.22
-"Designer, industrial/product",9,9,133.09,66.67
-Physiological scientist,9,9,147.4,44.44
-"Scientist, clinical (histocompatibility and immunogenetics)",9,9,131.15,44.44
-Lawyer,9,9,143.38,44.44
-"Conservator, museum/gallery",9,9,141.27,33.33
-"Engineer, aeronautical",9,9,149.87,33.33
-"Therapist, drama",9,9,160.21,22.22
-Phytotherapist,9,9,127.1,33.33
-"Research officer, government",9,9,137.21,22.22
-Photographer,9,9,115.56,22.22
-Agricultural consultant,9,9,154.67,22.22
-"Development worker, international aid",9,9,151.83,33.33
-Health visitor,9,9,120.73,44.44
-Company secretary,9,9,155.54,44.44
-Sports coach,9,9,138.12,33.33
-"Designer, television/film set",9,9,140.71,44.44
-Interpreter,9,9,162.35,22.22
-"Administrator, local government",9,9,124.67,11.11
-Land/geomatics surveyor,9,9,112.16,22.22
-Technical brewer,9,9,164.44,33.33
-Ambulance person,9,9,112.8,11.11
-"Horticulturist, commercial",9,9,150.09,22.22
-Control and instrumentation engineer,9,9,159.0,22.22
-Theme park manager,9,9,109.6,22.22
-Corporate investment banker,9,9,154.9,55.56
-"Secretary, company",9,9,160.36,55.56
-Pharmacologist,9,9,136.2,44.44
-Engineering geologist,9,9,140.09,55.56
-Communications engineer,9,9,128.93,22.22
-Site engineer,9,9,134.08,22.22
-Microbiologist,9,9,130.23,55.56
-Museum/gallery exhibitions officer,9,9,140.84,33.33
-Chemical engineer,9,9,158.0,11.11
-"Scientist, biomedical",9,9,184.41,55.56
-"Surveyor, building control",9,9,144.56,11.11
-Retail merchandiser,9,9,149.7,11.11
-Town planner,9,9,153.55,22.22
-"Clinical scientist, histocompatibility and immunogenetics",9,9,123.61,22.22
-"Civil engineer, contracting",9,9,120.09,0.0
-Mechanical engineer,9,9,161.42,33.33
-Marine scientist,9,9,150.13,33.33
-Medical technical officer,9,9,130.6,22.22
-Marketing executive,9,9,128.61,44.44
-Multimedia programmer,9,9,131.9,0.0
-Ship broker,9,9,105.57,44.44
-Psychiatrist,9,9,145.5,44.44
-Animator,9,9,95.79,11.11
-Set designer,9,9,99.46,33.33
-Plant breeder/geneticist,9,9,138.49,22.22
-Editorial assistant,9,9,162.34,33.33
-Recycling officer,9,9,148.8,44.44
-Herbalist,9,9,157.5,33.33
-"Administrator, education",9,9,134.62,11.11
-Press photographer,9,9,124.7,11.11
-"Designer, blown glass/stained glass",8,8,140.77,0.0
-Special educational needs teacher,8,8,135.25,62.5
-Furniture conservator/restorer,8,8,139.03,25.0
-"Embryologist, clinical",8,8,133.87,37.5
-Automotive engineer,8,8,138.71,25.0
-"Psychotherapist, dance movement",8,8,107.5,0.0
-"Engineer, broadcasting (operations)",8,8,136.77,12.5
-Occupational hygienist,8,8,96.18,25.0
-Clothing/textile technologist,8,8,83.74,37.5
-Newspaper journalist,8,8,159.17,50.0
-Psychotherapist,8,8,129.44,50.0
-Illustrator,8,8,126.38,50.0
-Electrical engineer,8,8,181.76,25.0
-Race relations officer,8,8,158.64,37.5
-Administrator,8,8,142.45,25.0
-"Accountant, chartered management",8,8,138.61,12.5
-Airline pilot,8,8,129.1,37.5
-Broadcast presenter,8,8,108.81,25.0
-Psychiatric nurse,8,8,120.99,62.5
-Geophysical data processor,8,8,144.41,37.5
-Biomedical scientist,8,8,138.77,12.5
-Clinical research associate,8,8,162.25,12.5
-Armed forces logistics/support/administrative officer,8,8,149.83,25.0
-Contractor,8,8,127.19,12.5
-Contracting civil engineer,8,8,106.21,37.5
-"Education officer, museum",8,8,106.48,12.5
-Orthoptist,8,8,127.66,25.0
-Further education lecturer,8,8,91.57,25.0
-Primary school teacher,8,8,161.61,37.5
-"Solicitor, Scotland",8,8,167.01,0.0
-Counsellor,8,8,137.93,25.0
-"Surveyor, mining",8,8,143.34,12.5
-Community education officer,8,8,138.11,62.5
-Dramatherapist,8,8,95.64,37.5
-Oncologist,8,8,136.9,25.0
-Architect,8,8,158.05,37.5
-"Runner, broadcasting/film/video",8,8,137.25,50.0
-Metallurgist,8,8,163.44,25.0
-Magazine journalist,8,8,140.71,25.0
-"Engineer, manufacturing systems",8,8,133.44,25.0
-"Scientist, physiological",8,8,106.4,50.0
-Leisure centre manager,8,8,111.95,50.0
-Chief Executive Officer,8,8,76.04,37.5
-"Journalist, magazine",8,8,153.02,62.5
-Clinical molecular geneticist,8,8,122.41,37.5
-"Accountant, chartered",8,8,173.42,12.5
-Publishing rights manager,8,8,136.39,50.0
-Drilling engineer,8,8,122.29,37.5
-Advertising copywriter,8,8,120.17,25.0
-Copy,8,8,121.7,50.0
-Textile designer,8,8,121.63,75.0
-Interior and spatial designer,8,8,103.52,25.0
-Firefighter,8,8,131.07,0.0
-Dietitian,8,8,147.27,37.5
-Landscape architect,8,8,126.97,25.0
-"Geneticist, molecular",8,8,126.15,12.5
-Barrister,8,8,103.05,12.5
-Horticultural therapist,8,8,121.22,62.5
-"Designer, furniture",8,8,127.29,12.5
-"Therapist, horticultural",8,8,150.12,12.5
-Hydrographic surveyor,8,8,115.56,25.0
-Systems analyst,8,8,158.25,25.0
-"Programmer, systems",8,8,126.18,62.5
-Sales promotion account executive,8,8,126.69,25.0
-Manufacturing systems engineer,8,8,154.85,37.5
-"Accountant, chartered certified",8,8,127.59,50.0
-Ranger/warden,8,8,156.62,25.0
-"Producer, radio",8,8,116.84,37.5
-Armed forces training and education officer,8,8,137.81,25.0
-Science writer,8,8,122.32,37.5
-"Engineer, structural",8,8,158.74,25.0
-Database administrator,8,8,150.03,37.5
-Prison officer,8,8,124.83,37.5
-Health and safety adviser,8,8,135.83,25.0
-"Engineer, production",7,7,127.24,42.86
-"Education officer, environmental",7,7,89.6,28.57
-Acupuncturist,7,7,88.02,57.14
-Software engineer,7,7,87.76,28.57
-Curator,7,7,114.05,14.29
-Advertising art director,7,7,167.36,57.14
-Financial adviser,7,7,130.54,57.14
-Financial risk analyst,7,7,159.73,14.29
-Social worker,7,7,137.34,28.57
-"Administrator, Civil Service",7,7,117.64,28.57
-Rural practice surveyor,7,7,127.2,14.29
-Art therapist,7,7,118.96,57.14
-Historic buildings inspector/conservation officer,7,7,146.63,57.14
-Sport and exercise psychologist,7,7,161.88,28.57
-Fast food restaurant manager,7,7,168.67,28.57
-Solicitor,7,7,143.46,14.29
-"Scientist, audiological",7,7,130.25,42.86
-Fine artist,7,7,117.97,0.0
-"Doctor, general practice",7,7,137.55,0.0
-Meteorologist,7,7,105.83,28.57
-"Designer, ceramics/pottery",7,7,126.43,28.57
-Community development worker,7,7,135.2,28.57
-Naval architect,7,7,135.3,28.57
-Industrial buyer,7,7,114.79,42.86
-"Producer, television/film/video",7,7,103.68,14.29
-"Nurse, children's",7,7,141.88,14.29
-Theatre director,7,7,141.18,28.57
-Fashion designer,7,7,163.42,42.86
-"Chemist, analytical",7,7,116.42,28.57
-Civil Service administrator,7,7,124.59,71.43
-Architectural technologist,7,7,153.87,57.14
-Mental health nurse,7,7,138.2,28.57
-Charity officer,7,7,143.17,28.57
-Occupational therapist,7,7,107.12,57.14
-Event organiser,7,7,139.1,28.57
-Regulatory affairs officer,7,7,159.53,14.29
-"Designer, textile",7,7,139.29,28.57
-"Lecturer, higher education",7,7,129.2,28.57
-Customer service manager,7,7,156.82,0.0
-Careers adviser,7,7,118.38,28.57
-Advertising account executive,7,7,130.02,57.14
-Petroleum engineer,7,7,134.7,14.29
-Colour technologist,7,7,135.83,14.29
-Hospital pharmacist,7,7,130.42,14.29
-Legal secretary,7,7,148.55,28.57
-Licensed conveyancer,7,7,98.33,14.29
-Call centre manager,7,7,136.6,14.29
-Forensic scientist,7,7,126.34,28.57
-Stage manager,7,7,138.29,42.86
-Heritage manager,7,7,142.4,28.57
-Telecommunications researcher,7,7,123.15,42.86
-"Librarian, public",7,7,136.82,42.86
-Personnel officer,7,7,108.23,28.57
-Health promotion specialist,7,7,201.76,14.29
-Radio broadcast assistant,7,7,100.65,14.29
-Sales executive,7,7,154.64,28.57
-Higher education lecturer,7,7,111.1,28.57
-"Conservator, furniture",7,7,170.39,28.57
-Merchant navy officer,7,7,130.22,28.57
-"Social research officer, government",7,7,91.86,42.86
-"Scientist, research (medical)",6,6,136.19,16.67
-"Engineer, site",6,6,151.61,66.67
-Medical physicist,6,6,128.61,33.33
-Geochemist,6,6,119.03,16.67
-Equities trader,6,6,125.49,33.33
-English as a foreign language teacher,6,6,119.56,0.0
-Retail manager,6,6,130.77,33.33
-"Engineer, water",6,6,125.58,66.67
-"Surveyor, insurance",6,6,138.51,50.0
-Energy engineer,6,6,145.2,33.33
-Futures trader,6,6,197.9,50.0
-"Sales professional, IT",6,6,129.2,0.0
-"Buyer, industrial",6,6,112.71,16.67
-Computer games developer,6,6,148.02,33.33
-Bookseller,6,6,101.41,16.67
-Theatre stage manager,6,6,155.93,33.33
-Arboriculturist,6,6,119.32,50.0
-Actuary,6,6,143.57,16.67
-Secretary/administrator,6,6,173.36,33.33
-Medical secretary,6,6,137.65,50.0
-General practice doctor,6,6,124.28,33.33
-Brewing technologist,6,6,160.85,33.33
-Music tutor,6,6,136.08,33.33
-"Engineer, electrical",6,6,145.35,16.67
-Tourism officer,6,6,130.04,33.33
-Pathologist,6,6,148.75,16.67
-"Surveyor, quantity",6,6,161.58,16.67
-Land,6,6,156.56,33.33
-Early years teacher,6,6,170.98,33.33
-Local government officer,6,6,110.28,66.67
-Press sub,6,6,147.23,16.67
-Insurance risk surveyor,6,6,117.24,50.0
-Clinical embryologist,6,6,151.7,0.0
-Dispensing optician,6,6,159.01,16.67
-Chief Strategy Officer,6,6,124.5,66.67
-Financial controller,6,6,117.82,50.0
-"Nurse, mental health",6,6,142.72,33.33
-Market researcher,6,6,140.28,50.0
+Clinical psychologist,22,22,26.87,50.0
+Naval architect,22,22,27.78,50.0
+Warden/ranger,21,21,26.56,42.86
+Geophysicist/field seismologist,21,21,31.48,42.86
+"Surveyor, minerals",21,21,26.53,28.57
+"Teacher, music",21,21,28.97,23.81
+"Lecturer, further education",21,21,28.38,33.33
+Television production assistant,21,21,30.39,38.1
+Clinical biochemist,21,21,31.26,28.57
+Phytotherapist,21,21,31.91,38.1
+Osteopath,21,21,30.32,33.33
+Museum education officer,20,20,28.43,35.0
+"Engineer, control and instrumentation",20,20,26.81,45.0
+Passenger transport manager,20,20,32.04,35.0
+"Merchandiser, retail",20,20,29.48,30.0
+Fish farm manager,20,20,25.92,35.0
+Retail manager,19,19,29.46,15.79
+"Conservation officer, nature",19,19,29.65,10.53
+Armed forces logistics/support/administrative officer,19,19,29.52,36.84
+"Accountant, chartered public finance",19,19,27.02,21.05
+Archivist,19,19,25.38,47.37
+Midwife,19,19,26.68,26.32
+Higher education careers adviser,19,19,29.49,36.84
+Engineering geologist,19,19,27.89,36.84
+Homeopath,19,19,29.88,36.84
+Social researcher,19,19,27.13,21.05
+Industrial/product designer,19,19,30.7,26.32
+Water quality scientist,19,19,27.17,36.84
+Media planner,19,19,30.06,31.58
+Fast food restaurant manager,19,19,25.14,15.79
+Haematologist,19,19,30.02,26.32
+Dancer,19,19,28.42,15.79
+Radio broadcast assistant,19,19,31.74,21.05
+Freight forwarder,19,19,28.88,21.05
+Biomedical scientist,18,18,27.71,33.33
+"Programme researcher, broadcasting/film/video",18,18,29.59,55.56
+"Physicist, medical",18,18,27.39,22.22
+Equities trader,18,18,29.68,33.33
+"Solicitor, Scotland",18,18,26.52,50.0
+Museum/gallery conservator,18,18,28.09,16.67
+"Psychologist, educational",18,18,27.4,5.56
+"Production assistant, television",18,18,32.03,27.78
+Health visitor,18,18,28.35,50.0
+Radio producer,18,18,27.07,50.0
+Graphic designer,18,18,32.04,27.78
+Building control surveyor,18,18,26.28,33.33
+"Embryologist, clinical",18,18,22.76,44.44
+Editorial assistant,18,18,27.32,38.89
+Operational investment banker,18,18,32.52,27.78
+"Nurse, mental health",18,18,29.29,27.78
+Herpetologist,18,18,30.26,44.44
+Outdoor activities/education manager,18,18,33.13,38.89
+Government social research officer,18,18,27.0,44.44
+Geochemist,17,17,28.64,35.29
+Medical physicist,17,17,26.88,41.18
+"Education officer, museum",17,17,27.22,41.18
+Maintenance engineer,17,17,30.17,17.65
+Further education lecturer,17,17,28.35,41.18
+Corporate treasurer,17,17,29.77,29.41
+TEFL teacher,17,17,32.63,47.06
+"Production assistant, radio",17,17,27.34,17.65
+Customer service manager,17,17,21.98,29.41
+"Secretary, company",17,17,28.2,29.41
+"Designer, television/film set",17,17,28.89,35.29
+"Designer, exhibition/display",17,17,31.51,23.53
+Newspaper journalist,17,17,27.57,29.41
+Psychotherapist,17,17,27.58,52.94
+Energy manager,17,17,34.02,41.18
+Statistician,17,17,22.98,29.41
+Personal assistant,17,17,23.21,29.41
+Illustrator,17,17,26.52,41.18
+Occupational psychologist,17,17,30.34,23.53
+"Buyer, industrial",17,17,29.3,23.53
+Chiropractor,17,17,36.52,29.41
+Private music teacher,17,17,33.99,41.18
+Animal technologist,17,17,28.14,58.82
+Personnel officer,17,17,26.69,23.53
+Therapeutic radiographer,17,17,26.85,29.41
+Science writer,17,17,35.31,58.82
+Microbiologist,17,17,28.74,47.06
+Licensed conveyancer,17,17,22.57,35.29
+Research scientist (medical),17,17,27.11,17.65
+Public house manager,17,17,34.77,29.41
+Product designer,17,17,25.94,47.06
+Volunteer coordinator,16,16,27.99,37.5
+"Education officer, environmental",16,16,29.32,37.5
+"Surveyor, mining",16,16,21.67,56.25
+"Engineer, civil (consulting)",16,16,28.32,12.5
+Ceramics designer,16,16,31.01,25.0
+Logistics and distribution manager,16,16,28.34,18.75
+Advertising art director,16,16,29.79,37.5
+"Engineer, site",16,16,24.69,37.5
+Jewellery designer,16,16,22.89,43.75
+Orthoptist,16,16,28.48,31.25
+Community pharmacist,16,16,28.81,25.0
+Risk analyst,16,16,34.81,31.25
+"Development worker, international aid",16,16,28.55,31.25
+Chief Financial Officer,16,16,33.6,18.75
+Emergency planning/management officer,16,16,32.9,31.25
+Tax adviser,16,16,26.93,25.0
+Event organiser,16,16,26.01,25.0
+"Lecturer, higher education",16,16,27.99,25.0
+"Research officer, political party",16,16,28.99,37.5
+Technical sales engineer,16,16,26.0,18.75
+"Doctor, hospital",16,16,24.78,31.25
+"Psychotherapist, dance movement",16,16,25.03,31.25
+General practice doctor,16,16,32.03,43.75
+Computer games developer,16,16,29.63,50.0
+"Psychologist, forensic",16,16,26.2,37.5
+Oceanographer,16,16,28.24,37.5
+Police officer,16,16,33.26,31.25
+"Psychologist, counselling",16,16,29.41,43.75
+Solicitor,16,16,28.5,18.75
+Hydrologist,16,16,28.78,25.0
+Materials engineer,16,16,31.88,31.25
+"Biochemist, clinical",16,16,30.22,6.25
+Photographer,16,16,26.33,31.25
+"Engineer, energy",16,16,26.9,37.5
+Chemical engineer,16,16,25.91,62.5
+IT sales professional,16,16,27.41,43.75
+Merchant navy officer,16,16,27.97,50.0
+"Teacher, English as a foreign language",16,16,27.26,43.75
+"Engineer, maintenance (IT)",16,16,27.54,31.25
+"Clinical scientist, histocompatibility and immunogenetics",16,16,21.95,50.0
+Barrister,16,16,31.51,50.0
+Human resources officer,16,16,22.82,6.25
+Youth worker,16,16,27.69,43.75
+Press photographer,16,16,27.07,31.25
+Cartographer,15,15,24.81,20.0
+Historic buildings inspector/conservation officer,15,15,29.22,46.67
+"Scientist, forensic",15,15,28.12,53.33
+"Surveyor, rural practice",15,15,23.09,33.33
+Diplomatic Services operational officer,15,15,29.41,33.33
+Lexicographer,15,15,26.05,26.67
+Conference centre manager,15,15,27.62,33.33
+Dentist,15,15,33.31,40.0
+Horticultural consultant,15,15,33.07,40.0
+"Accountant, chartered management",15,15,31.14,53.33
+Fine artist,15,15,27.69,53.33
+"Journalist, broadcasting",15,15,26.2,66.67
+"Engineer, technical sales",15,15,25.41,20.0
+Race relations officer,15,15,29.99,33.33
+"Nurse, children's",15,15,26.26,46.67
+Research scientist (maths),15,15,30.14,46.67
+Arboriculturist,15,15,25.49,40.0
+Facilities manager,15,15,27.91,20.0
+Housing manager/officer,15,15,33.03,26.67
+Community development worker,15,15,29.37,26.67
+Politician's assistant,15,15,27.51,40.0
+Sports therapist,15,15,30.56,40.0
+Garment/textile technologist,15,15,24.73,33.33
+Health and safety adviser,15,15,32.12,33.33
+"Therapist, speech and language",15,15,30.5,33.33
+Holiday representative,15,15,28.11,20.0
+Chartered accountant,15,15,25.74,13.33
+Horticultural therapist,15,15,26.14,26.67
+Analytical chemist,15,15,33.7,60.0
+Health promotion specialist,15,15,32.83,13.33
+Armed forces training and education officer,15,15,24.86,40.0
+Tourist information centre manager,15,15,28.38,40.0
+"Programmer, systems",15,15,29.58,40.0
+Market researcher,15,15,24.11,33.33
+Chief Technology Officer,15,15,29.47,40.0
+"Surveyor, building",15,15,31.03,20.0
+Broadcast presenter,15,15,28.75,40.0
+Product/process development scientist,15,15,28.87,26.67
+Consulting civil engineer,15,15,28.03,33.33
+"Runner, broadcasting/film/video",15,15,24.36,33.33
+Trading standards officer,15,15,26.8,46.67
+"Therapist, nutritional",15,15,28.96,20.0
+Metallurgist,15,15,33.84,40.0
+"Engineer, manufacturing systems",15,15,27.17,40.0
+"Sound technician, broadcasting/film/video",15,15,26.37,33.33
+Make,15,15,32.02,26.67
+Field trials officer,15,15,32.63,40.0
+Pensions consultant,14,14,35.83,28.57
+Armed forces technical officer,14,14,23.17,35.71
+"Nurse, learning disability",14,14,30.35,28.57
+"Psychologist, sport and exercise",14,14,27.62,21.43
+"Engineer, materials",14,14,25.22,28.57
+Contractor,14,14,27.81,28.57
+"Engineer, mining",14,14,30.24,35.71
+Social worker,14,14,29.59,64.29
+"Engineer, electronics",14,14,30.46,35.71
+Financial adviser,14,14,25.91,35.71
+"Radiographer, diagnostic",14,14,29.26,35.71
+"Surveyor, land/geomatics",14,14,32.04,21.43
+Teaching laboratory technician,14,14,32.26,28.57
+Community education officer,14,14,29.23,28.57
+"Designer, textile",14,14,29.63,35.71
+Agricultural engineer,14,14,29.67,35.71
+Commercial/residential surveyor,14,14,31.62,28.57
+Chiropodist,14,14,26.9,35.71
+Commercial horticulturist,14,14,28.54,28.57
+Early years teacher,14,14,30.77,35.71
+Company secretary,14,14,31.39,35.71
+Education administrator,14,14,28.36,64.29
+Operational researcher,14,14,30.17,42.86
+Brewing technologist,14,14,31.18,42.86
+Chief Marketing Officer,14,14,31.33,57.14
+Pharmacologist,14,14,29.94,50.0
+Technical brewer,14,14,32.03,28.57
+"Editor, commissioning",14,14,31.42,35.71
+"Chemist, analytical",14,14,31.23,42.86
+"Designer, blown glass/stained glass",14,14,27.23,50.0
+Theatre manager,14,14,32.17,42.86
+Production engineer,14,14,26.38,28.57
+Restaurant manager,14,14,30.66,14.29
+Educational psychologist,14,14,28.57,35.71
+Electrical engineer,14,14,27.05,28.57
+"Exhibitions officer, museum/gallery",14,14,28.11,42.86
+"Scientist, research (physical sciences)",14,14,24.46,14.29
+Child psychotherapist,14,14,34.63,28.57
+"Pharmacist, hospital",14,14,27.87,28.57
+"Nurse, adult",14,14,26.15,57.14
+IT trainer,14,14,31.03,28.57
+"Presenter, broadcasting",14,14,29.72,14.29
+"Teacher, special educational needs",14,14,27.9,14.29
+"Therapist, occupational",14,14,27.41,28.57
+Artist,14,14,28.4,28.57
+Forensic scientist,14,14,33.55,28.57
+Landscape architect,14,14,33.93,35.71
+"Horticulturist, amenity",14,14,26.67,42.86
+Music therapist,14,14,24.58,14.29
+Broadcast engineer,14,14,26.16,35.71
+"Teacher, adult education",14,14,27.35,28.57
+"Pharmacist, community",14,14,24.61,28.57
+Town planner,14,14,25.06,28.57
+"Therapist, horticultural",14,14,28.98,28.57
+Tree surgeon,14,14,30.27,28.57
+Clinical embryologist,14,14,31.49,21.43
+Financial controller,14,14,30.58,21.43
+Chief Operating Officer,14,14,29.65,28.57
+Psychiatrist,14,14,23.69,64.29
+"Engineer, building services",14,14,28.46,21.43
+"Conservator, furniture",14,14,25.12,35.71
+Commissioning editor,14,14,35.88,28.57
+Comptroller,13,13,26.81,38.46
+Financial planner,13,13,31.29,23.08
+Lobbyist,13,13,30.02,38.46
+Applications developer,13,13,28.56,38.46
+Equality and diversity officer,13,13,31.08,46.15
+Aid worker,13,13,23.91,30.77
+Clinical research associate,13,13,24.46,23.08
+Health physicist,13,13,27.66,38.46
+Futures trader,13,13,31.03,23.08
+Barrister's clerk,13,13,22.16,23.08
+Gaffer,13,13,30.46,23.08
+Energy engineer,13,13,30.7,38.46
+Amenity horticulturist,13,13,27.49,38.46
+Public librarian,13,13,26.67,15.38
+Research scientist (life sciences),13,13,29.07,30.77
+"Surveyor, insurance",13,13,33.16,46.15
+Risk manager,13,13,33.26,38.46
+"Optician, dispensing",13,13,29.78,30.77
+Petroleum engineer,13,13,24.82,15.38
+Land,13,13,27.0,38.46
+Medical laboratory scientific officer,13,13,30.9,53.85
+Biomedical engineer,13,13,22.63,61.54
+"Administrator, local government",13,13,30.96,23.08
+Video editor,13,13,28.31,30.77
+Minerals surveyor,13,13,29.49,30.77
+Mental health nurse,13,13,21.77,53.85
+Theme park manager,13,13,29.13,69.23
+Charity officer,13,13,29.93,23.08
+"Designer, jewellery",13,13,17.26,53.85
+Magazine features editor,13,13,34.04,23.08
+Operations geologist,13,13,23.5,7.69
+Learning mentor,13,13,36.56,30.77
+Diagnostic radiographer,13,13,32.15,23.08
+"Administrator, arts",13,13,27.53,38.46
+Drilling engineer,13,13,27.39,30.77
+Public relations account executive,13,13,27.98,23.08
+Regulatory affairs officer,13,13,27.88,46.15
+"Engineer, drilling",13,13,24.77,38.46
+Nature conservation officer,13,13,28.3,53.85
+"Designer, multimedia",13,13,28.11,53.85
+"Surveyor, hydrographic",13,13,28.5,30.77
+Industrial buyer,13,13,30.72,69.23
+Meteorologist,13,13,27.03,38.46
+"Radiographer, therapeutic",13,13,23.24,46.15
+"Conservator, museum/gallery",13,13,28.95,38.46
+Occupational hygienist,13,13,26.59,46.15
+Furniture designer,13,13,25.91,30.77
+Camera operator,13,13,30.99,23.08
+Special educational needs teacher,13,13,27.96,23.08
+"Scientist, clinical (histocompatibility and immunogenetics)",13,13,27.54,23.08
+Furniture conservator/restorer,13,13,30.96,30.77
+Senior tax professional/tax inspector,13,13,29.38,53.85
+Chartered management accountant,13,13,34.97,15.38
+Public relations officer,13,13,29.69,30.77
+Probation officer,13,13,25.48,30.77
+Higher education lecturer,13,13,28.09,15.38
+Local government officer,13,13,27.43,30.77
+Toxicologist,13,13,20.67,23.08
+"Engineer, maintenance",13,13,28.97,15.38
+Multimedia programmer,13,13,33.88,38.46
+Set designer,13,13,23.26,15.38
+Mechanical engineer,13,13,33.45,15.38
+Quarry manager,13,13,30.84,23.08
+Transport planner,13,13,31.79,23.08
+"Engineer, structural",13,13,28.04,38.46
+Accounting technician,13,13,27.35,46.15
+Sales executive,13,13,31.37,46.15
+"Designer, furniture",13,13,32.43,23.08
+Medical sales representative,13,13,19.3,30.77
+Clothing/textile technologist,13,13,29.76,23.08
+Estate manager/land agent,13,13,30.3,38.46
+Air traffic controller,13,13,32.51,15.38
+"Producer, television/film/video",12,12,15.26,16.67
+"Designer, industrial/product",12,12,31.91,33.33
+International aid/development worker,12,12,31.81,50.0
+Travel agency manager,12,12,28.37,25.0
+"Engineer, petroleum",12,12,28.62,33.33
+Bonds trader,12,12,29.28,33.33
+Musician,12,12,28.37,25.0
+"Teacher, early years/pre",12,12,35.16,33.33
+"Journalist, newspaper",12,12,23.59,50.0
+"Therapist, drama",12,12,32.64,33.33
+"Scientist, research (maths)",12,12,32.59,50.0
+Printmaker,12,12,21.72,33.33
+Location manager,12,12,30.44,25.0
+Retail buyer,12,12,27.05,33.33
+Quality manager,12,12,28.26,16.67
+Marine scientist,12,12,29.92,33.33
+"Development worker, community",12,12,31.24,16.67
+Financial risk analyst,12,12,24.22,25.0
+Intelligence analyst,12,12,25.88,16.67
+Building services engineer,12,12,26.07,25.0
+Firefighter,12,12,27.04,16.67
+Cabin crew,12,12,32.83,33.33
+Textile designer,12,12,27.43,33.33
+"Psychologist, clinical",12,12,29.67,16.67
+Glass blower/designer,12,12,25.55,16.67
+Airline pilot,12,12,30.04,41.67
+Publishing rights manager,12,12,28.76,58.33
+Colour technologist,12,12,32.03,16.67
+Water engineer,12,12,31.01,25.0
+"Accountant, chartered",12,12,25.53,50.0
+Interpreter,12,12,29.27,16.67
+Environmental manager,12,12,32.21,33.33
+Communications engineer,12,12,33.61,25.0
+"Civil engineer, consulting",12,12,31.15,50.0
+"Horticulturist, commercial",12,12,29.32,33.33
+Arts administrator,12,12,26.98,41.67
+Dealer,12,12,26.67,33.33
+Rural practice surveyor,12,12,22.29,33.33
+Pension scheme manager,12,12,27.28,25.0
+Training and development officer,12,12,25.84,8.33
+Public affairs consultant,12,12,36.12,16.67
+Medical illustrator,12,12,26.47,0.0
+English as a second language teacher,12,12,26.97,41.67
+Data processing manager,12,12,29.71,41.67
+"Engineer, chemical",12,12,26.7,25.0
+"Therapist, art",12,12,24.78,33.33
+Building surveyor,12,12,29.29,41.67
+"Engineer, water",12,12,34.2,8.33
+Forest/woodland manager,12,12,29.05,25.0
+Tour manager,12,12,28.82,50.0
+Insurance claims handler,12,12,31.98,41.67
+Television camera operator,12,12,24.71,41.67
+Ambulance person,12,12,28.74,16.67
+Recruitment consultant,12,12,27.87,58.33
+Production manager,12,12,26.14,33.33
+Physiotherapist,12,12,26.59,58.33
+Health service manager,12,12,35.56,25.0
+"Scientist, biomedical",12,12,30.43,33.33
+"Social research officer, government",12,12,27.73,25.0
+Information systems manager,12,12,26.36,33.33
+Radiation protection practitioner,11,11,28.3,45.45
+Scientific laboratory technician,11,11,26.77,27.27
+"Engineer, manufacturing",11,11,33.31,36.36
+Counsellor,11,11,23.11,36.36
+Acupuncturist,11,11,32.89,18.18
+"Engineer, production",11,11,27.79,36.36
+Wellsite geologist,11,11,37.51,36.36
+"Administrator, sports",11,11,25.48,45.45
+Psychiatric nurse,11,11,28.25,18.18
+Mudlogger,11,11,28.77,45.45
+Music tutor,11,11,31.16,18.18
+Information officer,11,11,31.26,54.55
+Speech and language therapist,11,11,28.53,9.09
+Careers adviser,11,11,25.31,18.18
+Advertising copywriter,11,11,30.14,36.36
+Advertising account executive,11,11,29.9,45.45
+Archaeologist,11,11,28.53,45.45
+Architect,11,11,28.02,45.45
+Museum/gallery curator,11,11,24.97,36.36
+"Surveyor, planning and development",11,11,26.69,18.18
+Product manager,11,11,20.19,36.36
+Structural engineer,11,11,26.87,36.36
+"Research officer, trade union",11,11,30.63,18.18
+Trade union research officer,11,11,23.37,45.45
+"Psychologist, prison and probation services",11,11,28.53,27.27
+Chief Executive Officer,11,11,25.08,27.27
+Land/geomatics surveyor,11,11,23.95,36.36
+Interior and spatial designer,11,11,24.43,54.55
+Tax inspector,11,11,36.36,45.45
+"Pilot, airline",11,11,33.13,18.18
+Sports coach,11,11,31.84,0.0
+Animal nutritionist,11,11,28.79,18.18
+Geographical information systems officer,11,11,32.21,27.27
+Theatre stage manager,11,11,22.03,27.27
+Visual merchandiser,11,11,24.71,27.27
+"Scientist, audiological",11,11,33.59,54.55
+Audiological scientist,11,11,27.45,27.27
+Surgeon,11,11,18.81,9.09
+"Education officer, community",11,11,30.23,27.27
+Theatre director,11,11,29.77,18.18
+Warehouse manager,11,11,29.45,54.55
+Automotive engineer,11,11,25.24,45.45
+Air broker,11,11,27.77,9.09
+"Engineer, agricultural",11,11,32.54,36.36
+Exercise physiologist,11,11,32.2,27.27
+Administrator,11,11,30.82,36.36
+"Designer, ceramics/pottery",11,11,32.31,18.18
+Print production planner,11,11,34.69,36.36
+Farm manager,11,11,27.23,18.18
+Medical secretary,11,11,25.39,36.36
+Associate Professor,11,11,34.17,45.45
+Fitness centre manager,11,11,29.33,27.27
+Hotel manager,11,11,26.69,18.18
+Marketing executive,11,11,31.88,36.36
+"Civil engineer, contracting",11,11,33.23,63.64
+Mining engineer,11,11,29.16,36.36
+Dietitian,11,11,30.72,45.45
+Sports development officer,11,11,27.65,36.36
+Fisheries officer,11,11,30.0,9.09
+"Scientist, water quality",11,11,27.82,36.36
+Chief Strategy Officer,11,11,25.66,9.09
+"Teacher, primary school",11,11,30.2,45.45
+Professor Emeritus,11,11,27.62,63.64
+Museum/gallery exhibitions officer,11,11,28.14,0.0
+Prison officer,11,11,26.32,18.18
+Ranger/warden,11,11,24.87,18.18
+Call centre manager,11,11,26.33,27.27
+Animator,11,11,31.01,18.18
+Press sub,11,11,29.37,18.18
+Commercial art gallery manager,11,11,26.01,27.27
+Charity fundraiser,11,11,31.94,45.45
+Veterinary surgeon,11,11,27.43,45.45
+"Designer, interior/spatial",11,11,27.31,27.27
+"Restaurant manager, fast food",11,11,26.84,45.45
+Insurance risk surveyor,11,11,29.58,27.27
+"Librarian, public",11,11,24.16,18.18
+"Surveyor, building control",11,11,27.17,45.45
+Retail banker,11,11,33.07,18.18
+Dispensing optician,11,11,27.87,45.45
+Learning disability nurse,10,10,31.34,20.0
+Patent examiner,10,10,32.08,50.0
+Sports administrator,10,10,29.79,20.0
+Soil scientist,10,10,30.61,0.0
+Geoscientist,10,10,28.5,30.0
+Best boy,10,10,33.1,30.0
+Chartered legal executive (England and Wales),10,10,26.96,30.0
+Curator,10,10,32.19,10.0
+"Investment banker, corporate",10,10,30.99,20.0
+Exhibition designer,10,10,31.59,40.0
+Secondary school teacher,10,10,35.03,30.0
+Television floor manager,10,10,29.05,30.0
+Legal executive,10,10,32.95,50.0
+"Designer, fashion/clothing",10,10,28.08,10.0
+Paediatric nurse,10,10,34.29,20.0
+Clinical cytogeneticist,10,10,27.5,20.0
+Accommodation manager,10,10,30.12,40.0
+Ecologist,10,10,31.92,70.0
+"Doctor, general practice",10,10,29.97,20.0
+Civil Service administrator,10,10,30.83,30.0
+Counselling psychologist,10,10,25.62,40.0
+"Engineer, land",10,10,27.56,0.0
+Chartered loss adjuster,10,10,34.85,30.0
+Civil Service fast streamer,10,10,34.08,50.0
+"Production designer, theatre/television/film",10,10,30.68,30.0
+Bookseller,10,10,23.3,50.0
+Architectural technologist,10,10,22.84,40.0
+"Geologist, engineering",10,10,28.44,20.0
+Field seismologist,10,10,24.0,30.0
+"Loss adjuster, chartered",10,10,34.07,20.0
+Economist,10,10,26.35,60.0
+"Administrator, education",10,10,31.59,20.0
+Systems analyst,10,10,30.93,20.0
+"Engineer, biomedical",10,10,30.0,60.0
+Adult nurse,10,10,33.6,50.0
+Stage manager,10,10,25.76,10.0
+Community arts worker,10,10,26.26,50.0
+Database administrator,10,10,28.44,20.0
+Herbalist,10,10,29.9,10.0
+"Therapist, music",10,10,29.67,50.0
+Catering manager,10,10,27.55,40.0
+Electronics engineer,10,10,29.29,30.0
+IT consultant,10,10,29.47,40.0
+Food technologist,10,10,27.73,20.0
+Claims inspector/assessor,10,10,30.14,30.0
+Media buyer,10,10,27.16,30.0
+IT technical support officer,10,10,23.18,40.0
+"Engineer, electrical",10,10,28.78,40.0
+Art gallery manager,10,10,31.0,40.0
+Sub,10,10,33.35,50.0
+Television/film/video producer,10,10,32.32,40.0
+Hydrogeologist,10,10,26.81,50.0
+Leisure centre manager,10,10,23.82,50.0
+Immigration officer,10,10,33.09,20.0
+Pathologist,10,10,36.62,60.0
+"Engineer, civil (contracting)",10,10,33.39,10.0
+"Surveyor, quantity",10,10,29.54,10.0
+"Journalist, magazine",10,10,28.22,30.0
+Estate agent,10,10,32.97,50.0
+Publishing copy,10,10,36.47,20.0
+Data scientist,10,10,29.23,40.0
+"Geologist, wellsite",10,10,26.08,20.0
+Chartered certified accountant,10,10,32.02,30.0
+Occupational therapist,10,10,30.15,20.0
+Forensic psychologist,10,10,30.18,50.0
+Tourism officer,10,10,28.24,40.0
+"Scientist, physiological",10,10,19.46,50.0
+Agricultural consultant,10,10,32.17,30.0
+Hydrographic surveyor,10,10,34.62,40.0
+"Editor, magazine features",9,9,21.02,22.22
+"Sales professional, IT",9,9,27.77,33.33
+Nutritional therapist,9,9,31.34,33.33
+Network engineer,9,9,29.87,33.33
+Adult guidance worker,9,9,27.3,33.33
+"Librarian, academic",9,9,29.49,44.44
+Patent attorney,9,9,31.71,33.33
+"Programmer, multimedia",9,9,30.23,33.33
+Film/video editor,9,9,22.42,11.11
+Neurosurgeon,9,9,34.54,22.22
+English as a foreign language teacher,9,9,24.65,77.78
+Ophthalmologist,9,9,30.21,33.33
+Environmental health practitioner,9,9,32.58,11.11
+Corporate investment banker,9,9,28.83,22.22
+Multimedia specialist,9,9,29.19,0.0
+Web designer,9,9,36.08,44.44
+"Lighting technician, broadcasting/film/video",9,9,26.77,11.11
+Clinical molecular geneticist,9,9,34.86,11.11
+"Scientist, product/process development",9,9,21.78,55.56
+Dramatherapist,9,9,27.08,22.22
+Special effects artist,9,9,25.1,44.44
+"Teacher, secondary school",9,9,33.95,33.33
+Games developer,9,9,24.45,77.78
+Financial manager,9,9,28.89,33.33
+"Therapist, sports",9,9,27.2,22.22
+Actuary,9,9,32.91,0.0
+Proofreader,9,9,28.0,55.56
+Lawyer,9,9,28.13,33.33
+Actor,9,9,28.74,0.0
+"Conservation officer, historic buildings",9,9,27.5,44.44
+Astronomer,9,9,30.11,55.56
+Barista,9,9,29.8,55.56
+Advice worker,9,9,32.97,33.33
+Manufacturing systems engineer,9,9,30.6,0.0
+Advertising account planner,9,9,26.62,33.33
+Hospital pharmacist,9,9,25.97,33.33
+Systems developer,8,8,35.8,62.5
+"Administrator, Civil Service",8,8,25.58,12.5
+Art therapist,8,8,35.92,25.0
+Insurance broker,8,8,29.95,37.5
+"Engineer, communications",8,8,24.3,50.0
+"Designer, graphic",8,8,18.91,25.0
+"Scientist, research (life sciences)",8,8,25.9,0.0
+Contracting civil engineer,8,8,32.37,12.5
+Air cabin crew,8,8,29.11,12.5
+"Investment banker, operational",8,8,27.4,87.5
+Oncologist,8,8,26.54,25.0
+Immunologist,8,8,32.37,25.0
+"Editor, film/video",8,8,31.08,62.5
+Trade mark attorney,8,8,33.29,62.5
+Purchasing manager,8,8,22.17,50.0
+"Psychotherapist, child",8,8,28.24,62.5
+Secretary/administrator,8,8,21.72,25.0
+Fashion designer,8,8,29.09,50.0
+"Programmer, applications",8,8,23.12,50.0
+Investment analyst,8,8,31.67,25.0
+Research scientist (physical sciences),8,8,25.91,25.0
+Management consultant,8,8,27.74,25.0
+"Accountant, chartered certified",8,8,30.31,37.5
+Office manager,8,8,33.39,62.5
+Recycling officer,8,8,25.95,62.5
+Heritage manager,8,8,17.87,12.5
+Sales promotion account executive,8,8,24.83,25.0
+Seismic interpreter,8,8,32.38,12.5
+"Copywriter, advertising",8,8,38.36,0.0
+"Producer, radio",8,8,27.96,37.5
+"Surveyor, commercial/residential",8,8,34.6,62.5
+Legal secretary,8,8,31.17,12.5
+Waste management officer,8,8,31.22,50.0
+"Geneticist, molecular",8,8,33.76,50.0
+Site engineer,8,8,30.29,12.5
+Chief of Staff,7,7,28.68,57.14
+Primary school teacher,7,7,31.25,14.29
+"Scientist, research (medical)",7,7,22.87,71.43
+Health and safety inspector,7,7,24.7,28.57
+Ergonomist,7,7,33.83,28.57
+"Scientist, marine",7,7,18.11,42.86
+Software engineer,7,7,25.8,28.57
+Translator,7,7,24.27,57.14
+Dance movement psychotherapist,7,7,30.46,28.57
+Geophysical data processor,7,7,30.1,42.86
+Hospital doctor,7,7,30.68,42.86
+Magazine journalist,7,7,27.14,42.86
+Writer,7,7,20.99,28.57
+Control and instrumentation engineer,7,7,26.32,42.86
+Podiatrist,7,7,28.4,85.71
+"Administrator, charities/voluntary organisations",7,7,25.25,14.29
+Paramedic,7,7,27.18,14.29
+Insurance account manager,7,7,25.49,28.57
+"Engineer, automotive",7,7,24.41,57.14
+"Research officer, government",7,7,22.19,71.43
+"Engineer, broadcasting (operations)",7,7,28.06,42.86
+Careers information officer,7,7,26.5,42.86
+Armed forces operational officer,7,7,28.56,0.0
+"Engineer, aeronautical",7,7,24.21,42.86
+"Buyer, retail",7,7,38.88,71.43
+Manufacturing engineer,7,7,29.74,71.43
+Technical author,7,7,32.11,28.57
+Cytogeneticist,7,7,28.06,14.29
+Financial trader,7,7,23.62,28.57
+Arts development officer,7,7,26.34,28.57
+Sport and exercise psychologist,6,6,33.51,33.33
+Aeronautical engineer,6,6,33.96,33.33
+Planning and development surveyor,6,6,29.27,33.33
+Banker,6,6,28.91,0.0
+Copy,6,6,34.39,33.33
+"Psychologist, occupational",6,6,24.5,33.33
+Physiological scientist,6,6,27.35,16.67
+Broadcast journalist,6,6,38.3,33.33
+Insurance underwriter,6,6,34.03,66.67
+Environmental education officer,6,6,24.77,66.67
+Telecommunications researcher,6,6,28.02,0.0
+Plant breeder/geneticist,6,6,29.28,16.67
