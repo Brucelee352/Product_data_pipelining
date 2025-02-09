@@ -26,8 +26,8 @@ dependencies = [
     "dbt-duckdb>=1.5.0",
     "python-dotenv>=1.0.0",
     "user-agents>=2.2.0",
-    "streamlit>=1.28.0",
-    "plotly>=5.15.0",
+    "plotly>=6.0.0",
+    "streamlit>=1.42.0",
 ]
 
 

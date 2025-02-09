@@ -1,4 +1,3 @@
-
 """
 #----------------------------------------------------------------#
 
@@ -17,6 +16,7 @@ when deployed.
 """
 
 # Standard library imports
+import os
 import sys
 from pathlib import Path
 from io import BytesIO as io
@@ -28,23 +28,26 @@ import plotly.express as px
 import duckdb as ddb
 from minio import Minio as s3
 
-# Local imports from data pipeline, for dbt operations
-from scripts.main_data_pipeline import run_dbt_ops as rdops
+# Local imports from scripts/
+from main_data_pipeline import run_dbt_ops as rdops
 
 # Local imports for queries
-from scripts.analytics_queries import (
+from analytics_queries import (
     run_lifecycle_analysis as la,
     run_purchase_analysis as pa,
     run_demographics_analysis as da,
     run_business_analysis as ba,
     run_engagement_analysis as ea,
-    run_churn_analysis as ca)
-
-# Local imports for constants
-from scripts.constants import (
+    run_churn_analysis as ca
+)
+from constants import (
     DB_PATH, LOG, MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY,
     MINIO_BUCKET_NAME, MINIO_USE_SSL
 )
+
+# Add the parent directory to PYTHONPATH
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+print(sys.path)
 
 
 # Resolves the path to ensure correctness
@@ -114,6 +117,11 @@ def ddb_connect():
     except Exception as e:
         LOG.error("Error connecting to database: %s", str(e))
         raise
+
+
+@st.cache_data
+def app():
+    """Carries out website functions."""
 
 
 # Streamlit configuration
@@ -188,209 +196,205 @@ with col5:
 
 # Main application
 
-
-@st.cache_data
-def app():
-    """Carries out website functions."""
-    with ddb_connect() as con:
-        tab1, tab2 = st.tabs(['Revenue Centric', 'User Centric'])
-        # Revenue Centric data
-        with tab1:  # Chart 1
-            col1, col2 = st.columns([2, 1])
-            with col1:
-                try:
-                    churn_analysis = ca(con=con)
-                    if churn_analysis.empty:
-                        st.warning("No data found for churn analysis.")
-                    else:
-                        fig6 = px.line(
-                            churn_analysis,
-                            x='cohort_month',
-                            y='churn_rate',
-                            color='cohort_size',
-                            text='avg_days_to_churn',
-                            title='Churn Analysis by Cohort',
-                            height=600,
-                            line_group="cohort_size"
-                        )
-                        fig6.update_layout(
-                            xaxis_title='Cohort Month',
-                            yaxis_title='Churn Rate',
-                            legend_title='Cohort Size'
-                        )
-                        st.plotly_chart(fig6, use_container_width=True)
-
-                except Exception as e:
-                    st.error(
-                        LOG.error("Error fetching churn analysis data: %s",
-                                  str(e))
-                    )
-            with col2:  # Chart 2
-                try:
-                    purchase_analysis = pa(con=con)
-                    if purchase_analysis.empty:
-                        st.warning("No data found for purchase analysis.")
-                    else:
-
-                        fig2 = px.scatter(purchase_analysis,
-                                          x='month',
-                                          y='total_revenue',
-                                          size='total_revenue',
-                                          hover_data=['product_name',
-                                                      'total_revenue',
-                                                      'avg_price'],
-                                          color='price_tier',
-                                          title='Purchases by Product',
-                                          opacity=0.7,
-                                          log_x=True)
-                        fig2.update_layout(
-                            title=('Purchase Analysis by Product '
-                                   'and Price Tier'),
-                            width=500,
-                            height=500,
-                            xaxis_title='Month',
-                            yaxis_title='Total Revenue',
-                            legend_title='Price Tier',
-                            xaxis={'categoryorder': 'total descending'}
-                        )
-                        st.plotly_chart(fig2, use_container_width=True)
-                except Exception as e:
-                    st.error(
-                        LOG.error(
-                            "Error fetching purchase analysis data: %s", str(e)
-                        )
-                    )
-            st.divider()
-            try:  # Chart 3
-                lifecycle_analysis = la(con=con)
-                if lifecycle_analysis.empty:
-                    st.warning("No data found for lifecycle analysis.")
+with ddb_connect() as con:
+    tab1, tab2 = st.tabs(['Revenue Centric', 'User Centric'])
+    # Revenue Centric data
+    with tab1:  # Chart 1
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            try:
+                churn_analysis = ca(con=con)
+                if churn_analysis.empty:
+                    st.warning("No data found for churn analysis.")
                 else:
-                    df_grouped = lifecycle_analysis.groupby(
-                        'os', as_index=False).agg(
-                        {
-                            'total_revenue': 'sum',
-                            'total_customers': 'sum',
-                            'total_purchases': 'sum'
-                        })
-                fig = px.pie(
-                    df_grouped,
-                    names='os',
-                    values='total_revenue',
-                    title='Total Revenue by Operating System',
-                    hole=0.2,
-                    color_discrete_sequence=["#636EFA",
-                                             "#EF553B",
-                                             "#00CC96",
-                                             "#AB63FA",
-                                             "#FFA15A"]
-                )
-                fig.update_traces(opacity=0.75)
-                fig.update_layout(
-                    height=400,
-                    width=400,
-                    margin=dict(t=50, l=0, r=0, b=0),
-                    legend_title='Operating System'
-                )
-                st.plotly_chart(fig, use_container_width=True)
-            except Exception as e:
-                st.error(LOG.error("Error creating pie chart: %s", str(e)))
-        # User Centric data
-        with tab2:
-            col1, col2 = st.columns([2, 1])
-            with col1:  # Chart 4
-                try:
-                    demo_analysis = da(con=con)
-                    if demo_analysis.empty:
-                        st.warning("No data found for demographics analysis.")
-                    else:
-                        fig3 = px.bar(demo_analysis,
-                                      x='product_name',
-                                      y='unique_users',
-                                      color='browser',
-                                      barmode='relative',
-                                      hover_data=[
-                                          'avg_purchase_value',
-                                          'avg_session_duration'
-                                      ],
-                                      title='Usage by Product and Browser',
-                                      color_discrete_sequence=(
-                                          px.colors.qualitative.Pastel
-                                      )
-                                      )
-                        fig3.update_layout(
-                            xaxis_title='Product Name',
-                            yaxis_title='Unique Users',
-                            legend_title='Browser',
-                            height=500
-                        )
-
-                        st.plotly_chart(fig3, use_container_width=True)
-                except Exception as e:
-                    st.error(
-                        LOG.error(
-                            "Error fetching demographics analysis data: %s",
-                            str(e)
-                        )
+                    fig6 = px.line(
+                        churn_analysis,
+                        x='cohort_month',
+                        y='churn_rate',
+                        color='cohort_size',
+                        text='avg_days_to_churn',
+                        title='Churn Analysis by Cohort',
+                        height=600,
+                        line_group="cohort_size"
                     )
-            with col2:  # Chart 5
-                try:
-                    business_analysis = ba(con=con)
-                    if business_analysis.empty:
-                        st.warning("No data found for business analysis.")
-                    else:
-                        fig4 = px.bar(business_analysis,
-                                      x='device_type',
-                                      y='unique_users',
-                                      hover_data=['total_sessions',
-                                                  'avg_session_duration'],
-                                      color='conversion_rate',
-                                      color_continuous_scale='Geyser')
-                        fig4.update_layout(
-                            title='Business Analysis by Device Type',
-                            xaxis_title='Device Type',
-                            yaxis_title='Unique Users',
-                            legend_title='Conversion Rate',
-                            height=600,
-                            width=800
-                        )
-                        st.plotly_chart(fig4, use_container_width=True)
-                except Exception as e:
-                    st.error(
-                        LOG.error(
-                            "Error fetching business analysis data: %s", str(e)
-                        )
+                    fig6.update_layout(
+                        xaxis_title='Cohort Month',
+                        yaxis_title='Churn Rate',
+                        legend_title='Cohort Size'
                     )
-            st.divider()
-            try:  # Chart 6
-                engagement_analysis = ea(con=con)
-                if engagement_analysis.empty:
-                    st.warning("No data found for engagement analysis.")
-                else:
-
-                    fig5 = px.bar(engagement_analysis,
-                                  x='hour',
-                                  y='revenue',
-                                  color='hour',
-                                  hover_data=['total_sessions',
-                                              'avg_session_duration'],
-                                  height=400,
-                                  barmode='relative',
-                                  color_continuous_scale='Turbo',
-                                  log_y=True)
-                    fig5.update_layout(
-                        title='Engagement Analysis by Hour',
-                        xaxis_title='Hour',
-                        yaxis_title='Revenue',
-                        legend_title='Hour',
-                        xaxis={'categoryorder': 'total ascending'}
-                    )
-                    st.plotly_chart(fig5, use_container_width=True)
+                    st.plotly_chart(fig6, use_container_width=True)
 
             except Exception as e:
                 st.error(
+                    LOG.error("Error fetching churn analysis data: %s",
+                              str(e))
+                )
+        with col2:  # Chart 2
+            try:
+                purchase_analysis = pa(con=con)
+                if purchase_analysis.empty:
+                    st.warning("No data found for purchase analysis.")
+                else:
+
+                    fig2 = px.scatter(purchase_analysis,
+                                      x='month',
+                                      y='total_revenue',
+                                      size='total_revenue',
+                                      hover_data=['product_name',
+                                                  'total_revenue',
+                                                  'avg_price'],
+                                      color='price_tier',
+                                      title='Purchases by Product',
+                                      opacity=0.7,
+                                      log_x=True)
+                    fig2.update_layout(
+                        title=('Purchase Analysis by Product '
+                               'and Price Tier'),
+                        width=500,
+                        height=500,
+                        xaxis_title='Month',
+                        yaxis_title='Total Revenue',
+                        legend_title='Price Tier',
+                        xaxis={'categoryorder': 'total descending'}
+                    )
+                    st.plotly_chart(fig2, use_container_width=True)
+            except Exception as e:
+                st.error(
                     LOG.error(
-                        "Error fetching engagement analysis data: %s", str(e)))
+                        "Error fetching purchase analysis data: %s", str(e)
+                    )
+                )
+        st.divider()
+        try:  # Chart 3
+            lifecycle_analysis = la(con=con)
+            if lifecycle_analysis.empty:
+                st.warning("No data found for lifecycle analysis.")
+            else:
+                df_grouped = lifecycle_analysis.groupby(
+                    'os', as_index=False).agg(
+                    {
+                        'total_revenue': 'sum',
+                        'total_customers': 'sum',
+                        'total_purchases': 'sum'
+                    })
+            fig = px.pie(
+                df_grouped,
+                names='os',
+                values='total_revenue',
+                title='Total Revenue by Operating System',
+                hole=0.2,
+                color_discrete_sequence=["#636EFA",
+                                         "#EF553B",
+                                         "#00CC96",
+                                         "#AB63FA",
+                                         "#FFA15A"]
+            )
+            fig.update_traces(opacity=0.75)
+            fig.update_layout(
+                height=400,
+                width=400,
+                margin=dict(t=50, l=0, r=0, b=0),
+                legend_title='Operating System'
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        except Exception as e:
+            st.error(LOG.error("Error creating pie chart: %s", str(e)))
+    # User Centric data
+    with tab2:
+        col1, col2 = st.columns([2, 1])
+        with col1:  # Chart 4
+            try:
+                demo_analysis = da(con=con)
+                if demo_analysis.empty:
+                    st.warning("No data found for demographics analysis.")
+                else:
+                    fig3 = px.bar(demo_analysis,
+                                  x='product_name',
+                                  y='unique_users',
+                                  color='browser',
+                                  barmode='relative',
+                                  hover_data=[
+                                        'avg_purchase_value',
+                                        'avg_session_duration'
+                                  ],
+                                  title='Usage by Product and Browser',
+                                  color_discrete_sequence=(
+                                        px.colors.qualitative.Pastel
+                                  )
+                                  )
+                    fig3.update_layout(
+                        xaxis_title='Product Name',
+                        yaxis_title='Unique Users',
+                        legend_title='Browser',
+                        height=500
+                    )
+
+                    st.plotly_chart(fig3, use_container_width=True)
+            except Exception as e:
+                st.error(
+                    LOG.error(
+                        "Error fetching demographics analysis data: %s",
+                        str(e)
+                    )
+                )
+        with col2:  # Chart 5
+            try:
+                business_analysis = ba(con=con)
+                if business_analysis.empty:
+                    st.warning("No data found for business analysis.")
+                else:
+                    fig4 = px.bar(business_analysis,
+                                  x='device_type',
+                                  y='unique_users',
+                                  hover_data=['total_sessions',
+                                              'avg_session_duration'],
+                                  color='conversion_rate',
+                                  color_continuous_scale='Geyser')
+                    fig4.update_layout(
+                        title='Business Analysis by Device Type',
+                        xaxis_title='Device Type',
+                        yaxis_title='Unique Users',
+                        legend_title='Conversion Rate',
+                        height=600,
+                        width=800
+                    )
+                    st.plotly_chart(fig4, use_container_width=True)
+            except Exception as e:
+                st.error(
+                    LOG.error(
+                        "Error fetching business analysis data: %s", str(e)
+                    )
+                )
+        st.divider()
+        try:  # Chart 6
+            engagement_analysis = ea(con=con)
+            if engagement_analysis.empty:
+                st.warning("No data found for engagement analysis.")
+            else:
+
+                fig5 = px.bar(engagement_analysis,
+                              x='hour',
+                              y='revenue',
+                              color='hour',
+                              hover_data=['total_sessions',
+                                          'avg_session_duration'],
+                              height=400,
+                              barmode='relative',
+                              color_continuous_scale='Turbo',
+                              log_y=True)
+                fig5.update_layout(
+                    title='Engagement Analysis by Hour',
+                    xaxis_title='Hour',
+                    yaxis_title='Revenue',
+                    legend_title='Hour',
+                    xaxis={'categoryorder': 'total ascending'}
+                )
+                st.plotly_chart(fig5, use_container_width=True)
+
+        except Exception as e:
+            st.error(
+                LOG.error(
+                    "Error fetching engagement analysis data: %s", str(e)))
 
 
 def main():
