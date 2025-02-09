@@ -46,10 +46,6 @@ from scripts.constants import (
     MINIO_BUCKET_NAME, MINIO_USE_SSL
 )
 
-# Appends the parent directory to the path
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-print(sys.path)
-
 
 # Resolves the path to ensure correctness
 DB_PATH = DB_PATH.resolve()
