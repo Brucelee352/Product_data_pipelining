@@ -1,29 +1,33 @@
 # Product Data Pipeline: 
 
-## Overview
-This project is a complete data pipeline that 
-1. Generates synthetic product data
-2. Cleans and transforms the data using Python
-3. Models the data using dbt
-4. Generates analytics reports
-5. Uploads the final data to S3
+## Introduction:
+This project is an end-to-end data pipeline that generates its data locally and...
+
+1. Cleans and transforms the data using Python
+2. Models the data using dbt
+3. Generates analytics reports
+4. Uploads the final data to S3
+5. Serves the reports to streamlit as an application 
 
 ## Prerequisites
 - Python 3.9+
 - DuckDB
 - MinIO (or S3-compatible storage)
 - dbt Core
+- streamlit
+- plotly
 
 ## Project Structure
 ```
-.
 ├── dbt_pipeline_demo/          # dbt project
 │   ├── models/                 # dbt models
 │   ├── databases/              # DuckDB database files
 │   ├── dbt_project.yml         # dbt project configuration
 │   └── packages.yml            # dbt package dependencies
 ├── scripts/                    # Pipeline scripts
-│   └── main_data_pipeline.py   # Main pipeline script
+│   ├── main_data_pipeline.py   # Main pipeline script
+    ├── analytics_queries.py
+    └── constants.py
 ├── .dbt/                       # dbt profiles directory
 │   └── profiles.yml           # dbt connection profiles
 ├── data/                       # Processed data files
