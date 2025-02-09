@@ -1,2 +1,481 @@
-price_tier,total_purchases,avg_price
-Standard,3297,2692.368237791932
+product_name,price_tier,total_purchases,avg_price,total_revenue,unique_customers,month
+Omega,Standard,62,2351.57,145797.64,53,12
+Omega,Luxury,62,2351.57,145797.64,53,12
+Omega,Premium,62,2351.57,145797.64,53,12
+Omega,Budget,62,2351.57,145797.64,53,12
+Zeta,Standard,58,2340.12,135727.13,46,12
+Zeta,Budget,58,2340.12,135727.13,46,12
+Delta,Premium,58,2634.12,152779.03,50,12
+Zeta,Premium,58,2340.12,135727.13,46,12
+Delta,Standard,58,2634.12,152779.03,50,12
+Delta,Budget,58,2634.12,152779.03,50,12
+Delta,Luxury,58,2634.12,152779.03,50,12
+Zeta,Luxury,58,2340.12,135727.13,46,12
+Epsilon,Luxury,57,2682.66,152911.81,45,11
+Epsilon,Premium,57,2682.66,152911.81,45,11
+Epsilon,Standard,57,2682.66,152911.81,45,11
+Epsilon,Budget,57,2682.66,152911.81,45,11
+Gamma,Budget,54,2686.21,145055.41,47,12
+Gamma,Premium,54,2686.21,145055.41,47,12
+Gamma,Luxury,54,2686.21,145055.41,47,12
+Gamma,Standard,54,2686.21,145055.41,47,12
+Alpha,Standard,53,2644.69,140168.38,41,12
+Alpha,Premium,53,2644.69,140168.38,41,12
+Alpha,Luxury,53,2644.69,140168.38,41,12
+Alpha,Budget,53,2644.69,140168.38,41,12
+Omicron,Budget,48,3460.58,166107.62,39,12
+Omicron,Premium,48,3460.58,166107.62,39,12
+Omicron,Luxury,48,3460.58,166107.62,39,12
+Omicron,Standard,48,3460.58,166107.62,39,12
+Gamma,Standard,46,2502.0,115091.89,34,9
+Beta,Budget,46,2678.52,123212.14,39,12
+Beta,Premium,46,2678.52,123212.14,39,12
+Beta,Standard,46,2678.52,123212.14,39,12
+Gamma,Budget,46,2502.0,115091.89,34,9
+Gamma,Premium,46,2502.0,115091.89,34,9
+Gamma,Luxury,46,2502.0,115091.89,34,9
+Beta,Luxury,46,2678.52,123212.14,39,12
+Omicron,Budget,44,2433.81,107087.75,32,10
+Omega,Budget,44,3151.9,138683.5,37,9
+Delta,Premium,44,3500.8,154035.15,35,11
+Omicron,Premium,44,2433.81,107087.75,32,10
+Omicron,Luxury,44,2433.81,107087.75,32,10
+Delta,Luxury,44,3500.8,154035.15,35,11
+Delta,Standard,44,3500.8,154035.15,35,11
+Delta,Budget,44,3500.8,154035.15,35,11
+Omega,Standard,44,3151.9,138683.5,37,9
+Omega,Luxury,44,3151.9,138683.5,37,9
+Omega,Premium,44,3151.9,138683.5,37,9
+Omicron,Standard,44,2433.81,107087.75,32,10
+Phi,Premium,43,2508.26,107855.28,38,10
+Phi,Standard,43,2508.26,107855.28,38,10
+Phi,Luxury,43,2508.26,107855.28,38,10
+Phi,Budget,43,2508.26,107855.28,38,10
+Epsilon,Premium,42,2508.62,105361.89,32,12
+Epsilon,Standard,42,2508.62,105361.89,32,12
+Epsilon,Budget,42,2508.62,105361.89,32,12
+Epsilon,Luxury,42,2508.62,105361.89,32,12
+Phi,Premium,41,2840.53,116461.84,37,12
+Omicron,Standard,41,2992.95,122710.82,33,11
+Phi,Standard,41,2840.53,116461.84,37,12
+Phi,Luxury,41,2840.53,116461.84,37,12
+Omicron,Premium,41,2992.95,122710.82,33,11
+Omicron,Luxury,41,2992.95,122710.82,33,11
+Epsilon,Luxury,41,3717.39,152413.0,34,7
+Epsilon,Premium,41,3717.39,152413.0,34,7
+Epsilon,Standard,41,3717.39,152413.0,34,7
+Omicron,Budget,41,2992.95,122710.82,33,11
+Phi,Budget,41,2840.53,116461.84,37,12
+Epsilon,Budget,41,3717.39,152413.0,34,7
+Alpha,Budget,39,2358.26,91972.01,31,11
+Alpha,Luxury,39,2659.47,103719.4,31,9
+Alpha,Premium,39,2659.47,103719.4,31,9
+Omicron,Premium,39,3413.99,133145.57,33,7
+Omicron,Luxury,39,3413.99,133145.57,33,7
+Alpha,Premium,39,2358.26,91972.01,31,11
+Omicron,Budget,39,3413.99,133145.57,33,7
+Omega,Budget,39,2383.11,92941.48,38,11
+Alpha,Budget,39,2659.47,103719.4,31,9
+Phi,Budget,39,2505.96,97732.45,32,9
+Alpha,Luxury,39,2358.26,91972.01,31,11
+Phi,Premium,39,2505.96,97732.45,32,9
+Omega,Premium,39,2383.11,92941.48,38,11
+Omicron,Standard,39,3413.99,133145.57,33,7
+Phi,Standard,39,2505.96,97732.45,32,9
+Alpha,Standard,39,2659.47,103719.4,31,9
+Phi,Luxury,39,2505.96,97732.45,32,9
+Omega,Standard,39,2383.11,92941.48,38,11
+Omega,Luxury,39,2383.11,92941.48,38,11
+Alpha,Standard,39,2358.26,91972.01,31,11
+Alpha,Premium,38,2255.73,85717.86,32,8
+Beta,Luxury,38,2486.52,94487.9,31,11
+Alpha,Luxury,38,2255.73,85717.86,32,8
+Alpha,Budget,38,2255.73,85717.86,32,8
+Beta,Premium,38,2486.52,94487.9,31,11
+Beta,Standard,38,2486.52,94487.9,31,11
+Alpha,Standard,38,2255.73,85717.86,32,8
+Beta,Budget,38,2486.52,94487.9,31,11
+Zeta,Standard,37,2562.57,94815.19,30,10
+Epsilon,Premium,37,2631.57,97368.27,29,8
+Epsilon,Standard,37,2631.57,97368.27,29,8
+Zeta,Budget,37,2562.57,94815.19,30,10
+Zeta,Luxury,37,1991.48,73684.86,32,11
+Epsilon,Budget,37,2631.57,97368.27,29,8
+Zeta,Premium,37,1991.48,73684.86,32,11
+Epsilon,Luxury,37,2631.57,97368.27,29,8
+Delta,Premium,37,3012.22,111452.07,27,10
+Zeta,Premium,37,2562.57,94815.19,30,10
+Delta,Budget,37,3012.22,111452.07,27,10
+Delta,Luxury,37,3012.22,111452.07,27,10
+Delta,Standard,37,3012.22,111452.07,27,10
+Zeta,Luxury,37,2562.57,94815.19,30,10
+Zeta,Standard,37,1991.48,73684.86,32,11
+Zeta,Budget,37,1991.48,73684.86,32,11
+Gamma,Budget,36,3767.56,135632.28,33,10
+Beta,Budget,36,2011.13,72400.58,29,10
+Beta,Premium,36,2011.13,72400.58,29,10
+Gamma,Premium,36,3767.56,135632.28,33,10
+Beta,Standard,36,2011.13,72400.58,29,10
+Gamma,Luxury,36,3767.56,135632.28,33,10
+Gamma,Standard,36,3767.56,135632.28,33,10
+Beta,Luxury,36,2011.13,72400.58,29,10
+Beta,Premium,35,3536.25,123768.65,29,7
+Delta,Premium,35,2509.01,87815.22,25,9
+Omega,Standard,35,2479.79,86792.59,32,10
+Gamma,Premium,35,2885.14,100979.96,29,11
+Omega,Budget,35,2479.79,86792.59,32,10
+Gamma,Luxury,35,2885.14,100979.96,29,11
+Beta,Luxury,35,3536.25,123768.65,29,7
+Omega,Luxury,35,2479.79,86792.59,32,10
+Delta,Standard,35,2509.01,87815.22,25,9
+Delta,Budget,35,2509.01,87815.22,25,9
+Delta,Luxury,35,2509.01,87815.22,25,9
+Beta,Standard,35,3536.25,123768.65,29,7
+Omega,Premium,35,2479.79,86792.59,32,10
+Beta,Budget,35,3536.25,123768.65,29,7
+Gamma,Standard,35,2885.14,100979.96,29,11
+Gamma,Budget,35,2885.14,100979.96,29,11
+Phi,Budget,34,2402.65,81690.23,27,11
+Omicron,Standard,34,3547.89,120628.34,29,9
+Omicron,Budget,34,3547.89,120628.34,29,9
+Phi,Premium,34,2402.65,81690.23,27,11
+Omicron,Premium,34,3547.89,120628.34,29,9
+Omicron,Luxury,34,3547.89,120628.34,29,9
+Phi,Luxury,34,2402.65,81690.23,27,11
+Phi,Standard,34,2402.65,81690.23,27,11
+Omega,Premium,33,2386.45,78752.88,27,5
+Omicron,Standard,33,2520.25,83168.23,28,8
+Omega,Standard,33,2386.45,78752.88,27,5
+Omega,Luxury,33,2386.45,78752.88,27,5
+Phi,Budget,33,2490.83,82197.29,28,8
+Phi,Premium,33,2490.83,82197.29,28,8
+Phi,Standard,33,2490.83,82197.29,28,8
+Omicron,Budget,33,2520.25,83168.23,28,8
+Phi,Luxury,33,2490.83,82197.29,28,8
+Omicron,Premium,33,2520.25,83168.23,28,8
+Delta,Standard,33,2598.45,85748.94,22,7
+Delta,Budget,33,2598.45,85748.94,22,7
+Omega,Budget,33,2386.45,78752.88,27,5
+Delta,Luxury,33,2598.45,85748.94,22,7
+Delta,Premium,33,2598.45,85748.94,22,7
+Omicron,Luxury,33,2520.25,83168.23,28,8
+Alpha,Standard,32,3825.06,122401.89,25,7
+Alpha,Budget,32,3825.06,122401.89,25,7
+Alpha,Premium,32,3825.06,122401.89,25,7
+Alpha,Luxury,32,3825.06,122401.89,25,7
+Alpha,Standard,31,2543.2,78839.35,27,10
+Omega,Budget,31,2930.3,90839.18,25,8
+Omega,Budget,31,2315.84,71791.0,26,3
+Beta,Luxury,31,2182.85,67668.25,28,9
+Omega,Premium,31,2315.84,71791.0,26,3
+Omega,Luxury,31,2930.3,90839.18,25,8
+Alpha,Luxury,31,2543.2,78839.35,27,10
+Alpha,Premium,31,2543.2,78839.35,27,10
+Beta,Budget,31,2182.85,67668.25,28,9
+Omega,Standard,31,2930.3,90839.18,25,8
+Beta,Premium,31,2182.85,67668.25,28,9
+Omega,Premium,31,2930.3,90839.18,25,8
+Alpha,Budget,31,2543.2,78839.35,27,10
+Omega,Standard,31,2315.84,71791.0,26,3
+Beta,Standard,31,2182.85,67668.25,28,9
+Omega,Luxury,31,2315.84,71791.0,26,3
+Delta,Standard,30,2672.78,80183.38,26,8
+Delta,Budget,30,2672.78,80183.38,26,8
+Delta,Premium,30,2672.78,80183.38,26,8
+Delta,Luxury,30,2672.78,80183.38,26,8
+Epsilon,Premium,29,2568.19,74477.56,26,9
+Omega,Premium,29,2515.23,72941.79,19,7
+Zeta,Standard,29,2558.24,74188.92,24,6
+Omega,Premium,29,2444.45,70889.13,23,4
+Epsilon,Standard,29,2568.19,74477.56,26,9
+Omicron,Premium,29,2562.27,74305.78,24,5
+Zeta,Premium,29,2404.34,69725.98,20,8
+Zeta,Premium,29,2813.84,81601.45,23,9
+Epsilon,Budget,29,2568.19,74477.56,26,9
+Zeta,Budget,29,2558.24,74188.92,24,6
+Omicron,Luxury,29,2562.27,74305.78,24,5
+Omega,Standard,29,2444.45,70889.13,23,4
+Omega,Luxury,29,2444.45,70889.13,23,4
+Zeta,Luxury,29,2404.34,69725.98,20,8
+Epsilon,Luxury,29,2568.19,74477.56,26,9
+Omega,Luxury,29,2515.23,72941.79,19,7
+Zeta,Luxury,29,2813.84,81601.45,23,9
+Omega,Standard,29,2515.23,72941.79,19,7
+Omicron,Budget,29,2562.27,74305.78,24,5
+Omicron,Standard,29,2562.27,74305.78,24,5
+Zeta,Standard,29,2813.84,81601.45,23,9
+Epsilon,Premium,29,2971.64,86177.59,22,10
+Zeta,Standard,29,2404.34,69725.98,20,8
+Epsilon,Standard,29,2971.64,86177.59,22,10
+Zeta,Premium,29,2558.24,74188.92,24,6
+Zeta,Budget,29,2813.84,81601.45,23,9
+Epsilon,Budget,29,2971.64,86177.59,22,10
+Zeta,Budget,29,2404.34,69725.98,20,8
+Omega,Budget,29,2515.23,72941.79,19,7
+Omega,Budget,29,2444.45,70889.13,23,4
+Zeta,Luxury,29,2558.24,74188.92,24,6
+Epsilon,Luxury,29,2971.64,86177.59,22,10
+Alpha,Budget,28,2080.94,58266.31,23,3
+Gamma,Budget,28,3549.63,99389.58,19,1
+Gamma,Premium,28,3549.63,99389.58,19,1
+Alpha,Premium,28,2080.94,58266.31,23,3
+Gamma,Luxury,28,3549.63,99389.58,19,1
+Beta,Luxury,28,2513.83,70387.22,25,2
+Alpha,Luxury,28,2080.94,58266.31,23,3
+Beta,Budget,28,2513.83,70387.22,25,2
+Gamma,Standard,28,3549.63,99389.58,19,1
+Epsilon,Luxury,28,4784.8,133974.49,21,5
+Beta,Premium,28,2513.83,70387.22,25,2
+Epsilon,Premium,28,4784.8,133974.49,21,5
+Epsilon,Standard,28,4784.8,133974.49,21,5
+Beta,Standard,28,2513.83,70387.22,25,2
+Epsilon,Budget,28,4784.8,133974.49,21,5
+Alpha,Standard,28,2080.94,58266.31,23,3
+Phi,Premium,27,2270.14,61293.69,22,6
+Gamma,Budget,27,2781.42,75098.23,19,6
+Phi,Budget,27,2403.15,64885.13,20,3
+Phi,Standard,27,2270.14,61293.69,22,6
+Phi,Luxury,27,2270.14,61293.69,22,6
+Gamma,Premium,27,2781.42,75098.23,19,6
+Gamma,Luxury,27,2781.42,75098.23,19,6
+Gamma,Standard,27,2781.42,75098.23,19,6
+Phi,Standard,27,2403.15,64885.13,20,3
+Phi,Luxury,27,2403.15,64885.13,20,3
+Phi,Budget,27,2270.14,61293.69,22,6
+Phi,Premium,27,2403.15,64885.13,20,3
+Phi,Premium,26,2168.81,56389.09,20,7
+Omega,Premium,26,3014.2,78369.25,21,6
+Phi,Budget,26,2168.81,56389.09,20,7
+Epsilon,Budget,26,2830.77,73600.09,19,6
+Epsilon,Premium,26,2830.77,73600.09,19,6
+Epsilon,Standard,26,2830.77,73600.09,19,6
+Beta,Budget,26,2273.57,59112.91,19,8
+Beta,Premium,26,2273.57,59112.91,19,8
+Beta,Standard,26,2273.57,59112.91,19,8
+Omega,Budget,26,3014.2,78369.25,21,6
+Phi,Standard,26,2168.81,56389.09,20,7
+Omega,Luxury,26,3014.2,78369.25,21,6
+Epsilon,Budget,26,2790.9,72563.45,20,2
+Epsilon,Premium,26,2790.9,72563.45,20,2
+Epsilon,Standard,26,2790.9,72563.45,20,2
+Omega,Standard,26,3014.2,78369.25,21,6
+Beta,Luxury,26,2273.57,59112.91,19,8
+Epsilon,Luxury,26,2790.9,72563.45,20,2
+Phi,Luxury,26,2168.81,56389.09,20,7
+Epsilon,Luxury,26,2830.77,73600.09,19,6
+Beta,Premium,25,3391.1,84777.43,24,5
+Gamma,Standard,25,2391.32,59783.04,23,8
+Beta,Standard,25,3391.1,84777.43,24,5
+Beta,Budget,25,2552.57,63814.14,15,6
+Beta,Budget,25,3391.1,84777.43,24,5
+Beta,Standard,25,2552.57,63814.14,15,6
+Beta,Premium,25,2552.57,63814.14,15,6
+Delta,Premium,25,2343.75,58593.72,20,6
+Delta,Standard,25,2343.75,58593.72,20,6
+Delta,Budget,25,2343.75,58593.72,20,6
+Delta,Luxury,25,2343.75,58593.72,20,6
+Gamma,Budget,25,2391.32,59783.04,23,8
+Beta,Luxury,25,3391.1,84777.43,24,5
+Gamma,Luxury,25,2391.32,59783.04,23,8
+Gamma,Premium,25,2391.32,59783.04,23,8
+Beta,Luxury,25,2552.57,63814.14,15,6
+Beta,Premium,24,2491.5,59795.92,19,4
+Zeta,Premium,24,2600.33,62407.83,21,2
+Beta,Standard,24,2491.5,59795.92,19,4
+Omicron,Budget,24,2391.95,57406.75,20,6
+Omicron,Premium,24,2391.95,57406.75,20,6
+Zeta,Luxury,24,2600.33,62407.83,21,2
+Omicron,Luxury,24,2391.95,57406.75,20,6
+Beta,Budget,24,2491.5,59795.92,19,4
+Zeta,Standard,24,2600.33,62407.83,21,2
+Beta,Luxury,24,2491.5,59795.92,19,4
+Zeta,Budget,24,2600.33,62407.83,21,2
+Omicron,Standard,24,2391.95,57406.75,20,6
+Gamma,Premium,23,2760.42,63489.56,17,5
+Zeta,Budget,23,2451.0,56373.03,17,1
+Delta,Standard,23,1713.21,39403.72,16,2
+Alpha,Standard,23,2278.28,52400.44,16,1
+Zeta,Luxury,23,2786.46,64088.62,21,3
+Delta,Luxury,23,1713.21,39403.72,16,2
+Gamma,Luxury,23,2509.8,57725.35,16,7
+Zeta,Standard,23,2451.0,56373.03,17,1
+Delta,Premium,23,1713.21,39403.72,16,2
+Gamma,Premium,23,2509.8,57725.35,16,7
+Delta,Budget,23,1713.21,39403.72,16,2
+Gamma,Luxury,23,2760.42,63489.56,17,5
+Gamma,Budget,23,2509.8,57725.35,16,7
+Gamma,Budget,23,2760.42,63489.56,17,5
+Zeta,Premium,23,2786.46,64088.62,21,3
+Zeta,Budget,23,2885.21,66359.77,18,5
+Zeta,Budget,23,2458.02,56534.53,18,4
+Zeta,Standard,23,2885.21,66359.77,18,5
+Zeta,Standard,23,2458.02,56534.53,18,4
+Zeta,Luxury,23,2458.02,56534.53,18,4
+Alpha,Luxury,23,2278.28,52400.44,16,1
+Zeta,Premium,23,2451.0,56373.03,17,1
+Zeta,Luxury,23,2885.21,66359.77,18,5
+Alpha,Premium,23,2278.28,52400.44,16,1
+Alpha,Budget,23,2278.28,52400.44,16,1
+Delta,Premium,23,3011.56,69265.81,21,5
+Zeta,Standard,23,2786.46,64088.62,21,3
+Zeta,Premium,23,2458.02,56534.53,18,4
+Delta,Standard,23,3011.56,69265.81,21,5
+Zeta,Budget,23,2786.46,64088.62,21,3
+Delta,Budget,23,3011.56,69265.81,21,5
+Gamma,Standard,23,2509.8,57725.35,16,7
+Delta,Luxury,23,3011.56,69265.81,21,5
+Zeta,Premium,23,2885.21,66359.77,18,5
+Gamma,Standard,23,2760.42,63489.56,17,5
+Zeta,Luxury,23,2451.0,56373.03,17,1
+Beta,Budget,22,2568.58,56508.78,19,1
+Gamma,Standard,22,3213.02,70686.45,18,2
+Alpha,Luxury,22,2770.48,60950.58,16,2
+Omicron,Budget,22,2368.57,52108.44,16,1
+Alpha,Premium,22,2770.48,60950.58,16,2
+Beta,Premium,22,2568.58,56508.78,19,1
+Phi,Premium,22,2873.47,63216.28,19,4
+Alpha,Budget,22,2770.48,60950.58,16,2
+Phi,Standard,22,2873.47,63216.28,19,4
+Alpha,Standard,22,2394.72,52683.79,17,4
+Omicron,Premium,22,2368.57,52108.44,16,1
+Beta,Standard,22,2568.58,56508.78,19,1
+Omicron,Luxury,22,2368.57,52108.44,16,1
+Phi,Luxury,22,2873.47,63216.28,19,4
+Zeta,Budget,22,2234.45,49157.98,18,7
+Zeta,Standard,22,2234.45,49157.98,18,7
+Alpha,Budget,22,2394.72,52683.79,17,4
+Gamma,Budget,22,3213.02,70686.45,18,2
+Phi,Budget,22,2873.47,63216.28,19,4
+Alpha,Standard,22,2770.48,60950.58,16,2
+Zeta,Luxury,22,2234.45,49157.98,18,7
+Gamma,Premium,22,3213.02,70686.45,18,2
+Zeta,Premium,22,2234.45,49157.98,18,7
+Gamma,Luxury,22,3213.02,70686.45,18,2
+Beta,Luxury,22,2568.58,56508.78,19,1
+Alpha,Luxury,22,2394.72,52683.79,17,4
+Alpha,Premium,22,2394.72,52683.79,17,4
+Omicron,Standard,22,2368.57,52108.44,16,1
+Gamma,Premium,21,3056.58,64188.11,14,4
+Gamma,Luxury,21,3056.58,64188.11,14,4
+Gamma,Budget,21,3056.58,64188.11,14,4
+Gamma,Standard,21,3056.58,64188.11,14,4
+Phi,Standard,20,2641.22,52824.3,14,1
+Omicron,Premium,20,2300.15,46002.99,15,3
+Omicron,Budget,20,3024.87,60497.47,19,2
+Epsilon,Luxury,20,2255.18,45103.62,13,4
+Beta,Premium,20,2744.28,54885.58,15,3
+Alpha,Premium,20,2746.3,54926.03,16,6
+Omicron,Luxury,20,2300.15,46002.99,15,3
+Alpha,Luxury,20,2746.3,54926.03,16,6
+Beta,Standard,20,2744.28,54885.58,15,3
+Phi,Budget,20,2083.78,41675.59,17,5
+Alpha,Budget,20,2746.3,54926.03,16,6
+Delta,Premium,20,2650.56,53011.22,19,4
+Omicron,Premium,20,3024.87,60497.47,19,2
+Omicron,Budget,20,2300.15,46002.99,15,3
+Delta,Budget,20,2650.56,53011.22,19,4
+Epsilon,Budget,20,2255.18,45103.62,13,4
+Omicron,Luxury,20,3024.87,60497.47,19,2
+Epsilon,Premium,20,2255.18,45103.62,13,4
+Beta,Budget,20,2744.28,54885.58,15,3
+Epsilon,Standard,20,2255.18,45103.62,13,4
+Delta,Luxury,20,2650.56,53011.22,19,4
+Phi,Premium,20,2641.22,52824.3,14,1
+Beta,Luxury,20,2744.28,54885.58,15,3
+Phi,Luxury,20,2641.22,52824.3,14,1
+Omicron,Standard,20,2300.15,46002.99,15,3
+Alpha,Standard,20,2746.3,54926.03,16,6
+Epsilon,Luxury,20,2734.63,54692.65,17,3
+Omicron,Standard,20,3024.87,60497.47,19,2
+Phi,Premium,20,2083.78,41675.59,17,5
+Phi,Standard,20,2083.78,41675.59,17,5
+Epsilon,Premium,20,2734.63,54692.65,17,3
+Epsilon,Standard,20,2734.63,54692.65,17,3
+Epsilon,Budget,20,2734.63,54692.65,17,3
+Phi,Luxury,20,2083.78,41675.59,17,5
+Delta,Standard,20,2650.56,53011.22,19,4
+Phi,Budget,20,2641.22,52824.3,14,1
+Alpha,Standard,19,2966.32,56360.08,15,5
+Delta,Premium,19,2402.48,45647.11,14,1
+Delta,Luxury,19,2402.48,45647.11,14,1
+Delta,Standard,19,2402.48,45647.11,14,1
+Delta,Budget,19,2402.48,45647.11,14,1
+Alpha,Budget,19,2966.32,56360.08,15,5
+Alpha,Luxury,19,2966.32,56360.08,15,5
+Alpha,Premium,19,2966.32,56360.08,15,5
+Omicron,Luxury,18,1923.66,34625.87,13,4
+Omicron,Premium,18,1923.66,34625.87,13,4
+Omicron,Budget,18,1923.66,34625.87,13,4
+Omicron,Standard,18,1923.66,34625.87,13,4
+Omega,Budget,17,3211.85,54601.44,14,2
+Omega,Standard,17,3211.85,54601.44,14,2
+Omega,Luxury,17,3211.85,54601.44,14,2
+Omega,Premium,17,3211.85,54601.44,14,2
+Omega,Standard,16,3104.82,49677.15,12,1
+Omega,Luxury,16,3104.82,49677.15,12,1
+Delta,Premium,16,3404.17,54466.77,7,3
+Delta,Budget,16,3404.17,54466.77,7,3
+Omega,Premium,16,3104.82,49677.15,12,1
+Delta,Standard,16,3404.17,54466.77,7,3
+Delta,Luxury,16,3404.17,54466.77,7,3
+Omega,Budget,16,3104.82,49677.15,12,1
+Epsilon,Premium,15,2565.88,38488.14,11,1
+Epsilon,Standard,15,2565.88,38488.14,11,1
+Epsilon,Budget,15,2565.88,38488.14,11,1
+Epsilon,Luxury,15,2565.88,38488.14,11,1
+Gamma,Standard,13,2267.77,29481.06,12,3
+Gamma,Luxury,13,2267.77,29481.06,12,3
+Gamma,Premium,13,2267.77,29481.06,12,3
+Gamma,Budget,13,2267.77,29481.06,12,3
+Phi,Budget,10,2810.1,28100.99,9,2
+Phi,Premium,10,2810.1,28100.99,9,2
+Phi,Luxury,10,2810.1,28100.99,9,2
+Phi,Standard,10,2810.1,28100.99,9,2
+Beta Product,Standard,3,4259.45,12778.36,3,5
+Beta Product,Premium,3,4259.45,12778.36,3,5
+Legacy Product,Budget,3,2130.97,6392.91,3,6
+Beta Product,Budget,3,4259.45,12778.36,3,5
+Legacy Product,Premium,3,2130.97,6392.91,3,6
+Legacy Product,Standard,3,2130.97,6392.91,3,6
+Beta Product,Standard,2,1323.2,2646.39,1,7
+Legacy Product,Standard,2,3357.54,6715.07,2,9
+Legacy Product,Premium,2,3357.54,6715.07,2,9
+Legacy Product,Premium,2,1204.69,2409.37,2,8
+Beta Product,Budget,2,1918.61,3837.22,1,11
+Legacy Product,Standard,2,1204.69,2409.37,2,8
+Legacy Product,Premium,2,3523.12,7046.23,2,11
+Legacy Product,Budget,2,2137.33,4274.66,1,10
+Beta Product,Premium,2,1323.2,2646.39,1,7
+Legacy Product,Standard,2,3523.12,7046.23,2,11
+Legacy Product,Standard,2,2137.33,4274.66,1,10
+Legacy Product,Premium,2,2137.33,4274.66,1,10
+Beta Product,Standard,2,1918.61,3837.22,1,11
+Beta Product,Budget,2,1323.2,2646.39,1,7
+Legacy Product,Budget,2,3523.12,7046.23,2,11
+Legacy Product,Budget,2,3357.54,6715.07,2,9
+Beta Product,Premium,2,1918.61,3837.22,1,11
+Legacy Product,Budget,2,1204.69,2409.37,2,8
+Legacy Product,Budget,1,708.86,708.86,1,4
+Legacy Product,Budget,1,2595.49,2595.49,1,7
+Beta Product,Standard,1,3421.55,3421.55,1,4
+Beta Product,Premium,1,470.96,470.96,0,6
+Beta Product,Budget,1,2891.26,2891.26,1,3
+Beta Product,Premium,1,3630.66,3630.66,0,1
+Beta Product,Premium,1,1373.79,1373.79,1,12
+Beta Product,Standard,1,3630.66,3630.66,0,1
+Beta Product,Premium,1,3421.55,3421.55,1,4
+Beta Product,Budget,1,1323.95,1323.95,1,9
+Beta Product,Standard,1,470.96,470.96,0,6
+Beta Product,Standard,1,1373.79,1373.79,1,12
+Beta Product,Premium,1,1323.95,1323.95,1,9
+Beta Product,Standard,1,2891.26,2891.26,1,3
+Beta Product,Budget,1,3421.55,3421.55,1,4
+Beta Product,Budget,1,1373.79,1373.79,1,12
+Legacy Product,Premium,1,708.86,708.86,1,4
+Beta Product,Budget,1,470.96,470.96,0,6
+Legacy Product,Standard,1,708.86,708.86,1,4
+Legacy Product,Premium,1,2595.49,2595.49,1,7
+Beta Product,Premium,1,2891.26,2891.26,1,3
+Legacy Product,Standard,1,2595.49,2595.49,1,7
+Beta Product,Standard,1,1323.95,1323.95,1,9
+Beta Product,Budget,1,3630.66,3630.66,0,1

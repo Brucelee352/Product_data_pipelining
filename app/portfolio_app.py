@@ -1,21 +1,39 @@
+
+"""
+#----------------------------------------------------------------#
+
+Bruce's Analytics Portfolio App
+
+This app (powered by streamlit) showcases customer analytics
+across modalities.
+
+Please refer to README.md file for more information.
+
+All dependencies here are installed via requirements.txt 
+when deployed.
+
+#----------------------------------------------------------------#
+
+"""
+
+# Standard library imports
 import os
 import sys
 from pathlib import Path
 import logging
 from io import BytesIO as io
+
+# Third party imports
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import duckdb as ddb
 from minio import Minio as s3
 
-
-# Local imports from data pipeline for dbt operations
+# Local imports from data pipeline, for dbt operations
 from main_data_pipeline import run_dbt_ops as rdops
 
-
-# Local imports for analytics queries
-
+# Local imports for queries
 from analytics_queries import (
     run_lifecycle_analysis as la,
     run_purchase_analysis as pa,
@@ -24,38 +42,34 @@ from analytics_queries import (
     run_engagement_analysis as ea,
     run_churn_analysis as ca)
 
+# Local imports for constants
+from constants import (
+    DB_PATH, LOG, MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY,
+    MINIO_BUCKET_NAME, MINIO_USE_SSL
+)
+
+# Appends the parent directory to the path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 print(sys.path)
 
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger(__name__)
 
-# Setup project paths
-PROJECT_ROOT = Path(__file__).parents[1]
-DBT_ROOT = PROJECT_ROOT / 'dbt_pipeline_demo'
-db_dir = DBT_ROOT / 'databases'
-db_dir.mkdir(parents=True, exist_ok=True)
-db_path = db_dir / 'dbt_pipeline_demo.duckdb'
-
-# Resolve the path to ensure correctness
-db_path = db_path.resolve()
+# Resolves the path to ensure correctness
+DB_PATH = DB_PATH.resolve()
 
 # Print the path for debugging
-log.info("Database path: %s", db_path)
+LOG.info("Database path: %s", DB_PATH)
 
-# Verify file exists
-if not db_path.exists():
-    raise FileNotFoundError(f"Database file not found at: {db_path}")
+# Verifies that the path exists
+if not DB_PATH.exists():
+    raise FileNotFoundError(f"Database file not found at: {DB_PATH}")
 
 # MinIO configuration
 S3_CONFIG = {
-    'endpoint': os.getenv('MINIO_ENDPOINT'),
-    'access_key': os.getenv('MINIO_ACCESS_KEY'),
-    'secret_key': os.getenv('MINIO_SECRET_KEY'),
-    'bucket': os.getenv('MINIO_BUCKET_NAME', 'sim-api-data'),
-    'use_ssl': os.getenv('MINIO_USE_SSL', 'False').lower() in {
-        'true', '1', 'yes'},
+    'endpoint': f'{MINIO_ENDPOINT}',
+    'access_key': f'{MINIO_ACCESS_KEY}',
+    'secret_key': f'{MINIO_SECRET_KEY}',
+    'bucket': f'{MINIO_BUCKET_NAME}',
+    'use_ssl': f'{MINIO_USE_SSL}',
 }
 
 # Initialize MinIO client
@@ -63,10 +77,10 @@ client = s3(
     endpoint=S3_CONFIG['endpoint'],
     access_key=S3_CONFIG['access_key'],
     secret_key=S3_CONFIG['secret_key'],
-    secure=S3_CONFIG['use_ssl']
+    secure=False
 )
 
-# Load Parquet file from MinIO
+# Loads a Parquet file from S3
 
 
 @st.cache_data
@@ -75,58 +89,58 @@ def load_from_s3(bucket_name, file_name):
     try:
         response = client.get_object(bucket_name, file_name)
         df = pd.read_parquet(io(response.read()))
-        log.info("Successfully loaded %s from MinIO.", file_name)
+        LOG.info("Successfully loaded %s from MinIO.", file_name)
         return df
     except Exception as e:
-        log.error("Error loading %s from MinIO: %s", file_name, str(e))
+        LOG.error("Error loading %s from MinIO: %s", file_name, str(e))
         raise
 
 
-# Run dbt operations on Parquet data
-
+# Runs dbt operations on Parquet data
 def run_dbt(df):
     """Run dbt transformations on a Parquet dataframe."""
     try:
-        # Convert dataframe to DuckDB table
-        with ddb.connect(str(db_path)) as con:
+        with ddb.connect(str(DB_PATH)) as con:
             con.register('parquet_data', df)
             rdops()  # Run dbt operations
-        log.info("dbt operations completed successfully!")
+        LOG.info("dbt operations completed successfully!")
     except Exception as e:
-        log.error("Error running dbt operations: %s", str(e))
+        LOG.error("Error running dbt operations: %s", str(e))
         raise
 
-# DuckDB connection function
+# Connect to DuckDB
 
 
 def ddb_connect():
     """Create and return a DuckDB connection."""
     try:
-        con = ddb.connect(str(db_path))
-        log.info("Database connection successful!")
+        con = ddb.connect(str(DB_PATH))
+        LOG.info("Database connection successful!")
         return con
     except Exception as e:
-        log.error("Error connecting to database: %s", str(e))
+        LOG.error("Error connecting to database: %s", str(e))
         raise
 
 
-# Streamlit config
+# Streamlit configuration
 st.set_page_config(
     page_icon='📊',
     layout='wide',
     initial_sidebar_state='collapsed'
 )
 
+# Title and Subheader
 st.title('Bruce\'s Analytics Portfolio')
 st.subheader('An app showcasing customer analytics across modalities.')
 
 st.divider()
 
+# Columns for buttons
 col1, col2, col3, col4, col5 = st.columns([0.5, 0.5, 0.5, 0.5, 0.5],
                                           gap="small",
                                           vertical_alignment="center")
 
-
+# Links to GitHub repository and LinkedIn profile
 with col1:
     st.link_button(label="Repository",
                    url="https://github.com/brucelee352/Product_data_pipelining",
@@ -140,7 +154,8 @@ with col2:
                    help="My LinkedIn profile",
                    type="primary")
 
-url = "https://github.com/Brucelee352/Product_data_pipelining/blob/e0b968643ea3455fc5368490c73133f6fb70ac37/misc/BruceLee_2025Resume_b.pdf"
+# Link to resume
+url = ("https://github.com/Brucelee352/Product_data_pipelining/blob/e0b968643ea3455fc5368490c73133f6fb70ac37/misc/BruceLee_2025Resume_b.pdf")
 with col3:
     st.link_button(label="Resume",
                    url=url,
@@ -148,14 +163,11 @@ with col3:
                    help="Click to open my resume in a new tab",
                    type="primary")
 
-
-# Run the pipeline and load data
-
+# Runs dbt to rematerialize the tables and loads their data
 with col4:
     if st.button(label="Refresh",
                  type="secondary",
                  help="Rerun the data pipeline's models"):
-
         with st.spinner("Re-running data materialization..."):
             try:
                 # Load Parquet file from MinIO
@@ -163,10 +175,11 @@ with col4:
                 run_dbt(df)
                 st.success("Data pipeline completed successfully!")
             except FileNotFoundError as e:
-                st.error(log.error("Error running data pipeline: %s", str(e)))
+                st.error(LOG.error("Error running data pipeline: %s", str(e)))
             except ValueError as e:
-                st.error(log.error("Error running data pipeline: %s", str(e)))
+                st.error(LOG.error("Error running data pipeline: %s", str(e)))
 
+# Gives the user the option to download pipeline output
 with col5:
     df = load_from_s3(S3_CONFIG['bucket'], 'cleaned_data.parquet')
     if st.download_button(label="Download Data",
@@ -177,7 +190,7 @@ with col5:
             try:
                 st.success("Data downloaded successfully!")
             except Exception as e:
-                st.error(log.error("Error downloading data: %s", str(e)))
+                st.error(LOG.error("Error downloading data: %s", str(e)))
 
 # Main application
 
@@ -187,8 +200,8 @@ def app():
     """Carries out website functions."""
     with ddb_connect() as con:
         tab1, tab2 = st.tabs(['Revenue Centric', 'User Centric'])
-        # Revenue Centric
-        with tab1:
+        # Revenue Centric data
+        with tab1:  # Chart 1
             col1, col2 = st.columns([2, 1])
             with col1:
                 try:
@@ -215,11 +228,10 @@ def app():
 
                 except Exception as e:
                     st.error(
-                        log.error("Error fetching churn analysis data: %s",
+                        LOG.error("Error fetching churn analysis data: %s",
                                   str(e))
                     )
-
-            with col2:
+            with col2:  # Chart 2
                 try:
                     purchase_analysis = pa(con=con)
                     if purchase_analysis.empty:
@@ -238,7 +250,8 @@ def app():
                                           opacity=0.7,
                                           log_x=True)
                         fig2.update_layout(
-                            title='Purchase Analysis by Product and Price Tier',
+                            title=('Purchase Analysis by Product '
+                                   'and Price Tier'),
                             width=500,
                             height=500,
                             xaxis_title='Month',
@@ -249,12 +262,12 @@ def app():
                         st.plotly_chart(fig2, use_container_width=True)
                 except Exception as e:
                     st.error(
-                        log.error(
+                        LOG.error(
                             "Error fetching purchase analysis data: %s", str(e)
                         )
                     )
             st.divider()
-            try:
+            try:  # Chart 3
                 lifecycle_analysis = la(con=con)
                 if lifecycle_analysis.empty:
                     st.warning("No data found for lifecycle analysis.")
@@ -266,7 +279,6 @@ def app():
                             'total_customers': 'sum',
                             'total_purchases': 'sum'
                         })
-
                 fig = px.pie(
                     df_grouped,
                     names='os',
@@ -288,12 +300,11 @@ def app():
                 )
                 st.plotly_chart(fig, use_container_width=True)
             except Exception as e:
-                st.error(log.error("Error creating pie chart: %s", str(e)))
-
-        # User Centric
+                st.error(LOG.error("Error creating pie chart: %s", str(e)))
+        # User Centric data
         with tab2:
             col1, col2 = st.columns([2, 1])
-            with col1:
+            with col1:  # Chart 4
                 try:
                     demo_analysis = da(con=con)
                     if demo_analysis.empty:
@@ -323,13 +334,12 @@ def app():
                         st.plotly_chart(fig3, use_container_width=True)
                 except Exception as e:
                     st.error(
-                        log.error(
+                        LOG.error(
                             "Error fetching demographics analysis data: %s",
                             str(e)
                         )
                     )
-
-            with col2:
+            with col2:  # Chart 5
                 try:
                     business_analysis = ba(con=con)
                     if business_analysis.empty:
@@ -353,12 +363,12 @@ def app():
                         st.plotly_chart(fig4, use_container_width=True)
                 except Exception as e:
                     st.error(
-                        log.error(
+                        LOG.error(
                             "Error fetching business analysis data: %s", str(e)
                         )
                     )
             st.divider()
-            try:
+            try:  # Chart 6
                 engagement_analysis = ea(con=con)
                 if engagement_analysis.empty:
                     st.warning("No data found for engagement analysis.")
@@ -385,7 +395,7 @@ def app():
 
             except Exception as e:
                 st.error(
-                    log.error(
+                    LOG.error(
                         "Error fetching engagement analysis data: %s", str(e)))
 
 

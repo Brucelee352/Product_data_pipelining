@@ -1,14 +1,22 @@
-# Optional: Use pyproject.toml to install dependencies instead. 
+#===========================================================================
+# Use pyproject.toml to install dependencies for both the main pipeline and 
+# the analytics queries. 
 
-# requirements.txt
+# If using a virtual environment or your global environment, 
+# pyproject.toml can be ran with the following command:
 
-# VSCode should detect this upon making a virtual environment, 
-# then loading the root folder into it's explorer. 
+# pip install -e . 
 
-# If it doesn't, please navigate to the folder's destination your terminal. 
+#===========================================================================
+# requirements.txt is used for the streamlit app. 
+# Streamlit will detect this file upon building its environment.
+
+# If it doesn't, please navigate to the folder's destination in terminal. 
 # Then, run the following:
 
 # pip install -r requirements.txt 
+#===========================================================================
+
 
 # Core data handling 
 pandas>=2.1.3
@@ -25,6 +33,10 @@ dbt-common>=1.14.0
 dbt-core>=1.9.1
 dbt-extractor>=0.5.1
 dbt-semantic-interfaces>=0.7.4
+
+# Data Visualization and Portfolio App
+plotly>=6.0.0
+streamlit>=1.42.0
 
 # Data generation 
 Faker>=25.3.0
