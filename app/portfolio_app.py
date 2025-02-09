@@ -17,10 +17,8 @@ when deployed.
 """
 
 # Standard library imports
-import os
 import sys
 from pathlib import Path
-import logging
 from io import BytesIO as io
 
 # Third party imports
@@ -31,10 +29,10 @@ import duckdb as ddb
 from minio import Minio as s3
 
 # Local imports from data pipeline, for dbt operations
-from main_data_pipeline import run_dbt_ops as rdops
+from scripts.main_data_pipeline import run_dbt_ops as rdops
 
 # Local imports for queries
-from analytics_queries import (
+from scripts.analytics_queries import (
     run_lifecycle_analysis as la,
     run_purchase_analysis as pa,
     run_demographics_analysis as da,
@@ -43,7 +41,7 @@ from analytics_queries import (
     run_churn_analysis as ca)
 
 # Local imports for constants
-from constants import (
+from scripts.constants import (
     DB_PATH, LOG, MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY,
     MINIO_BUCKET_NAME, MINIO_USE_SSL
 )
