@@ -11,11 +11,11 @@ from faker import Faker
 
 
 # MinIO/S3 Configuration
-MINIO_ENDPOINT = 'localhost:9000'
+MINIO_ENDPOINT = 'minio.brucea-lee.com'
 MINIO_ACCESS_KEY = 'admin'
-MINIO_SECRET_KEY = 'password123'
+MINIO_SECRET_KEY = 'code_earth420'
 MINIO_BUCKET_NAME = 'sim-api-data'
-MINIO_USE_SSL = False
+MINIO_USE_SSL = True
 MINIO_URL_STYLE = 'path'
 
 # Path configuration

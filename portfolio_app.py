@@ -74,7 +74,7 @@ client = s3(
     endpoint=S3_CONFIG['endpoint'],
     access_key=S3_CONFIG['access_key'],
     secret_key=S3_CONFIG['secret_key'],
-    secure=False
+    secure=True
 )
 
 # Loads a Parquet file from S3
