@@ -29,10 +29,10 @@ import duckdb as ddb
 from minio import Minio as s3
 
 # Local imports from scripts/
-from main_data_pipeline import run_dbt_ops as rdops
+from scripts.main_data_pipeline import run_dbt_ops as rdops
 
 # Local imports for queries
-from analytics_queries import (
+from scripts.analytics_queries import (
     run_lifecycle_analysis as la,
     run_purchase_analysis as pa,
     run_demographics_analysis as da,
@@ -40,7 +40,7 @@ from analytics_queries import (
     run_engagement_analysis as ea,
     run_churn_analysis as ca
 )
-from constants import (
+from scripts.constants import (
     DB_PATH, LOG, MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY,
     MINIO_BUCKET_NAME, MINIO_USE_SSL
 )
