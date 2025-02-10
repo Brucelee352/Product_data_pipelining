@@ -12,8 +12,8 @@ from faker import Faker
 
 # MinIO/S3 Configuration
 MINIO_ENDPOINT = 'minio.brucea-lee.com'
-MINIO_ACCESS_KEY = 'admin'
-MINIO_SECRET_KEY = 'code_earth420'
+MINIO_ROOT_USER = "admin"
+MINIO_ROOT_PASSWORD = "code_earth420"
 MINIO_BUCKET_NAME = 'sim-api-data'
 MINIO_USE_SSL = True
 MINIO_URL_STYLE = 'path'

@@ -49,17 +49,17 @@ import pandas as pd
 from faker import Faker
 
 # Local imports for analytics queries
-from scripts.analytics_queries import (
+from analytics_queries import (
     run_lifecycle_analysis, run_purchase_analysis, run_demographics_analysis,
     run_business_analysis, run_engagement_analysis, run_churn_analysis,
     save_analysis_results
 )
 
 # Local imports for constants
-from scripts.constants import (
+from constants import (
     PROJECT_ROOT, FAKE, FAKER_SEED, START_DATETIME, END_DATETIME,
-    PRODUCT_SCHEMA, DEFAULT_NUM_ROWS, MINIO_ENDPOINT, MINIO_ACCESS_KEY,
-    MINIO_SECRET_KEY, MINIO_BUCKET_NAME, MINIO_USE_SSL, LOG_DIR, DB_PATH,
+    PRODUCT_SCHEMA, DEFAULT_NUM_ROWS, MINIO_ENDPOINT, MINIO_ROOT_USER,
+    MINIO_ROOT_PASSWORD, MINIO_BUCKET_NAME, MINIO_USE_SSL, LOG_DIR, DB_PATH,
     VALID_STATUSES, LOG, DBT_ROOT
 )
 
@@ -73,15 +73,6 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 # Random seed configuration
 Faker.seed(int(FAKER_SEED))
 random.seed(int(FAKER_SEED))
-
-# S3 Configuration
-S3_CONFIG: Dict[str, Union[str, bool]] = {
-    'endpoint': f'{MINIO_ENDPOINT}',
-    'access_key': f'{MINIO_ACCESS_KEY}',
-    'secret_key': f'{MINIO_SECRET_KEY}',
-    'bucket': f'{MINIO_BUCKET_NAME}',
-    'use_ssl': f'{MINIO_USE_SSL}',
-}
 
 
 class PipelineState:
@@ -105,6 +96,25 @@ pipeline_state = PipelineState()
 
 
 # Functions
+
+def minio_client():
+    """
+    Initializes the Minio client.
+    """
+    try:
+        client = minio.Minio(
+            MINIO_ENDPOINT,
+            access_key=MINIO_ROOT_USER,
+            secret_key=MINIO_ROOT_PASSWORD,
+            secure=MINIO_USE_SSL
+        )
+        LOG.info("Connected to %s", MINIO_ENDPOINT)
+        return client
+    except Exception as e:
+        LOG.error("MinIO connection error: %s", str(e))
+        raise
+
+
 def ellipsis(process_name="Loading", num_dots=3, interval=0.5) -> None:
     """
     Prints static loading messages with trailing periods.
@@ -673,7 +683,7 @@ def generate_reports() -> None:
 
 def upload_data() -> str:
     """
-    Upload transformed data to S3.
+    Uploads transformed data to MinIO.
 
     Uses DuckDB to get the final data, and then uploads it to S3.
 
@@ -687,13 +697,8 @@ def upload_data() -> str:
             SELECT * FROM {PRODUCT_SCHEMA}
         """).df()
 
-        # Upload to S3
-        client = minio.Minio(
-            S3_CONFIG['endpoint'],
-            access_key=S3_CONFIG['access_key'],
-            secret_key=S3_CONFIG['secret_key'],
-            secure=False
-        )
+        # Upload to MinIO
+        client = minio_client()
 
         # Save data locally, temporarily
         final_df.to_json('temp_upload.json', orient='records')
@@ -701,12 +706,12 @@ def upload_data() -> str:
 
         # Upload to S3
         client.fput_object(
-            bucket_name=S3_CONFIG['bucket'],
+            bucket_name=MINIO_BUCKET_NAME,
             object_name='cleaned_data.json',
             file_path='temp_upload.json'
         )
         client.fput_object(
-            bucket_name=S3_CONFIG['bucket'],
+            bucket_name=MINIO_BUCKET_NAME,
             object_name='cleaned_data.parquet',
             file_path='temp_upload.parquet'
         )

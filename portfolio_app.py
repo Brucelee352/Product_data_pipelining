@@ -26,11 +26,9 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import duckdb as ddb
-from minio import Minio as s3
-
+from minio import Minio
 # Local imports from scripts/
 from scripts.main_data_pipeline import run_dbt_ops as rdops
-
 # Local imports for queries
 from scripts.analytics_queries import (
     run_lifecycle_analysis as la,
@@ -41,9 +39,10 @@ from scripts.analytics_queries import (
     run_churn_analysis as ca
 )
 from scripts.constants import (
-    DB_PATH, LOG, MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY,
+    DB_PATH, LOG, MINIO_ENDPOINT, MINIO_ROOT_USER, MINIO_ROOT_PASSWORD,
     MINIO_BUCKET_NAME, MINIO_USE_SSL
 )
+
 
 # Add the parent directory to PYTHONPATH
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -60,22 +59,19 @@ LOG.info("Database path: %s", DB_PATH)
 if not DB_PATH.exists():
     raise FileNotFoundError(f"Database file not found at: {DB_PATH}")
 
-# MinIO configuration
-S3_CONFIG = {
-    'endpoint': f'{MINIO_ENDPOINT}',
-    'access_key': f'{MINIO_ACCESS_KEY}',
-    'secret_key': f'{MINIO_SECRET_KEY}',
-    'bucket': f'{MINIO_BUCKET_NAME}',
-    'use_ssl': f'{MINIO_USE_SSL}',
-}
 
 # Initialize MinIO client
-client = s3(
-    endpoint=S3_CONFIG['endpoint'],
-    access_key=S3_CONFIG['access_key'],
-    secret_key=S3_CONFIG['secret_key'],
-    secure=True
+client = Minio(
+    MINIO_ENDPOINT,
+    access_key=MINIO_ROOT_USER,
+    secret_key=MINIO_ROOT_PASSWORD,
+    secure=MINIO_USE_SSL
 )
+
+if client.bucket_exists(MINIO_BUCKET_NAME):
+    st.write("Connected to MinIO successfully!")
+else:
+    st.error("Failed to connect to MinIO.")
 
 # Loads a Parquet file from S3
 
@@ -119,11 +115,6 @@ def ddb_connect():
         raise
 
 
-@st.cache_data
-def app():
-    """Carries out website functions."""
-
-
 # Streamlit configuration
 st.set_page_config(
     page_icon='📊',
@@ -136,6 +127,12 @@ st.title('Bruce\'s Analytics Portfolio')
 st.subheader('An app showcasing customer analytics across modalities.')
 
 st.divider()
+
+
+@st.cache_data
+def app():
+    """Carries out website functions."""
+
 
 # Columns for buttons
 col1, col2, col3, col4, col5 = st.columns([0.5, 0.5, 0.5, 0.5, 0.5],
