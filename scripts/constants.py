@@ -26,8 +26,8 @@ DB_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DB_DIR / 'dbt_pipeline_demo.duckdb'
 REPORTS_DIR = PROJECT_ROOT / 'reports'
 REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-DBT_PROFILES_DIR = PROJECT_ROOT / \
-    '.dbt' if (PROJECT_ROOT / '.dbt').exists() else PROJECT_ROOT
+DBT_PROFILES_DIR = PROJECT_ROOT / '.dbt'
+
 
 # Database Configuration
 PRODUCT_SCHEMA = 'main.product_schema'
