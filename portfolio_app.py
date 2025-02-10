@@ -42,7 +42,7 @@ from scripts.analytics_queries import (
 )
 from scripts.constants import (
     DB_PATH, LOG, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_ROOT_USER,
-    MINIO_ROOT_PASSWORD, MINIO_USE_SSL)
+    MINIO_ROOT_PASSWORD, MINIO_USE_SSL, DBT_PROFILES_DIR)
 
 
 # Add the parent directory to PYTHONPATH
@@ -164,7 +164,7 @@ def app():
                     st.error(LOG.error("Error running data pipeline: %s", str(e)))
                 except ValueError as e:
                     st.error(LOG.error("Error running data pipeline: %s", str(e)))
-
+    st.empty()
     # Gives the user the option to download pipeline output
     with col5:
         df = load_from_s3(MINIO_BUCKET_NAME, 'cleaned_data.parquet')
@@ -387,4 +387,6 @@ def main():
 
 
 if __name__ == "__main__":
+    # Update this line
+    os.environ['DBT_PROFILES_DIR'] = str(DBT_PROFILES_DIR)
     main()
