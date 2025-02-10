@@ -49,14 +49,14 @@ import pandas as pd
 from faker import Faker
 
 # Local imports for analytics queries
-from analytics_queries import (
+from scripts.analytics_queries import (
     run_lifecycle_analysis, run_purchase_analysis, run_demographics_analysis,
     run_business_analysis, run_engagement_analysis, run_churn_analysis,
     save_analysis_results
 )
 
 # Local imports for constants
-from constants import (
+from scripts.constants import (
     PROJECT_ROOT, FAKE, FAKER_SEED, START_DATETIME, END_DATETIME,
     PRODUCT_SCHEMA, DEFAULT_NUM_ROWS, MINIO_ENDPOINT, MINIO_ROOT_USER,
     MINIO_ROOT_PASSWORD, MINIO_BUCKET_NAME, MINIO_USE_SSL, LOG_DIR, DB_PATH,

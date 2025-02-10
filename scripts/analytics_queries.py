@@ -15,7 +15,7 @@ All dependencies are installed via pyproject.toml.
 from pathlib import Path
 import pandas as pd
 from duckdb import DuckDBPyConnection
-from constants import PRODUCT_SCHEMA, REPORTS_DIR, LOG
+from scripts.constants import PRODUCT_SCHEMA, REPORTS_DIR, LOG
 
 
 def run_lifecycle_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
