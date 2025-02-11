@@ -106,7 +106,7 @@ def minio_client():
             MINIO_ENDPOINT,
             access_key=MINIO_ROOT_USER,
             secret_key=MINIO_ROOT_PASSWORD,
-            secure=MINIO_USE_SSL
+            secure=False
         )
         LOG.info("Connected to %s", MINIO_ENDPOINT)
         return client
