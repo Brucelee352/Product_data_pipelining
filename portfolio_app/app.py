@@ -328,7 +328,7 @@ def render_user_charts(con):
                     color_continuous_scale='Geyser'
                 )
                 fig4.update_layout(
-                    title='Business Analysis by Device Type',
+                    title='Users by Device Type',
                     xaxis_title='Device Type',
                     yaxis_title='Unique Users',
                     legend_title='Conversion Rate',
@@ -356,7 +356,7 @@ def render_user_charts(con):
                 log_y=True
             )
             fig5.update_layout(
-                title='Engagement Analysis by Hour',
+                title='Engagement per Hour',
                 xaxis_title='Hour',
                 yaxis_title='Revenue',
                 legend_title='Hour',
