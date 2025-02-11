@@ -47,8 +47,8 @@ from portfolio_app.scripts.constants import (
 
 
 st.set_page_config(
-    page_icon='📊',
     layout='wide',
+    page_icon='📊',
     initial_sidebar_state='collapsed')
 
 
