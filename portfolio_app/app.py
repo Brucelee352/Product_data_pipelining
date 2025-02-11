@@ -45,12 +45,24 @@ from portfolio_app.scripts.constants import (
 
 # Configuration and setup
 
-
+# Force wide layout
 st.set_page_config(
-    page_icon='📊',
-    layout='wide',
-    initial_sidebar_state='collapsed')
+    page_title="Bruce's Analytics Portfolio",
+    page_icon="📊",
+    layout="wide",  # This forces wide mode
+    initial_sidebar_state="collapsed"
+)
 
+# Prevent the layout from being changed by user
+st.markdown("""
+    <style>
+        .reportview-container .main .block-container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # Add the parent directory to PYTHONPATH
 sys.path.append(str(Path(__file__).resolve().parents[1]))
