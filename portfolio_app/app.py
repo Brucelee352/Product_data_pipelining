@@ -45,13 +45,10 @@ from portfolio_app.scripts.constants import (
 
 # Configuration and setup
 
-px.defaults.width = 1000
-px.defaults.height = 500
-
 
 st.set_page_config(
     page_icon='📊',
-    layout='wide',
+    layout: Layout='wide',
     initial_sidebar_state='collapsed')
 
 
