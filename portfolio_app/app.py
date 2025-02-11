@@ -246,6 +246,11 @@ def render_revenue_charts(con):
                     width=500,
                     height=500
                 )
+                fig2.update_layout(
+                    xaxis_title='Month',
+                    yaxis_title='Revenue',
+                    legend_title='Price Tier'
+                )
                 st.plotly_chart(fig2, use_container_width=True)
         except Exception as e:
             st.error(f"Error fetching purchase analysis data: {e}")
