@@ -49,7 +49,7 @@ from portfolio_app.scripts.constants import (
 st.set_page_config(
     layout='wide',
     page_icon='📊',
-    initial_sidebar_state='collapsed')
+    initial_sidebar_state="expanded")
 
 
 # Add the parent directory to PYTHONPATH
