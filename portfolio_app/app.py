@@ -240,7 +240,7 @@ def render_revenue_charts(con):
                     size='total_revenue',
                     hover_data=['product_name', 'total_revenue', 'avg_price'],
                     color='price_tier',
-                    title='Purchases by Product and Pricing',
+                    title='Revenue by Month, Product',
                     opacity=0.7,
                     log_x=True,
                     width=500,
