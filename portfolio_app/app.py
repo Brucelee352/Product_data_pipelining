@@ -43,9 +43,17 @@ from portfolio_app.scripts.constants import (
     MINIO_ROOT_PASSWORD, MINIO_USE_SSL, DBT_PROFILES_DIR
 )
 
+# Configuration and setup
+
+
+st.set_page_config(
+    page_icon='📊',
+    layout='wide',
+    initial_sidebar_state='collapsed')
+
+
 # Add the parent directory to PYTHONPATH
 sys.path.append(str(Path(__file__).resolve().parents[1]))
-print(sys.path)
 
 
 # Resolves the path to ensure correctness
@@ -57,16 +65,6 @@ LOG.info("Database path: %s", DB_PATH)
 # Verifies that the path exists
 if not DB_PATH.exists():
     raise FileNotFoundError(f"Database file not found at: {DB_PATH}")
-
-# Configuration and setup
-
-if 'page_configured' not in st.session_state:
-    st.set_page_config(
-        page_icon='📊',
-        layout='wide',
-        initial_sidebar_state='collapsed'
-    )
-    st.session_state.page_configured = True
 
 
 def header():
