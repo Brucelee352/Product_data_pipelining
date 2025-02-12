@@ -140,7 +140,6 @@ def run_engagement_analysis(con: DuckDBPyConnection) -> pd.DataFrame:
     try:
         query = f"""
             SELECT
-                product_name,
                 EXTRACT(HOUR FROM login_time) AS hour,
                 COUNT(*) as total_sessions,
                 COUNT(DISTINCT user_id) as unique_users,
