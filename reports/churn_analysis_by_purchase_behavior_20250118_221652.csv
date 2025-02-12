@@ -1,4 +1,0 @@
-purchase_status,total_users,churned_users,churn_rate,avg_price,avg_session_duration
-completed,2445,534.0,21.84,2570.65,135.44
-pending,2548,501.0,19.66,2489.32,134.86
-failed,2562,476.0,18.58,2548.23,135.66

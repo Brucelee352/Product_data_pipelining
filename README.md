@@ -1,176 +1,150 @@
 # Product Data Pipeline: 
 
-## Introduction:
-This project is an end-to-end data pipeline that generates its data locally and...
+## Introduction
+This project is an end-to-end data pipeline designed to generate, process, and analyze product data in a cloud environment. It demonstrates modern data engineering practices including:
 
-1. Cleans and transforms the data using Python
-2. Models the data using dbt
-3. Generates analytics reports
-4. Uploads the final data to S3
-5. Serves the reports to streamlit as an application 
+1. Data generation and cleaning using Python
+2. Data storage and transformation using DuckDB and dbt
+3. Cloud storage integration with MinIO/S3
+4. Interactive analytics dashboard with Streamlit
+
+## Key Features
+- **Cloud-Native Architecture**: Designed for deployment in cloud environments
+- **Reproducible Data Pipeline**: Generates consistent synthetic data
+- **Modern Data Stack**: Combines DuckDB, dbt, and MinIO
+- **Interactive Analytics**: Streamlit-powered dashboard
+- **CI/CD Ready**: Includes proper package management and configuration
 
 ## Prerequisites
+### For Cloud usage: 
 - Python 3.9+
 - DuckDB
-- MinIO (or S3-compatible storage)
+- GCP, AWS, or Azure account
 - dbt Core
-- streamlit
-- plotly
+- Streamlit
+
+### Local Development
+- Docker (for local MinIO instance)
+- Python 3.9+
+- DuckDB
+- dbt Core (for local development)
+- streamlit (for local development)
 
 ## Project Structure
 ```
-├── dbt_pipeline_demo/          # dbt project
-│   ├── models/                 # dbt models
-│   ├── databases/              # DuckDB database files
-│   ├── dbt_project.yml         # dbt project configuration
-│   └── packages.yml            # dbt package dependencies
-├── scripts/                    # Pipeline scripts
-│   ├── main_data_pipeline.py   # Main pipeline script
-    ├── analytics_queries.py
-    └── constants.py
-├── .dbt/                       # dbt profiles directory
-│   └── profiles.yml           # dbt connection profiles
-├── data/                       # Processed data files
-├── metrics/                    # Data quality metrics
-├── reports/                    # Generated analytics reports
-├── pdp_config.env             # Environment configuration
-└── README.md                  # This file
+├── .dbt/                           # dbt profiles directory
+│   └── profiles.yml                # dbt connection profiles
+├── data/                           # Generated data files
+├── dbt_pipeline_demo/              # Main dbt project
+│   ├── models/                     # SQL models
+│   ├── databases/                  # DuckDB databases 
+│   ├── dbt_project.yml             # dbt project configuration
+│   └── packages.yml                # dbt package dependencies
+├── logs/                           # Pipeline logs
+├── metrics/                        # Data quality reports
+├── portfolio_app/                  # Streamlit application
+│   ├── reports/                    # Reporting .csvs
+│   ├── scripts/                    # Python scripts
+│     ├── main_data_pipeline.py     # Main pipeline
+│     ├── constants.py              # Configuration constants
+│     └── analytics_queries.py      # SQL analytics queries
+│   ├── app.py                      # Streamlit application
+│   └── __init.py__                 # Package initialization
+├── minio.tar.gz                    # Docker container for local MinIO
+├── pyproject.toml                  # Project configuration
+├── requirements.txt                # Streamlit dependencies
+├── setup.py                        # Package setup
+├── streamlit_app.py                # Streamlit entry point
+└── README.md                       # This file
 ```
 
 ## Setup Instructions
 
-### 1. Clone the Repository
+### Cloud Environment Setup
+1. Clone Repository
 ```bash
-git clone https://github.com/yourusername/Product_data_pipelining.git
+git clone https://github.com/brucelee352/Product_data_pipelining.git
 cd Product_data_pipelining
 ```
 
-### 2. Set Up Virtual Environment
-```bash
-python -m venv .venv
+2. Configure Environment Variables
+Edit `portfolio_app/scripts/constants.py` with your cloud MinIO/S3 credentials:
+```python
+MINIO_ENDPOINT = 'your-cloud-endpoint'
+MINIO_ROOT_USER = 'your-access-key'
+MINIO_ROOT_PASSWORD = 'your-secret-key'
+MINIO_BUCKET_NAME = 'your-bucket-name'
+MINIO_USE_SSL = True
 ```
 
-### 3. Activate Virtual Environment
-- Windows:
-  ```bash
-  .venv\Scripts\activate
-  ```
-- macOS/Linux:
-  ```bash
-  source .venv/bin/activate
-  ```
-
-### 4. Install Python Dependencies
+3. Install Dependencies
 ```bash
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
 pip install -e .
 ```
 
-### 5. Configure Environment Variables
-1. Copy the example environment file:
-   ```bash
-   cp pdp_config.env.example pdp_config.env
-   ```
-2. Edit `pdp_config.env` with your specific configurations:
-   ```env
-   MINIO_ENDPOINT=your-minio-endpoint
-   MINIO_ACCESS_KEY=your-access-key
-   MINIO_SECRET_KEY=your-secret-key
-   MINIO_BUCKET_NAME=your-bucket-name
-   MINIO_USE_SSL=False
-   ```
-
-### 6. Set Up dbt Profile
-1. Create the `.dbt` directory:
-   ```bash
-   mkdir .dbt
-   ```
-2. Copy the example profile:
-   ```bash
-   cp profiles.example.yml .dbt/profiles.yml
-   ```
-3. Edit `.dbt/profiles.yml` with your DuckDB configuration.
-
-### 7. Install dbt Packages
+4. Run Pipeline
 ```bash
-cd dbt_pipeline_demo
-dbt deps
-cd ..
+python portfolio_app/scripts/main_data_pipeline.py
 ```
 
-## Running the Pipeline
-
-### Execute the Full Pipeline
+### Local Development Setup
+1. Start Local MinIO
 ```bash
-python scripts/main_data_pipeline.py
+docker-compose up -d
 ```
 
-### Pipeline Steps
-1. **Environment Verification**: Checks for active virtual environment
-2. **Dependency Check**: Verifies required packages are installed
-3. **Database Setup**: Creates/clears the DuckDB database
-4. **Data Generation**: Generates synthetic product data
-5. **Data Preparation**: Cleans and transforms the raw data
-6. **Database Loading**: Loads data into DuckDB
-7. **dbt Transformations**: Runs dbt models to transform the data
-8. **Report Generation**: Creates analytics reports
-9. **Data Upload**: Uploads final data to S3
+2. Configure Local Constants
+Edit `portfolio_app/scripts/constants.py`:
+```python
+MINIO_ENDPOINT = 'localhost:9000'
+MINIO_ROOT_USER = 'minioadmin'
+MINIO_ROOT_PASSWORD = 'minioadmin'
+MINIO_BUCKET_NAME = 'local-bucket'
+MINIO_USE_SSL = False
+```
 
-## Configuration
+3. Run Pipeline
+```bash
+python portfolio_app/scripts/main_data_pipeline.py
+```
 
-### Environment Variables
-| Variable              | Description                          | Default Value          |
-|-----------------------|--------------------------------------|------------------------|
-| `MINIO_ENDPOINT`      | MinIO server endpoint                | -                      |
-| `MINIO_ACCESS_KEY`    | MinIO access key                     | -                      |
-| `MINIO_SECRET_KEY`    | MinIO secret key                     | -                      |
-| `MINIO_BUCKET_NAME`   | MinIO bucket name                    | -                      |
-| `MINIO_USE_SSL`       | Use SSL for MinIO connection         | `False`                |
-| `DEFAULT_NUM_ROWS`    | Number of rows to generate           | `8000`                 |
-| `START_DATETIME`      | Start date for generated data        | `2022-01-01 10:30`     |
-| `END_DATETIME`        | End date for generated data          | `2024-12-31 23:59`     |
-| `VALID_STATUSES`      | Valid purchase statuses              | `pending,completed,failed` |
-| `LOG_LEVEL`           | Logging level                        | `INFO`                 |
-| `LOG_FILE`            | Log file path                        | `logs/pipeline.log`    |
+## Pipeline Workflow
+1. **Data Generation**: Creates synthetic product data
+2. **Data Cleaning**: Validates and transforms raw data
+3. **Database Loading**: Stores data in DuckDB
+4. **dbt Transformations**: Runs dbt models
+5. **Analytics**: Generates business reports
+6. **Cloud Storage**: Uploads processed data to S3
+7. **Visualization**: Serves analytics via Streamlit
 
-## Data Model
+## Key Components
 
-### Source Tables
-- `user_activity`: Raw user activity data
+### Data Generation
+- Generates realistic product data using Faker
+- Includes user activity, purchases, and session data
+- Configurable data volume and time range
 
-### dbt Models
-- `stg_user_activity`: Staging model for user activity
-- `dim_user`: User dimension table
-- `fact_user_activity`: Fact table for user activity
+### Data Transformation
+- Uses dbt for SQL-based transformations
+- Includes staging, fact, and dimension models
+- Implements data quality checks
 
-## Analytics Reports
-The pipeline generates the following reports:
-1. Lifecycle Analysis
-2. Purchase Analysis
-3. Demographics Analysis
-4. Business Analysis
-5. Engagement Analysis
-6. Churn Analysis
-7. Session Analysis
-8. Funnel Analysis
+### Analytics
+- Lifecycle analysis
+- Purchase patterns
+- User demographics
+- Business metrics
+- Engagement trends
+- Churn analysis
 
-Reports are saved in the `reports/` directory in CSV format.
+### Cloud Integration
+- MinIO/S3 for data storage
+- Streamlit Cloud for deployment
+- Environment-specific configuration
 
 ## Maintenance
-
-### Clearing Generated Files
-```bash
-# Clear database
-rm -rf dbt_pipeline_demo/databases/*
-
-# Clear reports
-rm -rf reports/*
-
-# Clear metrics
-rm -rf metrics/*
-
-# Clear data files
-rm -rf data/*
-```
 
 ### Updating dbt Packages
 ```bash
@@ -179,12 +153,50 @@ dbt deps
 cd ..
 ```
 
-## Troubleshooting
+### Running Tests
+```bash
+pytest tests/
+```
 
-### Common Issues
-1. **Virtual Environment Not Active**:
-   - Ensure the virtual environment is activated before running the pipeline
-   - Verify by checking `sys.prefix` in Python
+### CI/CD Integration
+The project is configured for CI/CD with:
+- Proper package management
+- Environment variable handling
+- Logging and error tracking
 
-2. **dbt Packages Not Installed**:
-   - Run `dbt deps` in the `dbt_pipeline_demo`
+## Environment Variables
+| Variable              | Description                          | Default Value          |
+|-----------------------|--------------------------------------|------------------------|
+| `MINIO_ENDPOINT`      | MinIO server endpoint                | -                      |
+| `MINIO_ROOT_USER`     | MinIO access key                     | -                      |
+| `MINIO_ROOT_PASSWORD` | MinIO secret key                     | -                      |
+| `MINIO_BUCKET_NAME`   | MinIO bucket name                    | -                      |
+| `MINIO_USE_SSL`       | Use SSL for MinIO connection         | `False`                |
+| `DEFAULT_NUM_ROWS`    | Number of rows to generate           | `10000`                |
+| `START_DATETIME`      | Start date for generated data        | `2022-01-01 10:30`     |
+| `END_DATETIME`        | End date for generated data          | `2024-12-31 23:59`     |
+| `VALID_STATUSES`      | Valid purchase statuses              | `pending,completed,failed,chargeback,refunded`|
+| `LOG_LEVEL`           | Logging level                        | `INFO`                 |
+
+## Data Model
+### Source Tables
+- `user_activity`: Raw user activity data
+
+### dbt Models
+- Staging:
+  - `stg_product_schema`
+  - `stg_user_activity`
+- Fact:
+  - `fact_user_activity`
+- Dimensions:
+  - `dim_user`
+  - `dim_platform`
+  - `dim_product`
+
+## Contributing
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
+
+## License
+MIT License
