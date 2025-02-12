@@ -58,67 +58,6 @@ This project is an end-to-end data pipeline designed to generate, process, and a
 └── README.md                       # This file
 ```
 
-## Setup Instructions
-
-### Cloud Environment Setup
-1. Clone Repository
-```bash
-git clone https://github.com/brucelee352/Product_data_pipelining.git
-cd Product_data_pipelining
-```
-
-2. Configure Environment Variables
-Edit `portfolio_app/scripts/constants.py` with your cloud MinIO/S3 credentials:
-```python
-MINIO_ENDPOINT = 'your-cloud-endpoint'
-MINIO_ROOT_USER = 'your-access-key'
-MINIO_ROOT_PASSWORD = 'your-secret-key'
-MINIO_BUCKET_NAME = 'your-bucket-name'
-MINIO_USE_SSL = True
-```
-
-3. Install Dependencies
-```bash
-python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-pip install -e .
-```
-
-4. Run Pipeline
-```bash
-python portfolio_app/scripts/main_data_pipeline.py
-```
-
-### Local Development Setup
-1. Start Local MinIO
-```bash
-docker-compose up -d
-```
-
-2. Configure Local Constants
-Edit `portfolio_app/scripts/constants.py`:
-```python
-MINIO_ENDPOINT = 'localhost:9000'
-MINIO_ROOT_USER = 'minioadmin'
-MINIO_ROOT_PASSWORD = 'minioadmin'
-MINIO_BUCKET_NAME = 'local-bucket'
-MINIO_USE_SSL = False
-```
-
-3. Run Pipeline
-```bash
-python portfolio_app/scripts/main_data_pipeline.py
-```
-
-## Pipeline Workflow
-1. **Data Generation**: Creates synthetic product data
-2. **Data Cleaning**: Validates and transforms raw data
-3. **Database Loading**: Stores data in DuckDB
-4. **dbt Transformations**: Runs dbt models
-5. **Analytics**: Generates business reports
-6. **Cloud Storage**: Uploads processed data to S3
-7. **Visualization**: Serves analytics via Streamlit
-
 ## Key Components
 
 ### Data Generation
@@ -144,7 +83,107 @@ python portfolio_app/scripts/main_data_pipeline.py
 - Streamlit Cloud for deployment
 - Environment-specific configuration
 
-## Maintenance
+
+## Setup Instructions
+
+### Cloud Setup
+
+This section is for setting up the pipeline in a cloud environment, please ensure
+that your cloud environment and domains (SSL certificates, etc.) are setup correctly before proceeding.
+
+1. Clone Repository
+```bash
+git clone https://github.com/brucelee352/Product_data_pipelining.git
+cd Product_data_pipelining
+```
+
+![Clone Repository](misc/gifs/clone_repo.gif)
+
+2. Configure Environment Variables
+Edit `portfolio_app/scripts/constants.py` with your cloud MinIO/S3 credentials:
+```python
+MINIO_ENDPOINT = 'your-cloud-endpoint'
+MINIO_ROOT_USER = 'your-access-key'
+MINIO_ROOT_PASSWORD = 'your-secret-key'
+MINIO_BUCKET_NAME = 'your-bucket-name'
+MINIO_USE_SSL = True
+```
+
+3. Install Dependencies
+```bash
+python -m venv .venv
+source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+pip install -e .
+```
+
+![Create Virtual Environment](misc/gifs/install_venv.gif)
+
+...
+
+![Install Dependencies](misc/gifs/install_deps.gif)
+
+4. Run Pipeline
+```bash
+python portfolio_app/scripts/main_data_pipeline.py
+```
+
+### Local Development Setup
+1. Start Local MinIO
+```bash
+docker-compose up -d
+```
+
+2. Configure Local Constants
+Edit `portfolio_app/scripts/constants.py`:
+```python
+MINIO_ENDPOINT = 'localhost:9000'
+MINIO_ROOT_USER = 'minioadmin'
+MINIO_ROOT_PASSWORD = 'minioadmin'
+MINIO_BUCKET_NAME = 'local-bucket'
+MINIO_USE_SSL = False
+```
+
+3. Run Pipeline
+For local development, place all scripts in a folder called `scripts` within the 
+root directory. 
+
+Run the local imports in both the main_data_pipeline.py and analytics_queries.py 
+files with no relative imports, like this:
+
+```python
+from constants import PRODUCT_SCHEMA, REPORTS_DIR, LOG
+```
+
+Then run the pipeline with:
+
+```bash
+python portfolio_app/scripts/main_data_pipeline.py
+```
+
+## Pipeline Workflow
+1. **Data Generation**: Creates synthetic product data
+2. **Data Cleaning**: Validates and transforms raw data
+3. **Database Loading**: Stores data in DuckDB
+4. **dbt Transformations**: Runs dbt models
+5. **Analytics**: Generates business reports
+6. **Cloud Storage**: Uploads processed data to S3
+7. **Visualization**: Serves analytics via Streamlit
+
+
+## Data Model
+### Source Tables
+- `user_activity`: Raw user activity data
+
+### Models
+- Staging:
+  - `stg_product_schema`
+  - `stg_user_activity`
+- Fact:
+  - `fact_user_activity`
+- Dimensions:
+  - `dim_user`
+  - `dim_platform`
+  - `dim_product`
 
 ### Updating dbt Packages
 ```bash
@@ -152,17 +191,6 @@ cd dbt_pipeline_demo
 dbt deps
 cd ..
 ```
-
-### Running Tests
-```bash
-pytest tests/
-```
-
-### CI/CD Integration
-The project is configured for CI/CD with:
-- Proper package management
-- Environment variable handling
-- Logging and error tracking
 
 ## Environment Variables
 | Variable              | Description                          | Default Value          |
@@ -178,25 +206,22 @@ The project is configured for CI/CD with:
 | `VALID_STATUSES`      | Valid purchase statuses              | `pending,completed,failed,chargeback,refunded`|
 | `LOG_LEVEL`           | Logging level                        | `INFO`                 |
 
-## Data Model
-### Source Tables
-- `user_activity`: Raw user activity data
 
-### dbt Models
-- Staging:
-  - `stg_product_schema`
-  - `stg_user_activity`
-- Fact:
-  - `fact_user_activity`
-- Dimensions:
-  - `dim_user`
-  - `dim_platform`
-  - `dim_product`
+## Miscellaneous
+
+### CI/CD Integration
+The project is configured for CI/CD with:
+- Proper package management
+- Environment variable handling
+- Logging and error tracking
+- Unit testing through pytest if this project is adopted at scale.
+- Orchestration through Airflow to run the pipeline on a schedule.
 
 ## Contributing
 1. Fork the repository
 2. Create a feature branch
 3. Submit a pull request
+4. Refer me for any opportunities you see fit if you like this project. 
 
 ## License
 MIT License
