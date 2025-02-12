@@ -354,15 +354,14 @@ def render_user_charts(con):
                 x='hour',
                 y='revenue',
                 color='total_sessions',
-                hover_data=['total_sessions', 'avg_session_duration'],
+                hover_data=['product_name', 'total_sessions', 'avg_session_duration'],
                 height=400,
                 barmode='relative',
                 color_continuous_scale='Turbo',
                 log_y=True
             )
             fig5.update_layout(
-                title='Engagement per Hour',
-                subtitle='Revenue per # of Sessions, over a 5 year period',
+                title='Revenue per # of Sessions, over a 5 year period',
                 xaxis_title='Hour',
                 yaxis_title='Revenue',
                 legend_title='Total Sessions',
