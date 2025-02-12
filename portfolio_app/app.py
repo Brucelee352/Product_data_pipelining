@@ -365,7 +365,7 @@ def render_user_charts(con):
                 subtitle='Revenue per # of Sessions, over a 5 year period',
                 xaxis_title='Hour',
                 yaxis_title='Revenue',
-                legend_title='# of Sessions',
+                legend_title='Total Sessions',
                 xaxis={'categoryorder': 'total ascending'}
             )
             st.plotly_chart(fig5, use_container_width=True)
