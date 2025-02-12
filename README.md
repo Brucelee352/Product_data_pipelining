@@ -120,7 +120,7 @@ pip install -e .
 
 ...
 
-![Install Dependencies](misc/gifs/install_deps.gif)
+![Install Dependencies](misc/gifs/run_toml.gif)
 
 4. Run Pipeline
 ```bash
