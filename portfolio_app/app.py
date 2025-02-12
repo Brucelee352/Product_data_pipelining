@@ -336,7 +336,7 @@ def render_user_charts(con):
                     title='Users by Device Type',
                     xaxis_title='Device Type',
                     yaxis_title='Unique Users',
-                    legend_title='Conversion',
+                    coloraxis_colorbar_title_text = 'Conversion Rate',
                     height=600,
                     width=800
                 )
@@ -361,10 +361,10 @@ def render_user_charts(con):
                 log_y=True
             )
             fig5.update_layout(
-                title='Revenue per # of Sessions, over a 5 year period',
+                title='Revenue per # of Sessions, over a 5 year period, per hour',
                 xaxis_title='Hour',
                 yaxis_title='Revenue',
-                legend_title='Total Sessions',
+                coloraxis_colorbar_title_text = 'Total Sessions',
                 xaxis={'categoryorder': 'total ascending'}
             )
             st.plotly_chart(fig5, use_container_width=True)
