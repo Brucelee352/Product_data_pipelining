@@ -71,8 +71,8 @@ def header():
     """Render the app header."""
     container = st.container()
     with container:
-        st.title("Bruce's Analytics Portfolio")
-        st.subheader("An app showcasing customer analytics across modalities.")
+        st.title("End to End Cloud Analytics Pipeline by Bruce")
+        st.subheader("A bespoke analytics pipeline showcasing customer data across modalities.")
 
     st.divider()
 
