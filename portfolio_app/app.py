@@ -72,7 +72,7 @@ def header():
     container = st.container()
     with container:
         st.title("End to End Cloud Analytics Pipeline by Bruce")
-        st.subheader("A bespoke analytics pipeline showcasing customer data across modalities.")
+        st.subheader("An analytics engineering proof of concept, showcasing customer data across modalities.")
 
     st.divider()
 
