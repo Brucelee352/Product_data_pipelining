@@ -217,12 +217,12 @@ def render_revenue_charts(con):
                     y='churn_rate',
                     color='cohort_size',
                     text='avg_days_to_churn',
-                    title='Churn Analysis by Cohort',
+                    title='Churn per Cohort',
                     height=600
                 )
                 fig.update_layout(
                     xaxis_title='Cohort Month', yaxis_title='Churn Rate',
-                    legend_title='Cohort Size')
+                    legend_title='Cohort')
                 st.plotly_chart(fig, use_container_width=True)
         except Exception as e:
             st.error(f"Error fetching churn analysis data: {e}")
@@ -240,7 +240,7 @@ def render_revenue_charts(con):
                     size='total_revenue',
                     hover_data=['product_name', 'total_revenue', 'avg_price'],
                     color='price_tier',
-                    title='Revenue by Month, Product',
+                    title='Revenue by Month & Price Tier',
                     opacity=0.7,
                     log_x=True,
                     width=500,
@@ -336,7 +336,7 @@ def render_user_charts(con):
                     title='Users by Device Type',
                     xaxis_title='Device Type',
                     yaxis_title='Unique Users',
-                    legend_title='Conversion Rate',
+                    legend_title='Conversion',
                     height=600,
                     width=800
                 )
@@ -353,7 +353,7 @@ def render_user_charts(con):
                 engagement_analysis,
                 x='hour',
                 y='revenue',
-                color='hour',
+                color='total_sessions',
                 hover_data=['total_sessions', 'avg_session_duration'],
                 height=400,
                 barmode='relative',
@@ -364,7 +364,7 @@ def render_user_charts(con):
                 title='Engagement per Hour',
                 xaxis_title='Hour',
                 yaxis_title='Revenue',
-                legend_title='Hour',
+                legend_title='# of Sessions',
                 xaxis={'categoryorder': 'total ascending'}
             )
             st.plotly_chart(fig5, use_container_width=True)
