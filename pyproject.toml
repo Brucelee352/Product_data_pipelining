@@ -18,17 +18,18 @@ keywords = ["Data Engineering", "Data Pipelines", "SaaS", "Data", "Analytics Eng
 
 
 dependencies = [
-    "duckdb>=0.8.1",
-    "minio>=7.1.0",
-    "pandas>=2.0.0",
-    "faker>=18.0.0",
-    "dbt-core>=1.5.0",
-    "dbt-duckdb>=1.5.0",
-    "python-dotenv>=1.0.0",
+    "duckdb>=1.4.4",
+    "minio>=7.2.20",
+    "pandas>=3.0.1",
+    "faker>=40.8.0",
+    "dbt-core>=1.11.7",
+    "dbt-duckdb>=1.10.1",
+    "python-dotenv>=1.2.2",
     "user-agents>=2.2.0",
-    "plotly>=6.0.0",
-    "dash>=2.18.0",
-    "dash-bootstrap-components>=1.6.0",
+    "plotly>=6.6.0",
+    "dash>=4.0.0",
+    "dash-bootstrap-components>=2.0.4",
+    "mashumaro>=3.14",
 ]
 
 
