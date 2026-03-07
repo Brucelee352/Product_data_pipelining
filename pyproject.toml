@@ -29,7 +29,7 @@ dependencies = [
     "plotly>=6.6.0",
     "dash>=4.0.0",
     "dash-bootstrap-components>=2.0.4",
-    "mashumaro==3.12.1",  # 3.13+ has a self-referential regression that breaks dbt-common
+    "mashumaro==3.12",  # 3.13+ has a self-referential regression that breaks dbt-common
 ]
 
 
