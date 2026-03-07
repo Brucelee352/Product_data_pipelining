@@ -30,9 +30,9 @@ dbt-common>=1.37.3
 dbt-core>=1.11.7
 dbt-extractor>=0.6.0
 dbt-semantic-interfaces>=0.9.0
-# 3.13 introduced a self-referential regression in JSONObjectSchema;
-# 3.14 may resolve it — if dbt deps still fails, pin to mashumaro==3.12.1
-mashumaro>=3.14
+# 3.13 and 3.14 have a self-referential regression in JSONObjectSchema
+# that breaks dbt-common on import. Pinned to last known-good version.
+mashumaro==3.12.1
 
 # Data Visualization and Portfolio App
 plotly>=6.6.0
