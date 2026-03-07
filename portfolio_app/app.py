@@ -444,7 +444,7 @@ def main():
     try:
         os.environ['DBT_PROFILES_DIR'] = str(DBT_PROFILES_DIR)
         app = create_app()
-        app.run(debug=True, host="0.0.0.0", port=8050)
+        app.run(debug=True, host="127.0.0.1", port=8050)
     except Exception as e:
         LOG.error("Application error: %s", str(e))
         raise
