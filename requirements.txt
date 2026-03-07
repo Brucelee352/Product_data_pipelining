@@ -36,7 +36,8 @@ mashumaro==3.12
 
 # Data Visualization and Portfolio App
 plotly>=6.0.0
-streamlit>=1.42.0
+dash>=2.18.0
+dash-bootstrap-components>=1.6.0
 
 # Data generation
 Faker>=40.8.0

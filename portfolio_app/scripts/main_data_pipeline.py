@@ -18,7 +18,7 @@ pip install -e .
 A requirements.txt file can be found in the root directory of the 
 project on the GitHub repo for download. 
 
-That is to be used for streamlit, and is optional for this script. 
+That is to be used for Dash, and is optional for this script. 
 
 This too can be installed with via cli.
 

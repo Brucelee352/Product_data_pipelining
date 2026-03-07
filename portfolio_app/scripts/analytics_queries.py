@@ -2,7 +2,7 @@
 #----------------------------------------------------------------#
 
 Analytical queries that run against dbt-created tables
-in the main schema, then deployed as charts via streamlit.
+in the main schema, then deployed as charts via Dash.
 
 Please refer to README.md file for more information.
 
