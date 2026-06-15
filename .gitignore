@@ -198,3 +198,6 @@ logs/
 # But allow profiles.yml
 !.dbt/
 !.dbt/profiles.yml
+
+# Claude
+.claude
