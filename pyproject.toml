@@ -3,15 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "dbt-pipeline-demo"
-version = "4.0.0"
-description = "A demo pipeline for product data generation and processing"
+name = "kroger_product_pipeline"
+version = "5.0.0"
+description = "A demo pipeline for product data generation and processing using data from the Kroger Products/Locations APIs"
 authors = [
     { name = "Bruce Anthony Lee", email = "brucelee352@gmail.com" }
 ]
 
 readme = {file = "README.md", content-type = "text/markdown"}
-license = "MIT"
 requires-python = ">= 3.12, < 3.13"
 
 keywords = ["Data Engineering", "Data Pipelines", "SaaS", "Data", "Analytics Engineering", "Data Science", "Data Visualization"]
@@ -43,7 +42,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://brucelee352.github.io"
+Homepage = "https://kro.brucea-lee.com"
 Documentation = "https://github.com/Brucelee352/Product_data_pipelining/blob/main/README.md"
 Repository = "https://github.com/Brucelee352/Product_data_pipelining.git"
 "LinkedIn" = "https://www.linkedin.com/in/brucealee/"
