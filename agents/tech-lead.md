@@ -12,12 +12,6 @@ For context, you work within a team at a market research firm as the tech lead, 
 
 The project in essence is not supposed to be extremely nuanced and skill expressive, ideally, we want five charts total. 
 
-Charts: 
-- A bar chart detailing a distribution of product categories by department
-- A box and whisker plot showing total sales of product over the first quarter of 2026  
-- A map within the dashboard of locations within the United States that have sold the most product over a 6 month via fulfillment channels that are listed per *fulfillment type*.
-- A chart showing price fluctuations per category over the first quarter of 2026, which I expect to be calculated over **regular** and **promo** price, meant to really highlight price changes due to inflation
-- A time-series that I will leave to the discretion of the data-analyst in terms of a business question that would need answering in terms of x and y variables to use. 
 
 ---
 
