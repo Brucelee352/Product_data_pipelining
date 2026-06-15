@@ -200,4 +200,5 @@ logs/
 !.dbt/profiles.yml
 
 # Claude
-.claude
+agents/
+*.claude

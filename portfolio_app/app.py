@@ -1,453 +1,527 @@
-"""
-#----------------------------------------------------------------#
+"""Kroger product analytics dashboard.
 
-Bruce's Analytics Portfolio App
+Single-page, static Dash dashboard for store operations staff and
+non-executive stakeholders. Reads the dbt mart tables directly from DuckDB
+and renders five charts covering pricing, availability, and fulfillment.
 
-This app (powered by Dash) showcases customer analytics
-across modalities.
-
-Please refer to README.md file for more information.
-
-All dependencies here are installed via requirements.txt
-when deployed.
-
-#----------------------------------------------------------------#
-
+No interactivity controls (no tabs, dropdowns, sliders, or buttons) — every
+chart is a static render of the underlying data.
 """
 
-# Standard library imports
+import contextlib
+import logging
 import os
-import sys
-import functools
 from pathlib import Path
-from io import BytesIO as io
 
-# Third party imports
-from minio import Minio as mc
-from dash import Dash, html, dcc, Input, Output, no_update
-import dash_bootstrap_components as dbc
+import duckdb
 import pandas as pd
 import plotly.express as px
-import duckdb as ddb
+import plotly.graph_objects as go
+from dash import Dash, html, dcc
+import dash_bootstrap_components as dbc
+from dotenv import load_dotenv
 
-# Local imports
-from portfolio_app.scripts.main_data_pipeline import run_dbt_ops as rdops
-from portfolio_app.scripts.analytics_queries import (
-    run_lifecycle_analysis as la,
-    run_purchase_analysis as pa,
-    run_demographics_analysis as da,
-    run_business_analysis as ba,
-    run_engagement_analysis as ea,
-    run_churn_analysis as ca
-)
-from portfolio_app.scripts.constants import (
-    DB_PATH, LOG, MINIO_BUCKET_NAME, MINIO_ENDPOINT, MINIO_ROOT_USER,
-    MINIO_ROOT_PASSWORD, MINIO_USE_SSL, DBT_PROFILES_DIR
+load_dotenv()
+LOG = logging.getLogger(__name__)
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO"),
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
+PROJECT_ROOT = Path(__file__).parents[1]
+DB_PATH = PROJECT_ROOT / os.environ.get(
+    "DB_PATH", "dbt_pipeline_demo/databases/kroger_pipeline.duckdb"
+)
 
-# Add the parent directory to PYTHONPATH
-sys.path.append(str(Path(__file__).resolve().parents[1]))
-
-# Resolves the path to ensure correctness
-DB_PATH = DB_PATH.resolve()
-
-# Print the path for debugging
 LOG.info("Database path: %s", DB_PATH)
 
-# Verifies that the path exists
-if not DB_PATH.exists():
-    raise FileNotFoundError(f"Database file not found at: {DB_PATH}")
+# ---------------------------------------------------------------------------
+# Theme
+# ---------------------------------------------------------------------------
+LIGHT_LAYOUT = dict(
+    paper_bgcolor="#FFFFFF",
+    plot_bgcolor="#F0F4F8",
+    font_color="#003087",
+    legend=dict(bgcolor="rgba(255,255,255,0.85)", bordercolor="#003087", borderwidth=1),
+    margin=dict(l=40, r=20, t=70, b=40),
+)
+
+# Geo styling for the map figure so it blends with the light Kroger theme.
+LIGHT_GEO = dict(
+    bgcolor="#FFFFFF",
+    landcolor="#D6E4F0",
+    lakecolor="#A9CCE3",
+    subunitcolor="#7FB3D3",
+    countrycolor="#7FB3D3",
+    coastlinecolor="#5499C7",
+)
 
 
-def header():
-    """Render the app header."""
-    return html.Div([
-        html.H1("Bruce's Analytics Portfolio"),
-        html.H5("An app showcasing customer analytics across modalities."),
-        html.Hr()
-    ])
-
-
-def minio_client():
-    """Get or create MinIO client."""
-    return mc(endpoint=MINIO_ENDPOINT,
-              access_key=MINIO_ROOT_USER,
-              secret_key=MINIO_ROOT_PASSWORD,
-              secure=MINIO_USE_SSL)
-
-
-@functools.lru_cache(maxsize=32)
-def load_from_s3(bucket_name, file_name):
-    """Load a Parquet file from MinIO."""
+# ---------------------------------------------------------------------------
+# DuckDB connection helper
+# ---------------------------------------------------------------------------
+@contextlib.contextmanager
+def db_connect():
+    """Yield a read-only DuckDB connection, closing it on exit."""
+    con = duckdb.connect(str(DB_PATH), read_only=True)
     try:
-        client = minio_client()
-        response = client.get_object(bucket_name, file_name)
-        df = pd.read_parquet(io(response.read()))
-        LOG.info("Successfully loaded %s from MinIO.", file_name)
-        return df
-    except Exception as e:
-        LOG.error("Error loading %s from MinIO: %s", file_name, str(e))
-        raise
+        yield con
+    finally:
+        con.close()
 
 
-# Connect to DuckDB
-def ddb_connect():
-    """Create and return a DuckDB connection."""
+def _empty(msg: str) -> dbc.Alert:
+    """Standard empty-state alert shown when a chart cannot be built."""
+    return dbc.Alert(msg, color="info", className="m-3")
+
+
+# ---------------------------------------------------------------------------
+# Chart 1 — Box & Whisker: Product Price Distribution, Q1 2026
+# ---------------------------------------------------------------------------
+def build_box_chart() -> "dcc.Graph | dbc.Alert":
+    """Box plot of regular price per category for Q1 2026 (with fallback)."""
     try:
-        con = ddb.connect(str(DB_PATH))
-        LOG.info("Database connection successful!")
-        return con
-    except Exception as e:
-        LOG.error("Error connecting to database: %s", str(e))
-        raise
+        q1_sql = """
+            SELECT category, regular_price
+            FROM main_marts.fact_prices
+            WHERE effective_date BETWEEN DATE '2026-01-01' AND DATE '2026-03-31'
+              AND regular_price > 0 AND category IS NOT NULL
+        """
+        with db_connect() as con:
+            df = con.execute(q1_sql).df()
+            title = "Product Price Distribution — Q1 2026"
 
+            # Fallback to all available data if Q1 2026 has no rows.
+            if df.empty:
+                df = con.execute(
+                    """
+                    SELECT category, regular_price
+                    FROM main_marts.fact_prices
+                    WHERE regular_price > 0 AND category IS NOT NULL
+                    """
+                ).df()
+                rng = con.execute(
+                    "SELECT MIN(effective_date), MAX(effective_date) "
+                    "FROM main_marts.fact_prices"
+                ).fetchone()
+                if rng and rng[0] is not None:
+                    title = (
+                        "Product Price Distribution — "
+                        f"{rng[0]:%b %Y} to {rng[1]:%b %Y}"
+                    )
+                else:
+                    title = "Product Price Distribution — All Available Data"
 
-def run_dbt(df: pd.DataFrame):
-    """Run dbt transformations on a Parquet dataframe."""
-    try:
-        con = ddb.connect(str(DB_PATH))
-        con.register('parquet_data', df)
-        rdops()  # Run dbt operations
-        LOG.info("dbt operations completed successfully!")
-    except Exception as e:
-        LOG.error("Error running dbt operations: %s", str(e))
-        raise
+        if df.empty:
+            return _empty("No price data available for the box plot.")
 
-
-def render_buttons():
-    """Render top action buttons."""
-    resume_url = ("https://github.com/Brucelee352/Product_data_pipelining/blob/"
-                  "e0b968643ea3455fc5368490c73133f6fb70ac37/misc/BruceLee_2025Resume_b.pdf")
-
-    return dbc.Row([
-        dbc.Col(
-            dbc.Button(
-                "Repository",
-                href="https://github.com/brucelee352/Product_data_pipelining",
-                external_link=True, color="primary", className="w-100",
-                title="This project's GitHub repository"
-            ), width=2
-        ),
-        dbc.Col(
-            dbc.Button(
-                "LinkedIn",
-                href="https://www.linkedin.com/in/brucealee/",
-                external_link=True, color="primary", className="w-100",
-                title="My LinkedIn profile"
-            ), width=2
-        ),
-        dbc.Col(
-            dbc.Button(
-                "Resume",
-                href=resume_url,
-                external_link=True, color="primary", className="w-100",
-                title="Click to view my resume"
-            ), width=2
-        ),
-        dbc.Col(
-            dbc.Button(
-                "Refresh", id="refresh-button",
-                color="primary", className="w-100",
-                title="Rerun the data pipeline's models"
-            ), width=2
-        ),
-        dbc.Col(
-            dbc.Button(
-                "Download Data", id="download-button",
-                color="primary", className="w-100",
-                title="Download cleaned data as CSV"
-            ), width=2
-        ),
-    ], className="mb-3 g-2", justify="start")
-
-
-def refresh_pipeline():
-    """Run data pipeline operations and return a status message."""
-    try:
-        df = load_from_s3(MINIO_BUCKET_NAME, 'cleaned_data.parquet')
-        run_dbt(df)
-        return "Tables materialized successfully!"
-    except Exception as e:
-        return f"Error modelling tables: {str(e)}"
-
-
-def download_data():
-    """Return CSV data for download."""
-    df = load_from_s3(MINIO_BUCKET_NAME, 'cleaned_data.parquet')
-    return df.to_csv(index=False)
-
-
-def build_churn_chart(con):
-    """Build the churn analysis line chart."""
-    try:
-        churn_analysis = ca(con=con)
-        if churn_analysis.empty:
-            return dbc.Alert("No data found for churn analysis.", color="warning")
-        fig = px.line(
-            churn_analysis,
-            x='cohort_month',
-            y='churn_rate',
-            color='cohort_size',
-            text='avg_days_to_churn',
-            title='Churn Analysis by Cohort',
-            height=600
+        # Sort categories by median price descending.
+        order = (
+            df.groupby("category")["regular_price"]
+            .median()
+            .sort_values(ascending=False)
+            .index.tolist()
         )
-        fig.update_layout(
-            xaxis_title='Cohort Month', yaxis_title='Churn Rate',
-            legend_title='Cohort Size')
-        return dcc.Graph(figure=fig)
-    except Exception as e:
-        return dbc.Alert(f"Error fetching churn analysis data: {e}", color="danger")
+
+        fig = px.box(
+            df,
+            x="category",
+            y="regular_price",
+            color="category",
+            category_orders={"category": order},
+            title=title,
+            labels={"category": "Category", "regular_price": "Regular Price ($)"},
+        )
+        fig.update_layout(showlegend=False, xaxis_tickangle=-30, **LIGHT_LAYOUT)
+        fig.update_yaxes(title_text="Regular Price ($)")
+        return dcc.Graph(figure=fig, style={"height": "460px"})
+    except Exception as exc:  # noqa: BLE001
+        LOG.error("Chart 1 (box) failed: %s", exc)
+        return _empty(f"Price distribution chart unavailable: {exc}")
 
 
-def build_purchase_chart(con):
-    """Build the purchase analysis scatter chart."""
+# ---------------------------------------------------------------------------
+# Chart 2 — Fulfillment & Pricing Map (choropleth + scatter overlay)
+# ---------------------------------------------------------------------------
+def build_map_chart() -> "dcc.Graph | dbc.Alert":
+    """Combined choropleth (state avg price) + store-location scatter overlay."""
     try:
-        purchase_analysis = pa(con=con)
-        if purchase_analysis.empty:
-            return dbc.Alert("No data found for purchase analysis.", color="warning")
+        state_sql = """
+            SELECT state,
+                   ROUND(AVG(avg_price), 2) AS state_avg_price,
+                   SUM(total_products)       AS state_total_products
+            FROM main_marts.mart_location_sales
+            WHERE state IS NOT NULL
+            GROUP BY state
+        """
+        # Pull zip_code from dim_locations via join so this works whether or
+        # not mart_location_sales has been rebuilt with the new zip_code column.
+        loc_sql = """
+            SELECT m.location_id, m.name, m.city, m.state,
+                   dl.zip_code,
+                   m.latitude, m.longitude,
+                   m.physical_count, m.online_count,
+                   m.total_products, m.avg_price
+            FROM main_marts.mart_location_sales m
+            LEFT JOIN main_marts.dim_locations dl
+                   ON m.location_id = dl.location_id
+            WHERE m.latitude IS NOT NULL AND m.longitude IS NOT NULL
+        """
+        with db_connect() as con:
+            state_df = con.execute(state_sql).df()
+            loc_df = con.execute(loc_sql).df()
+
+        if loc_df.empty:
+            return _empty("No store location data available for the map.")
+
+        loc_df["zip_code"] = loc_df.get("zip_code", pd.Series(dtype="object"))
+        loc_df["zip_code"] = loc_df["zip_code"].fillna("N/A")
+
+        # Shared color range so choropleth and scatter use one visual scale.
+        price_vals = pd.concat(
+            [state_df["state_avg_price"], loc_df["avg_price"]], ignore_index=True
+        ).dropna()
+        cmin = float(price_vals.min()) if not price_vals.empty else None
+        cmax = float(price_vals.max()) if not price_vals.empty else None
+
+        hover_text = [
+            (
+                f"<b>{row['name']}</b><br>"
+                f"{row['city']}, {row['state']}  ·  ZIP {row['zip_code']}<br>"
+                f"Avg catalog price: ${row['avg_price']:.2f}<br>"
+                f"Unique products in catalog: {int(row['total_products'])}<br>"
+                f"<br>"
+                f"Physical (in-store or curbside): {int(row['physical_count'])} products<br>"
+                f"Online (delivery or ship-to-home): {int(row['online_count'])} products<br>"
+                f"<i>(A product may be counted in both channels)</i>"
+            )
+            for _, row in loc_df.iterrows()
+        ]
+
+        fig = go.Figure()
+
+        if not state_df.empty:
+            fig.add_trace(
+                go.Choropleth(
+                    locations=state_df["state"],
+                    z=state_df["state_avg_price"],
+                    locationmode="USA-states",
+                    colorscale="deep",
+                    zmin=cmin,
+                    zmax=cmax,
+                    marker_line_color="#566573",
+                    colorbar=dict(title="Avg Price ($)", x=1.0),
+                    hovertext=state_df["state"]
+                    + ": $"
+                    + state_df["state_avg_price"].round(2).astype(str),
+                    hoverinfo="text",
+                    name="State avg price",
+                )
+            )
+
+        # Scale bubble sizes relative to the largest store catalog.
+        max_products = max(int(loc_df["total_products"].max()), 1)
+        sizes = 8 + (loc_df["total_products"] / max_products) * 30
+
+        fig.add_trace(
+            go.Scattergeo(
+                lat=loc_df["latitude"],
+                lon=loc_df["longitude"],
+                mode="markers",
+                marker=dict(
+                    size=sizes,
+                    color=loc_df["avg_price"],
+                    colorscale="Blues_r",
+                    cmin=cmin,
+                    cmax=cmax,
+                    line=dict(width=0.8, color="#0d0d0d"),
+                    showscale=False,
+                    sizemode="diameter",
+                ),
+                text=hover_text,
+                hoverinfo="text",
+                name="Store",
+            )
+        )
+
+        fig.update_layout(
+            title="Store Fulfillment KPIs & Avg Price by Location",
+            geo_scope="usa",
+            geo=LIGHT_GEO,
+            **LIGHT_LAYOUT,
+        )
+        return dcc.Graph(figure=fig, style={"height": "600px"})
+    except Exception as exc:  # noqa: BLE001
+        LOG.error("Chart 2 (map) failed: %s", exc)
+        return _empty(f"Fulfillment & pricing map unavailable: {exc}")
+
+
+# ---------------------------------------------------------------------------
+# Chart 3 — Stacked bar: stock availability mix by category
+# ---------------------------------------------------------------------------
+def build_chart_3() -> "dcc.Graph | dbc.Alert":
+    """Are products in stock? Stock-status mix per category (% of items)."""
+    try:
+        sql = """
+            SELECT category, stock_level, COUNT(*) AS n
+            FROM main_marts.fact_prices
+            WHERE stock_level IS NOT NULL AND category IS NOT NULL
+            GROUP BY category, stock_level
+        """
+        with db_connect() as con:
+            df = con.execute(sql).df()
+
+        if df.empty:
+            return _empty("No stock-availability data available.")
+
+        label_map = {
+            "HIGH": "In stock (high)",
+            "LOW": "Low stock",
+            "TEMPORARILY_OUT_OF_STOCK": "Out of stock",
+        }
+        df["status"] = df["stock_level"].map(label_map).fillna(df["stock_level"])
+
+        # Convert to share-of-category so categories compare fairly.
+        df["pct"] = df["n"] / df.groupby("category")["n"].transform("sum") * 100
+
+        # Order categories by how often they are out of stock (worst first).
+        oos = (
+            df[df["stock_level"] == "TEMPORARILY_OUT_OF_STOCK"]
+            .set_index("category")["pct"]
+            .reindex(df["category"].unique())
+            .fillna(0)
+            .sort_values(ascending=False)
+        )
+
+        fig = px.bar(
+            df,
+            x="pct",
+            y="category",
+            color="status",
+            orientation="h",
+            category_orders={
+                "category": oos.index.tolist(),
+                "status": ["Out of stock", "Low stock", "In stock (high)"],
+            },
+            color_discrete_map={
+                "In stock (high)": "#27ae60",
+                "Low stock": "#f6c23e",
+                "Out of stock": "#e74c3c",
+            },
+            title="Stock Availability by Category",
+            labels={"pct": "Share of items (%)", "category": "Category",
+                    "status": "Status"},
+            custom_data=["n"],
+        )
+        fig.update_traces(
+            hovertemplate="%{y}<br>%{fullData.name}: %{x:.1f}%"
+            " (%{customdata[0]} items)<extra></extra>"
+        )
+        fig.update_layout(barmode="stack", legend_title_text="Status",
+                          **LIGHT_LAYOUT)
+        fig.update_xaxes(range=[0, 100], ticksuffix="%")
+        return dcc.Graph(figure=fig, style={"height": "460px"})
+    except Exception as exc:  # noqa: BLE001
+        LOG.error("Chart 3 (stock) failed: %s", exc)
+        return _empty(f"Stock availability chart unavailable: {exc}")
+
+
+# ---------------------------------------------------------------------------
+# Chart 4 — Bar: average discount depth by category
+# ---------------------------------------------------------------------------
+def build_chart_4() -> "dcc.Graph | dbc.Alert":
+    """Where are the deepest deals? Average promo discount per category."""
+    try:
+        sql = """
+            SELECT category,
+                   ROUND(AVG(discount_pct), 1) AS avg_discount_pct,
+                   ROUND(AVG(regular_price), 2) AS avg_regular_price,
+                   COUNT(*)                     AS promo_items
+            FROM main_marts.fact_prices
+            WHERE discount_pct > 0 AND category IS NOT NULL
+            GROUP BY category
+            HAVING COUNT(*) >= 5
+            ORDER BY avg_discount_pct DESC
+        """
+        with db_connect() as con:
+            df = con.execute(sql).df()
+
+        if df.empty:
+            return _empty("No promotional-discount data available.")
+
+        fig = px.bar(
+            df,
+            x="avg_discount_pct",
+            y="category",
+            orientation="h",
+            color="avg_discount_pct",
+            color_continuous_scale="Sunset",
+            title="Average Promotional Discount Depth by Category",
+            labels={"avg_discount_pct": "Avg discount (%)", "category": "Category"},
+            custom_data=["avg_regular_price", "promo_items"],
+        )
+        fig.update_traces(
+            hovertemplate="%{y}<br>Avg discount: %{x:.1f}%<br>"
+            "Avg regular price: $%{customdata[0]:.2f}<br>"
+            "Promo items: %{customdata[1]}<extra></extra>"
+        )
+        fig.update_yaxes(categoryorder="total ascending")
+        fig.update_layout(coloraxis_showscale=False, **LIGHT_LAYOUT)
+        fig.update_xaxes(ticksuffix="%")
+        return dcc.Graph(figure=fig, style={"height": "440px"})
+    except Exception as exc:  # noqa: BLE001
+        LOG.error("Chart 4 (discount) failed: %s", exc)
+        return _empty(f"Discount-depth chart unavailable: {exc}")
+
+
+# ---------------------------------------------------------------------------
+# Chart 5 — Bubble scatter: category value map (base price vs. discount depth)
+# ---------------------------------------------------------------------------
+def build_chart_5() -> "dcc.Graph | dbc.Alert":
+    """Category value map: base price vs. promo discount depth."""
+    try:
+        sql = """
+            SELECT
+                category,
+                ROUND(AVG(regular_price), 2)                                              AS avg_regular_price,
+                ROUND(AVG(CASE WHEN discount_pct > 0 THEN discount_pct ELSE NULL END), 1) AS avg_discount_pct,
+                COUNT(DISTINCT product_id)                                                AS product_count,
+                COUNT(CASE WHEN promo_price IS NOT NULL
+                           AND promo_price < regular_price THEN 1 END)                   AS promo_items
+            FROM main_marts.fact_prices
+            WHERE category IS NOT NULL AND regular_price > 0
+            GROUP BY category
+            HAVING COUNT(*) >= 5
+            ORDER BY avg_regular_price DESC
+        """
+        with db_connect() as con:
+            df = con.execute(sql).df()
+
+        if df.empty:
+            return _empty("No category value data available.")
+
         fig = px.scatter(
-            purchase_analysis,
-            x='month',
-            y='total_revenue',
-            size='total_revenue',
-            hover_data=['product_name', 'total_revenue', 'avg_price'],
-            color='price_tier',
-            title='Revenue by Month, Product',
-            opacity=0.7,
-            log_x=True,
-            width=500,
-            height=500
+            df,
+            x="avg_regular_price",
+            y="avg_discount_pct",
+            size="product_count",
+            color="avg_regular_price",
+            color_continuous_scale="Magenta",
+            text="category",
+            title="Category Value Map — Base Price vs. Discount Depth",
+            labels={
+                "avg_regular_price": "Avg Regular Price ($)",
+                "avg_discount_pct": "Avg Discount When on Promo (%)",
+                "product_count": "Number of Products",
+            },
+            custom_data=["promo_items", "product_count"],
         )
-        fig.update_layout(
-            xaxis_title='Month',
-            yaxis_title='Revenue',
-            legend_title='Price Tier'
+        fig.update_traces(
+            textposition="top center",
+            hovertemplate=(
+                "<b>%{text}</b><br>"
+                "Avg price: $%{x:.2f}<br>"
+                "Avg discount: %{y:.1f}%<br>"
+                "Products: %{customdata[1]}<br>"
+                "Promo items: %{customdata[0]}<extra></extra>"
+            ),
         )
-        return dcc.Graph(figure=fig)
-    except Exception as e:
-        return dbc.Alert(f"Error fetching purchase analysis data: {e}", color="danger")
+        fig.update_layout(coloraxis_showscale=False, **LIGHT_LAYOUT)
+
+        # Add light reference lines through the medians to create quadrant context
+        fig.add_hline(y=df["avg_discount_pct"].median(), line_dash="dot",
+                      line_color="rgba(100,100,100,0.4)", annotation_text="Median discount")
+        fig.add_vline(x=df["avg_regular_price"].median(), line_dash="dot",
+                      line_color="rgba(100,100,100,0.4)", annotation_text="Median price")
+        return dcc.Graph(figure=fig, style={"height": "440px"})
+    except Exception as exc:  # noqa: BLE001
+        LOG.error("Chart 5 (category value map) failed: %s", exc)
+        return _empty(f"Category value map unavailable: {exc}")
 
 
-def build_lifecycle_chart(con):
-    """Build the lifecycle analysis pie chart."""
-    try:
-        lifecycle_analysis = la(con=con)
-        if lifecycle_analysis.empty:
-            return dbc.Alert("No data found for lifecycle analysis.", color="warning")
-        df_grouped = lifecycle_analysis.groupby(
-            'os', as_index=False).agg({
-                'total_revenue': 'sum',
-                'total_customers': 'sum',
-                'total_purchases': 'sum'
-            })
-        fig = px.pie(
-            df_grouped,
-            names='os',
-            values='total_revenue',
-            title='Total Revenue by Operating System',
-            hole=0.2,
-            color_discrete_sequence=[
-                "#636EFA", "#EF553B", "#00CC96", "#AB63FA", "#FFA15A"]
-        )
-        fig.update_traces(opacity=0.75)
-        fig.update_layout(
-            height=400,
-            width=400,
-            margin=dict(t=50, l=0, r=0, b=0),
-            legend_title='Operating System'
-        )
-        return dcc.Graph(figure=fig)
-    except Exception as e:
-        return dbc.Alert(f"Error creating lifecycle analysis chart: {e}", color="danger")
+# ---------------------------------------------------------------------------
+# Layout
+# ---------------------------------------------------------------------------
+def _loading(child):
+    """Wrap a chart output in a circular loading spinner."""
+    return dcc.Loading(type="circle", children=child)
 
 
-def build_demographics_chart(con):
-    """Build the demographics analysis bar chart."""
-    try:
-        demo_analysis = da(con=con)
-        if demo_analysis.empty:
-            return dbc.Alert("No data found for demographics analysis.", color="warning")
-        fig = px.bar(
-            demo_analysis,
-            x='product_name',
-            y='unique_users',
-            color='browser',
-            barmode='relative',
-            hover_data=['avg_purchase_value', 'avg_session_duration'],
-            title='Usage by Product and Browser',
-            color_discrete_sequence=px.colors.qualitative.Pastel
-        )
-        fig.update_layout(
-            xaxis_title='Product Name',
-            yaxis_title='Unique Users',
-            legend_title='Browser',
-            height=500
-        )
-        return dcc.Graph(figure=fig)
-    except Exception as e:
-        LOG.error("Error fetching demographics analysis data: %s", str(e))
-        return dbc.Alert(f"Error fetching demographics analysis data: {e}", color="danger")
-
-
-def build_business_chart(con):
-    """Build the business analysis bar chart."""
-    try:
-        business_analysis = ba(con=con)
-        if business_analysis.empty:
-            return dbc.Alert("No data found for business analysis.", color="warning")
-        fig = px.bar(
-            business_analysis,
-            x='device_type',
-            y='unique_users',
-            hover_data=['total_sessions', 'avg_session_duration'],
-            color='conversion_rate',
-            color_continuous_scale='Geyser'
-        )
-        fig.update_layout(
-            title='Users by Device Type',
-            xaxis_title='Device Type',
-            yaxis_title='Unique Users',
-            legend_title='Conversion Rate',
-            height=600,
-            width=800
-        )
-        return dcc.Graph(figure=fig)
-    except Exception as e:
-        LOG.error("Error fetching business analysis data: %s", str(e))
-        return dbc.Alert(f"Error fetching business analysis data: {e}", color="danger")
-
-
-def build_engagement_chart(con):
-    """Build the engagement analysis bar chart."""
-    try:
-        engagement_analysis = ea(con=con)
-        if engagement_analysis.empty:
-            return dbc.Alert("No data found for engagement analysis.", color="warning")
-        fig = px.bar(
-            engagement_analysis,
-            x='hour',
-            y='revenue',
-            color='hour',
-            hover_data=['total_sessions', 'avg_session_duration'],
-            height=400,
-            barmode='relative',
-            color_continuous_scale='Turbo',
-            log_y=True
-        )
-        fig.update_layout(
-            title='Engagement per Hour',
-            xaxis_title='Hour',
-            yaxis_title='Revenue',
-            legend_title='Hour',
-            xaxis={'categoryorder': 'total ascending'}
-        )
-        return dcc.Graph(figure=fig)
-    except Exception as e:
-        LOG.error("Error fetching engagement analysis data: %s", str(e))
-        return dbc.Alert(f"Error fetching engagement analysis data: {e}", color="danger")
-
-
-def render_revenue_charts():
-    """Render revenue-focused charts."""
-    with ddb_connect() as con:
-        chart1 = build_churn_chart(con)
-        chart2 = build_purchase_chart(con)
-        chart3 = build_lifecycle_chart(con)
-
-    return html.Div([
-        dbc.Row([
-            dbc.Col(chart1, width=8),
-            dbc.Col(chart2, width=4),
-        ]),
-        html.Hr(),
-        chart3
-    ])
-
-
-def render_user_charts():
-    """Render user-centric charts."""
-    with ddb_connect() as con:
-        chart4 = build_demographics_chart(con)
-        chart5 = build_business_chart(con)
-        chart6 = build_engagement_chart(con)
-
-    return html.Div([
-        dbc.Row([
-            dbc.Col(chart4, width=8),
-            dbc.Col(chart5, width=4),
-        ]),
-        html.Hr(),
-        chart6
-    ])
-
-
-def render_charts():
-    """Render all charts in tabs."""
-    return dcc.Tabs([
-        dcc.Tab(label='Revenue Centric', children=[render_revenue_charts()]),
-        dcc.Tab(label='User Centric', children=[render_user_charts()])
-    ])
-
-
-def register_callbacks(app):
-    """Register Dash callbacks for interactive elements."""
-
-    @app.callback(
-        Output("refresh-status", "children"),
-        Input("refresh-button", "n_clicks"),
-        prevent_initial_call=True
+def _header() -> dbc.Row:
+    return dbc.Row(
+        dbc.Col(
+            dbc.Card(
+                dbc.CardBody([
+                    html.H2(
+                        "Kroger Product Analytics",
+                        className="mb-1 fw-bold",
+                        style={"color": "#FFFFFF"},
+                    ),
+                    html.P(
+                        "Store operations insights — product pricing, availability, and fulfillment",
+                        className="mb-0",
+                        style={"color": "#A9CCE3", "fontSize": "0.95rem"},
+                    ),
+                ]),
+                style={
+                    "backgroundColor": "#003087",
+                    "borderRadius": "8px",
+                    "border": "none",
+                },
+            ),
+            width=12,
+        ),
+        className="mt-3 mb-3",
     )
-    def handle_refresh(n_clicks):
-        if n_clicks:
-            msg = refresh_pipeline()
-            if msg.startswith("Error"):
-                return dbc.Alert(msg, color="danger", dismissable=True, duration=4000)
-            return dbc.Alert(msg, color="success", dismissable=True, duration=4000)
-        return no_update
 
-    @app.callback(
-        Output("download-csv", "data"),
-        Input("download-button", "n_clicks"),
-        prevent_initial_call=True
+
+def create_layout() -> dbc.Container:
+    return dbc.Container(
+        [
+            _header(),
+            # Row 1: box plot (wide) + stock availability
+            dbc.Row(
+                [
+                    dbc.Col(_loading(build_box_chart()), lg=7, md=12),
+                    dbc.Col(_loading(build_chart_3()), lg=5, md=12),
+                ],
+                className="mb-2 g-3",
+            ),
+            # Row 2: full-width map
+            dbc.Row(
+                dbc.Col(_loading(build_map_chart()), width=12),
+                className="mb-2 g-3",
+            ),
+            # Row 3: discount depth + fulfillment channel mix
+            dbc.Row(
+                [
+                    dbc.Col(_loading(build_chart_4()), lg=6, md=12),
+                    dbc.Col(_loading(build_chart_5()), lg=6, md=12),
+                ],
+                className="mb-4 g-3",
+            ),
+        ],
+        fluid=True,
+        className="py-2",
     )
-    def handle_download(n_clicks):
-        if n_clicks:
-            csv_data = download_data()
-            return dict(content=csv_data, filename="cleaned_data.csv", type="text/csv")
-        return no_update
 
 
-def create_app():
-    """Create and configure the Dash application."""
+# ---------------------------------------------------------------------------
+# App factory & entry point
+# ---------------------------------------------------------------------------
+def create_app() -> Dash:
     app = Dash(
         __name__,
-        external_stylesheets=[dbc.themes.BOOTSTRAP],
-        title="Bruce's Analytics Portfolio"
+        external_stylesheets=[dbc.themes.FLATLY],
+        title="Kroger Product Analytics",
     )
-
-    app.layout = dbc.Container([
-        header(),
-        render_buttons(),
-        dcc.Download(id="download-csv"),
-        html.Div(id="refresh-status"),
-        render_charts()
-    ], fluid=True)
-
-    register_callbacks(app)
+    app.layout = create_layout()
     return app
 
 
-def main():
-    """Executes the overall app."""
-    try:
-        os.environ['DBT_PROFILES_DIR'] = str(DBT_PROFILES_DIR)
-        app = create_app()
-        app.run(debug=True, host="127.0.0.1", port=8050)
-    except Exception as e:
-        LOG.error("Application error: %s", str(e))
-        raise
+def main() -> None:
+    app = create_app()
+    app.run(debug=False, host="0.0.0.0", port=8050)
 
 
 if __name__ == "__main__":
