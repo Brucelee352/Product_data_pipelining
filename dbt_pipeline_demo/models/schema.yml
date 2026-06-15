@@ -1,124 +1,125 @@
 version: 2
 
 sources:
-  - name: raw_data
-    database: dbt_pipeline_demo
-    schema: main
+  - name: kroger_raw
+    database: kroger_pipeline
+    schema: raw
     tables:
-      - name: user_activity
-        description: "User activity data"
-        loaded_at_field: "account_updated"
+      - name: locations
+        description: "Raw Kroger store locations fetched from the Locations API."
+      - name: products
+        description: "Raw Kroger products fetched from the Products API."
+      - name: product_prices
+        description: "Raw per-location product pricing, fulfillment, and inventory data."
 
 models:
-  - name: dim_user
-    description: "Dimension table for user data"
-    config:
-      indexes:
-        - columns: ['user_id']
-          name: idx_dim_user_user_id
+  # Staging models (views)
+  - name: stg_products
+    description: "Cleaned product catalog with primary category extracted from the categories JSON array."
     columns:
-      - name: user_id
-        description: "Unique identifier for each user."
+      - name: product_id
+        description: "13-digit UPC, unique product identifier."
         tests:
           - unique
           - not_null
-      - name: first_name
-        description: "User's first name."
-      - name: last_name
-        description: "User's last name."
-      - name: email
-        description: "User's email address."
-      - name: is_active
-        description: "Whether the user is active."
-  
-  - name: stg_product_schema
-    description: "Staging table for product data"
-    schema: main
+      - name: description
+        description: "Product name."
+      - name: brand
+        description: "Brand name."
+      - name: primary_category
+        description: "First category in the categories array."
+      - name: categories
+        description: "JSON string array of all categories."
 
-  - name: product_schema
-    description: "Production product data"
-    schema: main
-    config:
-      indexes:
-        - columns: ['user_id']
-          name: idx_product_schema_user_id
-        - columns: ['login_time']
-          name: idx_product_schema_login_time
-        - columns: ['product_name']
-          name: idx_product_schema_product_name
+  - name: stg_locations
+    description: "Cleaned Kroger store locations with valid geolocation."
     columns:
-      - name: session_id
-        description: "Unique identifier for each session"
+      - name: location_id
+        description: "8-digit Kroger location identifier."
         tests:
           - unique
           - not_null
-      - name: user_id
-        description: "Unique identifier for each user"
+      - name: name
+        description: "Store name."
+      - name: state
+        description: "Two-letter state code."
+      - name: latitude
+        description: "Store latitude."
+      - name: longitude
+        description: "Store longitude."
+
+  - name: stg_prices
+    description: "Cleaned product prices with derived discount fields, filtered to valid regular prices."
+    columns:
+      - name: product_id
+        description: "Product UPC."
         tests:
-          - relationships:
-              to: ref('dim_user')
-              field: user_id
+          - not_null
+      - name: location_id
+        description: "Store location identifier."
+        tests:
+          - not_null
+      - name: regular_price
+        description: "Regular shelf price."
+      - name: promo_price
+        description: "Promotional/sale price when on offer."
+      - name: discount_amount
+        description: "Regular price minus promo price (0 when no promo)."
+      - name: discount_pct
+        description: "Discount percentage off regular price."
 
-  - name: stg_user_activity
-    description: "Staging table for user activity data"
-    config:
-      indexes:
-        - columns: ['user_id']
-          name: idx_stg_user_activity_user_id
-        - columns: ['login_time']
-          name: idx_stg_user_activity_login_time
+  # Mart models (tables)
+  - name: dim_products
+    description: "Product dimension."
     columns:
-      - name: user_id
-        description: "Unique identifier for the user"
-      - name: transact_id
-        description: "Unique identifier for the transaction"
-      - name: login_time
-        description: "Timestamp when user logged in"
-      - name: logout_time
-        description: "Timestamp when user logged out"
-      - name: session_duration_minutes
-        description: "Duration of the session in minutes"
-      - name: product_name
-        description: "Name of the product interacted with"
-      - name: price
-        description: "Price of the product"
-      - name: purchase_status
-        description: "Status of the purchase (completed, pending, failed)"
-      - name: device_type
-        description: "Type of device used"
-      - name: os
-        description: "Operating system of the device"
-      - name: browser
-        description: "Browser used for the session"
+      - name: product_id
+        description: "Product UPC."
+        tests:
+          - unique
+          - not_null
 
-  - name: fact_user_activity
-    description: "Fact table containing all user activity events"
-    config:
-      indexes:
-        - columns: ['user_key']
-          name: idx_fact_user_activity_user_key
-        - columns: ['login_time']
-          name: idx_fact_user_activity_login_time
+  - name: dim_locations
+    description: "Location dimension."
     columns:
-      - name: user_key
-        description: "Surrogate key for the user"
-      - name: transact_id
-        description: "Unique identifier for the transaction"
-      - name: login_time
-        description: "Timestamp when user logged in"
-      - name: logout_time
-        description: "Timestamp when user logged out"
-      - name: session_duration_minutes
-        description: "Duration of the session in minutes"
-      - name: product_name
-        description: "Name of the product interacted with"
-      - name: price
-        description: "Price of the product"
-      - name: purchase_status
-        description: "Status of the purchase (completed, pending, failed)"
-      - name: device_type
-        description: "Type of device used"
-      - name: os
-        description: "Operating system of the device"
-      - name: browser
-        description: "Browser used for the session"
+      - name: location_id
+        description: "Store location identifier."
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_prices
+    description: "Price fact table joining prices with product and location dimensions."
+    columns:
+      - name: product_id
+        description: "Product UPC."
+        tests:
+          - not_null
+      - name: location_id
+        description: "Store location identifier."
+        tests:
+          - not_null
+
+  - name: mart_category_distribution
+    description: "Product count and average pricing aggregated by category."
+    columns:
+      - name: category
+        description: "Product category."
+        tests:
+          - not_null
+
+  - name: mart_price_by_category
+    description: "Price distribution statistics (mean, quartiles, median) by category and effective date."
+    columns:
+      - name: category
+        description: "Product category."
+        tests:
+          - not_null
+
+  - name: mart_location_sales
+    description: "Per-location fulfillment counts, product totals, and dominant fulfillment type."
+    columns:
+      - name: location_id
+        description: "Store location identifier."
+        tests:
+          - unique
+          - not_null

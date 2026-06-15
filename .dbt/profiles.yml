@@ -2,7 +2,7 @@ dbt_pipeline_demo:
   outputs:
     dev:
       type: duckdb
-      path: databases/dbt_pipeline_demo.duckdb
+      path: databases/kroger_pipeline.duckdb
       extensions:
         - parquet
         - s3

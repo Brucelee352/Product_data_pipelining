@@ -19,13 +19,11 @@ keywords = ["Data Engineering", "Data Pipelines", "SaaS", "Data", "Analytics Eng
 
 dependencies = [
     "duckdb>=1.4.4",
-    "minio>=7.2.20",
     "pandas>=3.0.1",
-    "faker>=40.8.0",
+    "requests>=2.32.0",
     "dbt-core>=1.11.7",
     "dbt-duckdb>=1.10.1",
     "python-dotenv>=1.2.2",
-    "user-agents>=2.2.0",
     "plotly>=6.0.0",
     "dash>=2.18.0",
     "dash-bootstrap-components>=1.6.0",
@@ -52,32 +50,26 @@ Repository = "https://github.com/Brucelee352/Product_data_pipelining.git"
 
 
 [project.scripts]
-run-pipeline = "scripts.main_data_pipeline:main_cli"
-dashboard = "app:main_cli"
-
-[project.gui-scripts]
-run-pipeline = "scripts.main_data_pipeline:main_gui"
-dashboard = "app:main_gui"
+run-pipeline = "portfolio_app.scripts.main_pipeline:main"
+dashboard = "portfolio_app.app:main"
 
 # Add this Hatch-specific configuration section
 [tool.hatch.build]
 include = [
     "dbt_pipeline_demo/**/*.sql",
     "dbt_pipeline_demo/**/*.yml",
-    "scripts/**/*.py",
-    "app/**/*.py"
+    "portfolio_app/**/*.py"
 ]
 
 [tool.hatch.build.targets.wheel]
 # Explicitly specify packages to include
 packages = [
     "dbt_pipeline_demo",
-    "scripts",
-    "app"
+    "portfolio_app"
 ]
 
 # Include non-Python files
 sources = [
     "dbt_pipeline_demo/models/",
-    "scripts"
-] 
+    "portfolio_app"
+]
