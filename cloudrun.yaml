@@ -1,0 +1,23 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: kroger-pipeline
+spec:
+  template:
+    metadata:
+      annotations:
+        run.googleapis.com/startup-cpu-boost: "true"
+    spec:
+      containers:
+        - name: dashboard
+          image: gcr.io/quiet-stacker-450407-v6/kroger-pipeline:8c3dfe7
+          ports:
+            - name: http1
+              containerPort: 8050
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+          env:
+            - name: LOG_LEVEL
+              value: INFO
