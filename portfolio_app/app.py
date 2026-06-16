@@ -462,12 +462,19 @@ def _header() -> dbc.Row:
                         className="mb-0",
                         style={"color": "#A9CCE3", "fontSize": "0.95rem"},
                     ),
-                    html.A(
+                    html.P(
                         "dbt Docs ↗",
                         href="https://brucea-lee.com/docs-kro/",
                         target="_blank",
                         style={"fontSize": "12px", "color": C["blue"], "display": "block", "marginBottom": "6px", "textDecoration": "none"},
                     ),
+                    dbc.Col(
+                    html.P(
+                        "Bruce A. Lee, 2026",
+                        style={"color": C["white"], "margin": 0, "fontSize": "12px", "textAlign": "right"},
+                    ),
+                    xs=12, md=4,
+                ),
                 ]),
                 style={
                     "backgroundColor": "#003087",
