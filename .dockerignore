@@ -13,6 +13,7 @@ __pycache__/
 
 # Secrets — never bake credentials into the image
 .env
+.dbt/.user.yml
 
 # dbt generated artefacts — recreated at runtime
 dbt_pipeline_demo/target/
