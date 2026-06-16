@@ -1,0 +1,32 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Git / IDE
+.git/
+.gitignore
+.claude/
+
+# Secrets — never bake credentials into the image
+.env
+
+# dbt generated artefacts — recreated at runtime
+dbt_pipeline_demo/target/
+dbt_pipeline_demo/databases/
+dbt_pipeline_demo/dbt_packages/
+dbt_pipeline_demo/logs/
+
+# Pipeline outputs
+logs/
+data/
+reports/
+metrics/
+
+# Build / dist
+dist/
+build/
+*.egg-info/

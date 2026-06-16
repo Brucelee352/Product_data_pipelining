@@ -515,13 +515,17 @@ def create_app() -> Dash:
         external_stylesheets=[dbc.themes.FLATLY],
         title="Kroger Product Analytics",
     )
-    app.layout = create_layout()
+    app.layout = create_layout  # function ref so layout rebuilds per request
     return app
 
 
+# Module-level instances for gunicorn: `portfolio_app.app:server`
+app = create_app()
+server = app.server
+
+
 def main() -> None:
-    app = create_app()
-    app.run(debug=False, host="0.0.0.0", port=8050)
+    app.run(debug=False, host="0.0.0.0", port=int(os.environ.get("PORT", 8050)))
 
 
 if __name__ == "__main__":
