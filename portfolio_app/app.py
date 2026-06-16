@@ -462,6 +462,12 @@ def _header() -> dbc.Row:
                         className="mb-0",
                         style={"color": "#A9CCE3", "fontSize": "0.95rem"},
                     ),
+                    html.A(
+                        "dbt Docs ↗",
+                        href="/dbt-kro/",
+                        target="_blank",
+                        style={"fontSize": "12px", "color": C["blue"], "display": "block", "marginBottom": "6px", "textDecoration": "none"},
+                    ),
                 ]),
                 style={
                     "backgroundColor": "#003087",
