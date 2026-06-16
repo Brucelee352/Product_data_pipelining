@@ -1,4 +1,4 @@
-# Kroger Product Pipeline
+# Kroger Product Analysis
 
 A Python data pipeline that fetches live product, pricing, and store-location data from the Kroger Public API, transforms it with dbt + DuckDB, and serves an interactive Dash analytics dashboard showing fulfillment KPIs and price trends across Kroger store locations.
 
