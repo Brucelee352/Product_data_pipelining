@@ -8,7 +8,9 @@ A Python data pipeline that fetches live product, pricing, and store-location da
 
 ## Overview
 
-The pipeline authenticates against the Kroger OAuth2 endpoint, discovers store locations near ten representative US zip codes, fetches live product catalogs and pricing across eight grocery categories, and writes everything to a local DuckDB database. A dbt project then transforms the raw tables into a clean mart layer. A Dash dashboard reads the mart layer directly and renders five static charts covering pricing distributions, stock availability, promotional discounts, and fulfillment channel coverage.
+The pipeline authenticates against the Kroger OAuth2 endpoint, discovers store locations near ten representative US zip codes, fetches live product catalogs and pricing across eight grocery categories, and writes everything to a local DuckDB database. 
+
+A dbt project then transforms the raw tables into a clean mart layer. A Dash dashboard reads the mart layer directly and renders five static charts covering pricing distributions, stock availability, promotional discounts, and fulfillment channel coverage.
 
 All credentials and paths are configured through a single `.env` file — there are no hardcoded secrets in the source code.
 
@@ -249,10 +251,6 @@ The dashboard requires a populated DuckDB file. Run `uv run run-pipeline` first.
 The free developer tier allows 10,000 API calls per day. A full run uses approximately 165 calls. If you receive HTTP 429 responses, wait until your daily quota resets (midnight UTC) before re-running.
 
 ---
-
-## License
-
-MIT — see `pyproject.toml` classifiers.
 
 ## Author
 
