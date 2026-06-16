@@ -464,7 +464,7 @@ def _header() -> dbc.Row:
                     ),
                     html.A(
                         "dbt Docs ↗",
-                        href="/dbt-kro/",
+                        href="https://brucea-lee.com/docs-kro/",
                         target="_blank",
                         style={"fontSize": "12px", "color": C["blue"], "display": "block", "marginBottom": "6px", "textDecoration": "none"},
                     ),
