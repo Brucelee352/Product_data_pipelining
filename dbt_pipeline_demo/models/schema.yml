@@ -4,21 +4,111 @@ sources:
   - name: kroger_raw
     database: kroger_pipeline
     schema: raw
+    description: "Raw Kroger API responses landed by the ingestion pipeline before any transformation."
     tables:
       - name: locations
         description: "Raw Kroger store locations fetched from the Locations API."
       - name: products
         description: "Raw Kroger products fetched from the Products API."
       - name: product_prices
-        description: "Raw per-location product pricing, fulfillment, and inventory data."
+        description: "Raw per-location product pricing, fulfillment flags, and inventory data fetched from the Product Prices API."
 
 models:
-  # Staging models (views)
+  # ── Staging (views) ────────────────────────────────────────────────────────
+
   - name: stg_products
-    description: "Cleaned product catalog with primary category extracted from the categories JSON array."
+    description: "{{ doc('stg_products') }}"
     columns:
       - name: product_id
-        description: "13-digit UPC, unique product identifier."
+        description: "13-digit UPC — unique product identifier sourced from the Kroger Products API."
+        tests:
+          - unique
+          - not_null
+      - name: description
+        description: "Human-readable product name as returned by the API."
+      - name: brand
+        description: "Brand name; null when the product has no brand affiliation."
+      - name: primary_category
+        description: "First element of the `categories` JSON array, extracted via `json_extract_string(categories, '$[0]')`."
+      - name: categories
+        description: "Full JSON string array of all Kroger taxonomy categories assigned to this product."
+      - name: fetched_at
+        description: "UTC timestamp recorded by the ingestion pipeline when this row was written."
+
+  - name: stg_locations
+    description: "{{ doc('stg_locations') }}"
+    columns:
+      - name: location_id
+        description: "8-digit Kroger store identifier — unique per physical location."
+        tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Store banner name (e.g. 'Kroger', 'Fred Meyer')."
+      - name: chain
+        description: "Chain identifier returned by the Locations API."
+      - name: address_line1
+        description: "Street address of the store."
+      - name: city
+        description: "City where the store is located."
+      - name: state
+        description: "Two-letter US state abbreviation."
+      - name: zip_code
+        description: "5-digit ZIP code."
+      - name: latitude
+        description: "Store latitude — rows with null latitude are excluded."
+      - name: longitude
+        description: "Store longitude."
+      - name: fetched_at
+        description: "UTC timestamp recorded by the ingestion pipeline when this row was written."
+
+  - name: stg_prices
+    description: "{{ doc('stg_prices') }}"
+    columns:
+      - name: product_id
+        description: "Product UPC — foreign key to `stg_products.product_id`."
+        tests:
+          - not_null
+      - name: location_id
+        description: "Store location identifier — foreign key to `stg_locations.location_id`."
+        tests:
+          - not_null
+      - name: item_id
+        description: "Kroger item identifier; may differ from `product_id` for store-specific SKUs."
+      - name: size
+        description: "Package size or unit description as returned by the API."
+      - name: regular_price
+        description: "Regular shelf price in USD. Rows where this is ≤ 0 are excluded."
+      - name: promo_price
+        description: "Promotional/sale price in USD; null when no active promotion."
+      - name: discount_amount
+        description: "Computed: `regular_price − COALESCE(promo_price, regular_price)`. Zero when no promo is active."
+      - name: discount_pct
+        description: "Computed: percentage discount off regular price, rounded to 2 dp. Zero when `promo_price` is null or ≥ `regular_price`."
+      - name: effective_date
+        description: "Date the price took effect, cast from the raw string with `TRY_CAST`; null if the source value is unparseable."
+      - name: expiration_date
+        description: "Date the price expires, cast from the raw string with `TRY_CAST`; null if the source value is unparseable."
+      - name: fulfillment_instore
+        description: "Boolean — product is available for in-store purchase at this location."
+      - name: fulfillment_delivery
+        description: "Boolean — product is available for home delivery from this location."
+      - name: fulfillment_curbside
+        description: "Boolean — product is available for curbside pickup at this location."
+      - name: fulfillment_shiptohome
+        description: "Boolean — product is available for ship-to-home from this location."
+      - name: stock_level
+        description: "Inventory level indicator as returned by the API (e.g. 'HIGH', 'LOW', 'TEMPORARILY_OUT_OF_STOCK')."
+      - name: fetched_at
+        description: "UTC timestamp recorded by the ingestion pipeline when this row was written."
+
+  # ── Dimensions (tables) ────────────────────────────────────────────────────
+
+  - name: dim_products
+    description: "{{ doc('dim_products') }}"
+    columns:
+      - name: product_id
+        description: "13-digit UPC — primary key."
         tests:
           - unique
           - not_null
@@ -26,100 +116,153 @@ models:
         description: "Product name."
       - name: brand
         description: "Brand name."
-      - name: primary_category
-        description: "First category in the categories array."
+      - name: category
+        description: "Primary category (aliased from `stg_products.primary_category`)."
       - name: categories
-        description: "JSON string array of all categories."
+        description: "Full JSON category array retained for hierarchy lookups."
 
-  - name: stg_locations
-    description: "Cleaned Kroger store locations with valid geolocation."
+  - name: dim_locations
+    description: "{{ doc('dim_locations') }}"
     columns:
       - name: location_id
-        description: "8-digit Kroger location identifier."
+        description: "8-digit store identifier — primary key."
         tests:
           - unique
           - not_null
       - name: name
-        description: "Store name."
+        description: "Store banner name."
+      - name: chain
+        description: "Chain identifier."
+      - name: city
+        description: "City."
       - name: state
-        description: "Two-letter state code."
+        description: "Two-letter state abbreviation."
+      - name: zip_code
+        description: "5-digit ZIP code."
       - name: latitude
         description: "Store latitude."
       - name: longitude
         description: "Store longitude."
 
-  - name: stg_prices
-    description: "Cleaned product prices with derived discount fields, filtered to valid regular prices."
-    columns:
-      - name: product_id
-        description: "Product UPC."
-        tests:
-          - not_null
-      - name: location_id
-        description: "Store location identifier."
-        tests:
-          - not_null
-      - name: regular_price
-        description: "Regular shelf price."
-      - name: promo_price
-        description: "Promotional/sale price when on offer."
-      - name: discount_amount
-        description: "Regular price minus promo price (0 when no promo)."
-      - name: discount_pct
-        description: "Discount percentage off regular price."
-
-  # Mart models (tables)
-  - name: dim_products
-    description: "Product dimension."
-    columns:
-      - name: product_id
-        description: "Product UPC."
-        tests:
-          - unique
-          - not_null
-
-  - name: dim_locations
-    description: "Location dimension."
-    columns:
-      - name: location_id
-        description: "Store location identifier."
-        tests:
-          - unique
-          - not_null
+  # ── Fact (table) ───────────────────────────────────────────────────────────
 
   - name: fact_prices
-    description: "Price fact table joining prices with product and location dimensions."
+    description: "{{ doc('fact_prices') }}"
     columns:
       - name: product_id
-        description: "Product UPC."
+        description: "Product UPC — foreign key to `dim_products`."
         tests:
           - not_null
       - name: location_id
-        description: "Store location identifier."
+        description: "Store identifier — foreign key to `dim_locations`."
         tests:
           - not_null
+      - name: item_id
+        description: "Kroger item identifier passed through from `stg_prices`."
+      - name: description
+        description: "Product name joined from `dim_products`."
+      - name: brand
+        description: "Brand name joined from `dim_products`."
+      - name: category
+        description: "Primary product category joined from `dim_products`."
+      - name: city
+        description: "Store city joined from `dim_locations`."
+      - name: state
+        description: "Store state joined from `dim_locations`."
+      - name: latitude
+        description: "Store latitude joined from `dim_locations`."
+      - name: longitude
+        description: "Store longitude joined from `dim_locations`."
+      - name: regular_price
+        description: "Regular shelf price in USD."
+      - name: promo_price
+        description: "Promotional price in USD; null when none."
+      - name: discount_amount
+        description: "Discount in USD — from `stg_prices`."
+      - name: discount_pct
+        description: "Discount percentage — from `stg_prices`."
+      - name: effective_date
+        description: "Date the price took effect."
+      - name: fulfillment_instore
+        description: "In-store fulfillment flag."
+      - name: fulfillment_delivery
+        description: "Home delivery fulfillment flag."
+      - name: fulfillment_curbside
+        description: "Curbside pickup fulfillment flag."
+      - name: fulfillment_shiptohome
+        description: "Ship-to-home fulfillment flag."
+      - name: stock_level
+        description: "Inventory level indicator."
+
+  # ── Marts (tables) ─────────────────────────────────────────────────────────
 
   - name: mart_category_distribution
-    description: "Product count and average pricing aggregated by category."
+    description: "{{ doc('mart_category_distribution') }}"
     columns:
       - name: category
-        description: "Product category."
+        description: "Product category — one row per category, ordered by `product_count` descending."
         tests:
           - not_null
+      - name: product_count
+        description: "Distinct number of products (`COUNT DISTINCT product_id`) in this category across all locations."
+      - name: avg_regular_price
+        description: "Average regular shelf price across all priced records in this category, rounded to 2 dp."
+      - name: avg_promo_price
+        description: "Average promotional price across records that have an active promo, rounded to 2 dp."
 
   - name: mart_price_by_category
-    description: "Price distribution statistics (mean, quartiles, median) by category and effective date."
+    description: "{{ doc('mart_price_by_category') }}"
     columns:
       - name: category
         description: "Product category."
         tests:
           - not_null
+      - name: effective_date
+        description: "Price effective date — combined with `category` to form the row grain."
+      - name: avg_regular_price
+        description: "Mean regular price for this category on this date, rounded to 2 dp."
+      - name: avg_promo_price
+        description: "Mean effective price (`COALESCE(promo_price, regular_price)`) for this category on this date, rounded to 2 dp."
+      - name: avg_discount_pct
+        description: "Mean discount percentage across all records in this group, rounded to 2 dp."
+      - name: product_count
+        description: "Distinct products in this category on this date."
+      - name: min_price
+        description: "Lowest regular price in the group."
+      - name: max_price
+        description: "Highest regular price in the group."
+      - name: q1_price
+        description: "25th percentile of regular price (continuous interpolation)."
+      - name: median_price
+        description: "50th percentile of regular price (continuous interpolation)."
+      - name: q3_price
+        description: "75th percentile of regular price (continuous interpolation)."
 
   - name: mart_location_sales
-    description: "Per-location fulfillment counts, product totals, and dominant fulfillment type."
+    description: "{{ doc('mart_location_sales') }}"
     columns:
       - name: location_id
-        description: "Store location identifier."
+        description: "Store identifier — primary key, one row per location."
         tests:
           - unique
           - not_null
+      - name: name
+        description: "Store banner name from `dim_locations`."
+      - name: city
+        description: "Store city."
+      - name: state
+        description: "Store state."
+      - name: zip_code
+        description: "Store ZIP code."
+      - name: latitude
+        description: "Store latitude."
+      - name: longitude
+        description: "Store longitude."
+      - name: physical_count
+        description: "Distinct products available for in-store purchase OR curbside pickup at this location."
+      - name: online_count
+        description: "Distinct products available for home delivery OR ship-to-home from this location."
+      - name: total_products
+        description: "Total distinct products priced at this location regardless of fulfillment type."
+      - name: avg_price
+        description: "Average regular price across all products at this location, rounded to 2 dp."
